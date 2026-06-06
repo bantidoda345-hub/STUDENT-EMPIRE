@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Piter Chats</title>
+<style>
+/*** Existing Styles (Unchanged) ***/
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+body { height:100vh; background:#8f8f8f; overflow:hidden; }
+.app { width:100%; max-width:430px; height:100vh; background:#fff; position:relative; margin:auto; overflow:hidden; display:flex; flex-direction:column; }
+.app::before{content:"";position:absolute;top:-100px;left:-100px;width:250px;height:250px;background:#00ff6640;border-radius:50%;filter:blur(100px);z-index:0;}
+.app::after{content:"";position:absolute;bottom:-100px;right:-100px;width:250px;height:250px;background:#00ff6640;border-radius:50%;filter:blur(100px);z-index:0;}
+header{height:60px;background:#0f9d58;display:flex;justify-content:space-between;align-items:center;padding:0 15px;color:#fff;position:relative;z-index:10;}
+.logo{font-size:22px;font-weight:bold;}
+.icon-btn{background:none;border:none;font-size:22px;color:white;cursor:pointer;}
+.content{flex:1;overflow-y:auto;position:relative;z-index:5;padding-bottom:60px;} /* Adjusted for scrolling */
+
+/* Bottom Nav */
+.bottom-nav{position:absolute;bottom:0;left:0;width:100%;height:60px;background:white;display:flex;justify-content:space-around;align-items:center;box-shadow:0 -2px 10px rgba(0,0,0,.15);z-index:20;}
+.nav-btn{border:none;background:none;display:flex;flex-direction:column;align-items:center;cursor:pointer;font-size:14px;color:#888;}
+.nav-btn.active{color:#0f9d58;font-weight:bold;}
+
+/****** NEW STYLES FOR NOTES & ADMIN *******/
+
+/* Hide sections by default */
+.view-section { display: none; width: 100%; height: 100%; flex-direction: column; }
+.view-section.active { display: flex; }
+
+/* Welcome/Chat View */
+#chatView { justify-content: center; align-items: center; text-align: center; }
+.welcome h1 { margin-bottom: 10px; color: #222; }
+.login-btn { padding: 12px 25px; border: none; border-radius: 30px; background: #0f9d58; color: white; font-size: 16px; cursor: pointer; margin-top: 20px; }
+
+/* Notes Section Styling */
+#notesView { background: #f4f6f8; }
+.notes-header { background: #0f9d58; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+.add-icon { font-size: 24px; cursor: pointer; }
+
+.category-tabs { display: flex; overflow-x: auto; background: white; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); white-space: nowrap; }
+.cat-tab { padding: 8px 15px; margin-right: 10px; border-radius: 20px; background: #eee; color: #333; font-size: 14px; cursor: pointer; }
+.cat-tab.active { background: #0f9d58; color: white; }
+
+.notes-list { padding: 15px; flex: 1; overflow-y: auto; }
+.note-card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
+.note-info h4 { font-size: 16px; color: #333; margin-bottom: 5px; }
+.note-info p { font-size: 12px; color: #888; }
+.download-btn { text-decoration: none; background: #0f9d58; color: white; padding: 8px 15px; border-radius: 5px; font-size: 12px; }
+
+/* Admin Modal */
+#adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; }
+.modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 300px; }
+.modal-content h3 { margin-bottom: 15px; color: #0f9d58; }
+.form-group { margin-bottom: 15px; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+.modal-buttons { display: flex; justify-content: space-between; }
+.modal-btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; color: white; }
+.btn-cancel { background: #d9534f; }
+.btn-save { background: #0f9d58; }
+
+</style>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+<div class="app">
+<header>
+<button class="icon-btn" onclick="toggleMenu()">☰</button>
+<div class="logo">Piter Chats</div>
+<div style="width:22px;"></div> <!-- Spacer -->
+</header>
+
+<div class="content">
+    <!-- Section 1: Welcome / Chat (Existing) -->
+    <div id="chatView" class="view-section active">
+        <div class="welcome">
+            <h1>Piter Chats</h1>
+            <p>Secure Messaging Platform</p>
+            <button class="login-btn" onclick="googleLogin()">Login With Google</button>
+        </div>
+    </div>
+
+    <!-- Section 2: Notes & Updates (New) -->
+    <div id="notesView" class="view-section">
+        <div class="notes-header">
+            <span>📚 Notes & Updates</span>
+            <span class="add-icon" onclick="openAdmin()">+</span>
+        </div>
+        
+        <!-- Category Tabs -->
+        <div class="category-tabs" id="categoryContainer">
+            <!-- JS will generate tabs here -->
+        </div>
+
+        <!-- List of PDFs -->
+        <div class="notes-list" id="notesContainer">
+            <!-- JS will generate notes here -->
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+    <button class="nav-btn" onclick="switchTab('status')">
+        <span>📸</span>
+        <span>Status</span>
+    </button>
+    <button class="nav-btn active" onclick="switchTab('chat')">
+        <span>💬</span>
+        <span>Chats</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('notes')">
+        <span>📝</span>
+        <span>Notes</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('groups')">
+        <span>👥</span>
+        <span>Groups</span>
+    </button>
+</nav>
+
+<!-- Admin Modal (Hidden) -->
+<div id="adminModal">
+    <div class="modal-content">
+        <h3>Add New PDF Note</h3>
+        <div class="form-group">
+            <select id="inputCategory">
+                <option value="RRB">RRB</option>
+                <option value="SSC">SSC</option>
+                <option value="Bank">Bank</option>
+                <option value="Police">Police</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" id="inputTitle" placeholder="Note Title (e.g., Math Formula)">
+        </div>
+        <div class="form-group">
+            <input type="text" id="inputLink" placeholder="PDF Link (URL)">
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn btn-cancel" onclick="closeAdmin()">Cancel</button>
+            <button class="modal-btn btn-save" onclick="saveNote()">Add</button>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+// 1. Data Structure (Dummy Data for Testing)
+let notesData = [
+    { category: 'RRB', title: 'Railway Group D Syllabus 2024', link: '#' },
+    { category: 'SSC', title: 'SSC CGL Previous Year Paper', link: '#' },
+    { category: 'Bank', title: 'IBPS PO Mock Test PDF', link: '#' },
+    { category: 'Police', title: 'Police Constable GK Notes', link: '#' }
+];
+
+let categories = ['RRB', 'SSC', 'Bank', 'Police'];
+let currentCategory = 'RRB'; // Default
+
+// 2. Navigation Logic
+function switchTab(tabName) {
+    // Remove active class from all views
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+    // Logic for Bottom Nav Highlights
+    if(tabName === 'chat') {
+        document.getElementById('chatView').classList.add('active');
+        document.querySelectorAll('.nav-btn')[1].classList.add('active');
+    } else if (tabName === 'notes') {
+        document.getElementById('notesView').classList.add('active');
+        document.querySelectorAll('.nav-btn')[2].classList.add('active');
+        renderNotes(); // Load notes when tab opens
+    }
+    // Add others as needed...
+}
+
+// 3. Render Notes & Categories
+function renderNotes() {
+    // Render Tabs
+    const catContainer = document.getElementById('categoryContainer');
+    catContainer.innerHTML = '';
+    categories.forEach(cat => {
+        let btn = document.createElement('div');
+        btn.className = `cat-tab ${cat === currentCategory ? 'active' : ''}`;
+        btn.innerText = cat;
+        btn.onclick = ()
