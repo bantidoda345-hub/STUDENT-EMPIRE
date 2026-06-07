@@ -1,4 +1,4 @@
-// ================= FIREBASE =================
+// ================= FIREBASE CONFIG =================
 const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "YOUR_DOMAIN",
@@ -13,7 +13,7 @@ const db = firebase.firestore();
 let currentUser = null;
 let activeChat = null;
 
-// ================= LOGIN =================
+// ================= LOGIN CHECK =================
 auth.onAuthStateChanged(user => {
   if (!user) {
     window.location.href = "index.html";
@@ -22,9 +22,11 @@ auth.onAuthStateChanged(user => {
 
   currentUser = user;
 
+  // SAVE USER AUTO
   db.collection("users").doc(user.uid).set({
     uid: user.uid,
     name: user.displayName || "No Name",
+    email: user.email || "",
     phone: user.phoneNumber || "",
     photo: user.photoURL || ""
   }, { merge: true });
@@ -33,7 +35,7 @@ auth.onAuthStateChanged(user => {
   loadRequests();
 });
 
-// ================= LOAD USERS =================
+// ================= LOAD ALL USERS =================
 function loadUsers(){
 
   db.collection("users").onSnapshot(snap => {
@@ -41,16 +43,15 @@ function loadUsers(){
     let html = "";
 
     snap.forEach(doc => {
-
       let u = doc.data();
 
-      if(u.uid !== currentUser.uid){
+      if (u.uid !== currentUser.uid) {
 
         html += `
           <div class="user">
 
             <b>${u.name}</b><br>
-            <small>${u.phone || ""}</small><br>
+            <span class="small">${u.phone || ""}</span><br>
 
             <button onclick="sendRequest('${u.uid}')">
               Add Friend
@@ -62,6 +63,48 @@ function loadUsers(){
 
           </div>
         `;
+      }
+    });
+
+    document.getElementById("users").innerHTML = html;
+  });
+}
+
+// ================= SEARCH USERS =================
+function searchUsers(){
+
+  let key = document.getElementById("search").value.toLowerCase();
+
+  db.collection("users").get().then(snap => {
+
+    let html = "";
+
+    snap.forEach(doc => {
+      let u = doc.data();
+
+      if (u.uid !== currentUser.uid) {
+
+        if (
+          (u.name && u.name.toLowerCase().includes(key)) ||
+          (u.phone && u.phone.includes(key))
+        ) {
+          html += `
+            <div class="user">
+
+              <b>${u.name}</b><br>
+              <span class="small">${u.phone || ""}</span><br>
+
+              <button onclick="sendRequest('${u.uid}')">
+                Add Friend
+              </button>
+
+              <button onclick="openChat('${u.uid}')">
+                Chat
+              </button>
+
+            </div>
+          `;
+        }
       }
     });
 
@@ -86,8 +129,8 @@ function sendRequest(to){
 function loadRequests(){
 
   db.collection("requests")
-    .where("to","==",currentUser.uid)
-    .where("status","==","pending")
+    .where("to", "==", currentUser.uid)
+    .where("status", "==", "pending")
     .onSnapshot(snap => {
 
       let html = "";
@@ -97,9 +140,9 @@ function loadRequests(){
         let r = doc.data();
 
         html += `
-          <div style="padding:10px;border-bottom:1px solid #333;">
+          <div class="req">
 
-            <p>👤 Friend Request</p>
+            👤 Friend Request<br>
 
             <button onclick="acceptReq('${doc.id}','${r.from}')">
               Accept
@@ -132,7 +175,7 @@ function acceptReq(id, from){
 }
 
 // ================= CHAT ID =================
-function chatId(a,b){
+function chatId(a, b){
   return a > b ? a + "_" + b : b + "_" + a;
 }
 
@@ -171,7 +214,7 @@ function sendMessage(){
 
   let text = document.getElementById("msg").value;
 
-  if(!text || !activeChat) return;
+  if (!text || !activeChat) return;
 
   let id = chatId(currentUser.uid, activeChat);
 
@@ -185,4 +228,4 @@ function sendMessage(){
     });
 
   document.getElementById("msg").value = "";
-                            }
+}
