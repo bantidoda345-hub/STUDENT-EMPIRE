@@ -1,5 +1,4 @@
 // Firebase Config
-
 const firebaseConfig = {
   apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
   authDomain: "student-empires.firebaseapp.com",
@@ -14,49 +13,79 @@ firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
-
 const provider = new firebase.auth.GoogleAuthProvider();
 
 
-// Google Login
+// 🔥 ADMIN EMAIL (CHANGE THIS)
+const ADMIN_EMAIL = "admin@gmail.com";
 
+
+// ✅ FIX: SESSION PERSIST (MOST IMPORTANT)
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+
+// =========================
+// 🔵 GOOGLE LOGIN
+// =========================
 function googleLogin() {
 
-auth.signInWithPopup(provider)
+  auth.signInWithPopup(provider)
+  .then(async (result) => {
 
-.then(async (result) => {
+    const user = result.user;
 
-const user = result.user;
+    // Save user in Firestore
+    await db.collection("users").doc(user.uid).set({
+      uid: user.uid,
+      name: user.displayName.toLowerCase(),
+      originalName: user.displayName,
+      email: user.email,
+      photo: user.photoURL,
+      online: true,
+      role: user.email === ADMIN_EMAIL ? "admin" : "user",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
 
-await db.collection("users")
-.doc(user.uid)
-.set({
-uid: user.uid,
-name: user.displayName,
-email: user.email,
-photo: user.photoURL,
-createdAt: firebase.firestore.FieldValue.serverTimestamp()
-}, { merge:true });
+    // Save session locally
+    localStorage.setItem("user", JSON.stringify({
+      uid: user.uid,
+      name: user.displayName,
+      email: user.email
+    }));
 
-window.location.href = "home.html";
+    localStorage.setItem("role", user.email === ADMIN_EMAIL ? "admin" : "user");
 
-})
+    // Redirect
+    window.location.href = "home.html";
 
-.catch((error) => {
-alert(error.message);
-});
+  })
+  .catch((error) => {
+    alert(error.message);
+  });
 
 }
 
 
-// Auto Login Check
-
+// =========================
+// 🔵 AUTO LOGIN CHECK
+// =========================
 auth.onAuthStateChanged((user) => {
 
-if(user){
+  if(user){
 
-console.log("Logged In:", user.displayName);
+    localStorage.setItem("user", JSON.stringify({
+      uid: user.uid,
+      name: user.displayName,
+      email: user.email
+    }));
 
-}
+    localStorage.setItem("role", user.email === ADMIN_EMAIL ? "admin" : "user");
+
+    console.log("Logged In:", user.displayName);
+
+  } else {
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+  }
 
 });
