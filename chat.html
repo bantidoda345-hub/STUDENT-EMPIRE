@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Chat App</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b141a;
+  color:white;
+}
+
+/* TOP BAR */
+.topbar{
+  background:#075e54;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.menu{
+  position:relative;
+  cursor:pointer;
+}
+
+/* DROPDOWN */
+.dropdown{
+  display:none;
+  position:absolute;
+  right:0;
+  top:30px;
+  background:#1f2c33;
+  width:160px;
+  border-radius:5px;
+  overflow:hidden;
+}
+
+.dropdown div{
+  padding:10px;
+  border-bottom:1px solid #333;
+  cursor:pointer;
+}
+
+.dropdown div:hover{
+  background:#2a3942;
+}
+
+/* CHAT AREA */
+.container{
+  display:flex;
+  height:calc(100vh - 110px);
+}
+
+/* USERS */
+.users{
+  width:35%;
+  background:#111b21;
+  overflow:auto;
+}
+
+.user{
+  padding:10px;
+  border-bottom:1px solid #222;
+  cursor:pointer;
+}
+
+.user:hover{
+  background:#1f2c33;
+}
+
+/* CHAT */
+.chat{
+  width:65%;
+  display:flex;
+  flex-direction:column;
+}
+
+#chatBox{
+  flex:1;
+  overflow:auto;
+  padding:10px;
+}
+
+.msg{
+  padding:8px;
+  margin:5px;
+  max-width:70%;
+  border-radius:10px;
+}
+
+.me{
+  background:#005c4b;
+  margin-left:auto;
+}
+
+.other{
+  background:#202c33;
+}
+
+/* INPUT */
+.inputBox{
+  display:flex;
+  padding:10px;
+  background:#1f2c33;
+}
+
+input{
+  flex:1;
+  padding:10px;
+}
+
+button{
+  background:#00a884;
+  border:none;
+  color:white;
+  padding:10px;
+}
+
+/* BOTTOM NAV */
+.bottomNav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#111b21;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+.bottomNav div{
+  color:white;
+  text-align:center;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.page{
+  display:none;
+}
+
+.active{
+  display:block;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+
+  <div>💬 Chat App</div>
+
+  <div class="menu" onclick="toggleMenu()">
+    ⋮
+
+    <div class="dropdown" id="menu">
+      <div onclick="showPage('usersPage')">Add Friend</div>
+      <div onclick="showRequests()">Friend Requests</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- USERS PAGE -->
+<div id="usersPage" class="page active">
+
+  <div class="container">
+
+    <div class="users" id="users"></div>
+
+    <div class="chat">
+
+      <div id="chatBox"></div>
+
+      <div class="inputBox">
+        <input id="msg">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- REQUEST PAGE -->
+<div id="requestPage" class="page">
+  <h3>Friend Requests</h3>
+  <div id="requests"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomNav">
+
+  <div onclick="showPage('usersPage')">Chat</div>
+  <div onclick="alert('Updates')">Updates</div>
+  <div onclick="alert('Study')">Study</div>
+  <div onclick="alert('Status')">Status</div>
+  <div onclick="alert('Profile')">Profile</div>
+
+</div>
+
+<script src="chat.js"></script>
+
+<script>
+function toggleMenu(){
+  let m = document.getElementById("menu");
+  m.style.display = (m.style.display==="block")?"none":"block";
+}
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("menu").style.display="none";
+}
+
+function showRequests(){
+  showPage("requestPage");
+  document.getElementById("menu").style.display="none";
+}
+</script>
+
+</body>
+</html>
