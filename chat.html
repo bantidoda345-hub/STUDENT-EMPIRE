@@ -8,21 +8,21 @@
 /* ===== BASIC STYLES ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #efe7dd; min-height: 100vh; }
-a { text-decoration: none; }
 
 /* ===== LOGIN PROMPT ===== */
-.login-prompt { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: linear-gradient(180deg, #dcf8c6 0%, #efe7dd 100%); text-align: center; }
+.login-prompt { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: linear-gradient(180deg, #dcf8c6 0%, #efe7dd 100%); text-align: center; }
+.login-prompt.show { display: flex; }
 .login-prompt .icon { font-size: 80px; margin-bottom: 20px; }
 .login-prompt h1 { color: #075e54; font-size: 28px; margin-bottom: 10px; }
 .login-prompt p { color: #667781; font-size: 16px; margin-bottom: 25px; max-width: 300px; }
-.login-prompt .set-profile-btn { display: inline-block; padding: 14px 30px; background: #25d366; color: white; border-radius: 4px; font-size: 15px; font-weight: 600; }
+.login-prompt a { display: inline-block; padding: 14px 30px; background: #25d366; color: white; border-radius: 4px; font-size: 15px; font-weight: 600; }
 
 /* ===== MAIN APP ===== */
 .app { display: none; min-height: 100vh; }
 .app.active { display: flex; }
 
 /* --- Sidebar --- */
-.sidebar { width: 380px; background: white; display: flex; flex-direction: column; border-right: 1px solid #e0e0e0; position: relative; }
+.sidebar { width: 380px; background: white; display: flex; flex-direction: column; border-right: 1px solid #e0e0e0; }
 .sidebar-header { background: #f7f8fa; padding: 15px; border-bottom: 1px solid #e0e0e0; }
 .sidebar-title { display: flex; align-items: center; justify-content: space-between; }
 .sidebar-title h1 { font-size: 22px; color: #075e54; }
@@ -32,6 +32,13 @@ a { text-decoration: none; }
 .search-bar input { width: 100%; padding: 10px 15px 10px 42px; background: #f1f1f1; border: none; border-radius: 4px; font-size: 14px; outline: none; }
 .search-bar input:focus { background: white; box-shadow: 0 0 0 2px rgba(37,211,102,0.2); }
 .search-bar::before { content: '🔍'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
+
+.profile-link { display: flex; align-items: center; gap: 8px; padding: 10px 15px; background: #f7f8fa; border-bottom: 1px solid #e0e0e0; cursor: pointer; }
+.profile-link:hover { background: #f0f0f0; }
+.profile-link .avatar { width: 40px; height: 40px; border-radius: 50%; background: #128c7e; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: bold; }
+.profile-link .info { flex: 1; }
+.profile-link .info .name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.profile-link .info .subtitle { font-size: 12px; color: #667781; }
 
 /* --- User List --- */
 .user-list { flex: 1; overflow-y: auto; }
@@ -61,13 +68,13 @@ a { text-decoration: none; }
 .chat-header { background: #f7f8fa; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0; }
 .chat-header-left { display: flex; align-items: center; gap: 15px; }
 .back-btn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: #667781; }
+.back-btn:hover { color: #333; }
 
 .header-avatar { width: 42px; height: 42px; border-radius: 50%; background: #128c7e; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: bold; position: relative; }
 .header-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .header-info h2 { font-size: 16px; color: #1a1a1a; font-weight: 600; }
 .header-info p { font-size: 13px; color: #25d366; }
 
-.chat-header-right { display: flex; gap: 20px; }
 .chat-header-right button { background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.6; }
 
 /* --- Messages --- */
@@ -108,17 +115,18 @@ a { text-decoration: none; }
 .modal-input { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 15px; margin-bottom: 15px; outline: none; }
 .modal-input:focus { border-color: #25d366; }
 
-.user-result { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f7f8fa; border-radius: 4px; margin-bottom: 15px; }
+.user-result { display: none; flex-align: center; gap: 15px; padding: 15px; background: #f7f8fa; border-radius: 4px; margin-bottom: 15px; }
 .user-result-avatar { width: 55px; height: 55px; border-radius: 50%; background: #128c7e; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold; }
 .user-result-info h3 { font-size: 16px; color: #1a1a1a; }
 .user-result-info p { font-size: 13px; color: #667781; }
 
-.not-found { text-align: center; padding: 30px 20px; }
+.not-found { display: none; text-align: center; padding: 30px 20px; }
 .not-found .icon { font-size: 50px; margin-bottom: 15px; }
 .not-found h3 { font-size: 16px; color: #1a1a1a; margin-bottom: 8px; }
 .not-found p { font-size: 14px; color: #667781; margin-bottom: 20px; }
 
-.modal-footer { padding: 15px 20px; background: #f7f8fa; border-radius: 0 0 4px 4px; display: flex; gap: 10px; }
+.modal-footer { display: none; padding: 15px 20px; background: #f7f8fa; border-radius: 0 0 4px 4px; gap: 10px; }
+.modal-footer.show { display: flex; }
 .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; }
 .btn-cancel { background: #f1f1f1; color: #667781; }
 .btn-send { background: #25d366; color: white; }
@@ -146,7 +154,7 @@ a { text-decoration: none; }
 <div class="login-prompt" id="loginPrompt">
 <div class="icon">💬</div>
 <h1>Private Chat</h1>
-<p>Setup your profile first to start chatting with your friends</p>
+<p>Setup your profile first to start chatting</p>
 <a href="profile.html" class="set-profile-btn">Set Up Profile</a>
 </div>
 
@@ -161,7 +169,16 @@ a { text-decoration: none; }
 <span class="online-badge" id="onlineBadge">🟢 0 Online</span>
 </div>
 <div class="search-bar">
-<input type="text" id="searchInput" placeholder="Search..." onkeyup="searchUsers()">
+<input type="text" id="searchInput" placeholder="Search contacts..." onkeyup="searchUsers()">
+</div>
+</div>
+
+<!-- My Profile Link -->
+<div class="profile-link" onclick="window.location.href='profile.html'">
+<div class="avatar" id="myAvatar"></div>
+<div class="info">
+<div class="name" id="myName">My Profile</div>
+<div class="subtitle">View & edit profile</div>
 </div>
 </div>
 
@@ -189,34 +206,4 @@ a { text-decoration: none; }
 
 <div class="messages" id="messages">
 <div class="empty-state">
-<div class="icon">💬</div>
-<h2>Select a conversation</h2>
-<p>Choose from your contacts to start chatting</p>
-</div>
-</div>
-
-<div class="chat-input">
-<button class="emoji-btn">😊</button>
-<input type="text" id="messageInput" placeholder="Type a message..." onkeypress="enterPress(event)">
-<button class="send-btn" onclick="sendMessage()"><span>➤</span></button>
-</div>
-</div>
-
-</div>
-
-<!-- Invite Modal -->
-<div class="modal" id="inviteModal">
-<div class="modal-content">
-<div class="modal-header">
-<h2>Invite to Chat</h2>
-<button class="modal-close" onclick="closeModal()">×</button>
-</div>
-<div class="modal-body">
-<input type="text" class="modal-input" id="inviteSearch" placeholder="Search by username or phone..." onkeyup="searchInvite()">
-<div id="inviteResult"></div>
-</div>
-<div class="modal-footer">
-<button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
-<button class="modal-btn btn-send" id="sendInviteBtn" onclick="sendInvite()" disabled>Send Invite</button>
-</div>
-</div
+<div class="icon">💬
