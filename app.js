@@ -17,7 +17,7 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 
 // 🔥 ADMIN EMAIL (CHANGE THIS)
-const ADMIN_EMAIL = "admin@gmail.com";
+const ADMIN_EMAIL = "bantidoda345@gmail.com";
 
 
 // ✅ FIX: SESSION PERSIST (MOST IMPORTANT)
