@@ -1,172 +1,330 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Piter Chats</title>
+  <style>
+    /* RESET */
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f0f2f5;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* LOGIN PAGE */
+
+.login-container{
+width:100%;
+max-width:420px;
+padding:20px;
+}
+
+.logo-box{
+text-align:center;
+margin-bottom:30px;
+}
+
+.logo{
+width:100px;
+height:100px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.logo-box h1{
+color:#128C7E;
+margin-top:10px;
+font-size:32px;
+}
+
+.logo-box p{
+color:#666;
+margin-top:5px;
+}
+
+.card{
+background:#fff;
+padding:30px;
+border-radius:20px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card h2{
+text-align:center;
+color:#128C7E;
+margin-bottom:10px;
+}
+
+.desc{
+text-align:center;
+color:#666;
+margin-bottom:25px;
+}
+
+.google-btn{
+width:100%;
+height:55px;
+border:none;
+border-radius:12px;
+background:#25D366;
+color:white;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+transition:0.3s;
+}
+
+.google-btn:hover{
+background:#128C7E;
+}
+
+.google-btn img{
+width:24px;
+height:24px;
+background:white;
+padding:2px;
+border-radius:50%;
+}
+
+/* HOME PAGE */
+
+.header{
+background:#128C7E;
+color:white;
+padding:18px;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.banner{
+background:#25D366;
+color:white;
+padding:15px;
+margin:15px;
+border-radius:15px;
+font-size:16px;
+font-weight:bold;
+text-align:center;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+padding:15px;
+}
+
+.card-box{
+background:white;
+padding:25px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.08);
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.card-box:hover{
+transform:scale(1.03);
+transition:0.3s;
+}
+
+/* CHAT STYLE */
+
+.chat-container{
+padding:15px;
+margin-bottom:80px;
+}
+
+.message{
+max-width:75%;
+padding:10px 15px;
+margin:8px 0;
+border-radius:12px;
+word-wrap:break-word;
+}
+
+.sent{
+background:#DCF8C6;
+margin-left:auto;
+}
+
+.received{
+background:white;
+border:1px solid #ddd;
+}
+
+.chat-input{
+position:fixed;
+bottom:70px;
+left:0;
+right:0;
+padding:10px;
+background:white;
+display:flex;
+gap:10px;
+}
+
+.chat-input input{
+flex:1;
+padding:12px;
+border:1px solid #ccc;
+border-radius:25px;
+outline:none;
+}
+
+.chat-input button{
+background:#25D366;
+border:none;
+color:white;
+padding:12px 18px;
+border-radius:25px;
+cursor:pointer;
+}
+
+/* PROFILE */
+
+.profile{
+text-align:center;
+padding:30px;
+}
+
+.profile img{
+width:120px;
+height:120px;
+border-radius:50%;
+margin-bottom:15px;
+}
+
+.profile h2{
+margin-bottom:5px;
+}
+
+.profile p{
+color:#666;
+}
+
+/* BOTTOM NAVIGATION */
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:65px;
+background:white;
+display:flex;
+justify-content:space-around;
+align-items:center;
+box-shadow:0 -2px 10px rgba(0,0,0,0.1);
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:#128C7E;
+font-size:14px;
+font-weight:bold;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+/* ADMIN BUTTON */
+
+.admin-btn{
+display:block;
+width:90%;
+margin:20px auto;
+padding:15px;
+background:#128C7E;
+color:white;
+text-align:center;
+border-radius:12px;
+text-decoration:none;
+font-weight:bold;
+}
+
+/* MOBILE */
+
+@media(max-width:500px){
+
+.logo-box h1{
+font-size:28px;
+}
+
+.grid{
+grid-template-columns:1fr 1fr;
+}
+
+.card-box{
+padding:20px;
+font-size:16px;
+}
+
+}
+  </style>
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Students Empire</title>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-<style>
-body{margin:0;font-family:Arial;background:#eee;}
-.app{max-width:420px;margin:auto;background:#fff;height:100vh;display:flex;flex-direction:column;}
-
-header{background:#0f9d58;color:#fff;padding:15px;text-align:center;}
-
-.view{display:none;flex:1;overflow:auto;padding:10px;}
-.view.active{display:block;}
-
-.login-btn{
-padding:12px 20px;background:#0f9d58;color:#fff;border:none;border-radius:25px;
-}
-
-.bottom-nav{
-display:flex;justify-content:space-around;background:#fff;
-padding:10px;border-top:1px solid #ddd;
-}
-
-.bottom-nav button{background:none;border:none;font-size:14px;}
-.cat-tab{display:inline-block;padding:6px 12px;margin:5px;background:#eee;border-radius:15px;cursor:pointer;}
-.cat-tab.active{background:#0f9d58;color:#fff;}
-
-.note-card{background:#fff;padding:10px;margin:10px 0;border-radius:8px;box-shadow:0 2px 5px #ccc;}
-.download-btn{background:#0f9d58;color:#fff;padding:5px 10px;border-radius:5px;text-decoration:none;}
-</style>
 </head>
-
 <body>
 
-<div class="app">
+<div class="login-container">
 
-<header>Piter Chats</header>
-
-<!-- CHAT VIEW -->
-<div id="chatView" class="view active">
-  <h2>Welcome</h2>
-  <button class="login-btn" onclick="googleLogin()">Login With Google</button>
+<div class="logo-box">
+<img src="logo.png" class="logo">
+<h1>Students Empire</h1>
+<p>Study • Chat • Community</p>
 </div>
 
-<!-- NOTES VIEW -->
-<div id="notesView" class="view">
-  <h3>Notes</h3>
-  <div id="categoryContainer"></div>
-  <div id="notesContainer"></div>
+<div class="card">
+
+<h2>Welcome</h2>
+
+<p class="desc">
+Join Students Empire using Google Account
+</p>
+
+<button onclick="googleLogin()" class="google-btn">
+
+<img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+
+<span>Continue With Google</span>
+
+</button>
+
 </div>
 
-<!-- NAV -->
-<div class="bottom-nav">
-<button onclick="switchTab('chat')">Chat</button>
-<button onclick="switchTab('notes')">Notes</button>
 </div>
 
-</div>
-
-<script>
-// ---------------- FIREBASE ----------------
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "student-empires.firebaseapp.com",
-  projectId: "student-empires",
-  storageBucket: "student-empires.appspot.com",
-  messagingSenderId: "509106125707",
-  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// ---------------- DATA ----------------
-let categories = ["RRB","SSC","Bank","Police"];
-let currentCategory = "RRB";
-
-let notesData = [
-  {category:"RRB", title:"RRB Syllabus", link:"#"},
-  {category:"SSC", title:"SSC Paper", link:"#"},
-  {category:"Bank", title:"Bank PDF", link:"#"},
-  {category:"Police", title:"Police Notes", link:"#"}
-];
-
-// ---------------- LOGIN ----------------
-function googleLogin(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-
-  auth.signInWithPopup(provider)
-  .then(async(result)=>{
-
-    const user = result.user;
-
-    await db.collection("users").doc(user.uid).set({
-      uid:user.uid,
-      name:user.displayName,
-      email:user.email,
-      photo:user.photoURL,
-      online:true,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true});
-
-    alert("Welcome " + user.displayName);
-    switchTab("notes");
-
-  })
-  .catch(err=>{
-    alert(err.message);
-    console.log(err);
-  });
-}
-
-// ---------------- NAV ----------------
-function switchTab(tab){
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-
-  if(tab=="chat"){
-    document.getElementById("chatView").classList.add("active");
-  }
-  if(tab=="notes"){
-    document.getElementById("notesView").classList.add("active");
-    renderNotes();
-  }
-}
-
-// ---------------- NOTES ----------------
-function renderNotes(){
-
-  // categories
-  let catBox = document.getElementById("categoryContainer");
-  catBox.innerHTML = "";
-
-  categories.forEach(cat=>{
-    let div = document.createElement("div");
-    div.className = "cat-tab" + (cat==currentCategory?" active":"");
-    div.innerText = cat;
-
-    div.onclick = ()=>{
-      currentCategory = cat;
-      renderNotes();
-    };
-
-    catBox.appendChild(div);
-  });
-
-  // notes
-  let box = document.getElementById("notesContainer");
-  box.innerHTML = "";
-
-  notesData
-  .filter(n=>n.category==currentCategory)
-  .forEach(n=>{
-    box.innerHTML += `
-      <div class="note-card">
-        <h4>${n.title}</h4>
-        <a class="download-btn" href="${n.link}" target="_blank">Open</a>
-      </div>
-    `;
-  });
-}
-
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
