@@ -1,4 +1,4 @@
-// ================= FIREBASE CONFIG =================
+// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "YOUR_DOMAIN",
@@ -13,53 +13,48 @@ const db = firebase.firestore();
 let currentUser = null;
 let activeChat = null;
 
-// ================= LOGIN CHECK =================
+// ================= LOGIN =================
 auth.onAuthStateChanged(user => {
-  if (!user) {
+
+  if(!user){
     window.location.href = "index.html";
     return;
   }
 
   currentUser = user;
 
-  // SAVE USER AUTO
+  // SAVE PROFILE NAME (IMPORTANT FOR SEARCH)
+  let name = user.displayName || prompt("Enter your name:");
+
   db.collection("users").doc(user.uid).set({
     uid: user.uid,
-    name: user.displayName || "No Name",
-    email: user.email || "",
-    phone: user.phoneNumber || "",
-    photo: user.photoURL || ""
-  }, { merge: true });
+    name: name,
+    email: user.email || ""
+  }, { merge:true });
 
   loadUsers();
   loadRequests();
 });
 
-// ================= LOAD ALL USERS =================
+// ================= LOAD USERS =================
 function loadUsers(){
 
-  db.collection("users").onSnapshot(snap => {
+  db.collection("users").onSnapshot(snap=>{
 
-    let html = "";
+    let html="";
 
-    snap.forEach(doc => {
+    snap.forEach(doc=>{
       let u = doc.data();
 
-      if (u.uid !== currentUser.uid) {
+      if(u.uid !== currentUser.uid){
 
         html += `
           <div class="user">
 
             <b>${u.name}</b><br>
-            <span class="small">${u.phone || ""}</span><br>
 
-            <button onclick="sendRequest('${u.uid}')">
-              Add Friend
-            </button>
-
-            <button onclick="openChat('${u.uid}')">
-              Chat
-            </button>
+            <button onclick="sendRequest('${u.uid}')">Add</button>
+            <button onclick="openChat('${u.uid}')">Chat</button>
 
           </div>
         `;
@@ -70,37 +65,29 @@ function loadUsers(){
   });
 }
 
-// ================= SEARCH USERS =================
+// ================= SEARCH BY NAME =================
 function searchUsers(){
 
   let key = document.getElementById("search").value.toLowerCase();
 
-  db.collection("users").get().then(snap => {
+  db.collection("users").get().then(snap=>{
 
-    let html = "";
+    let html="";
 
-    snap.forEach(doc => {
+    snap.forEach(doc=>{
       let u = doc.data();
 
-      if (u.uid !== currentUser.uid) {
+      if(u.uid !== currentUser.uid){
 
-        if (
-          (u.name && u.name.toLowerCase().includes(key)) ||
-          (u.phone && u.phone.includes(key))
-        ) {
+        if(u.name.toLowerCase().includes(key)){
+
           html += `
             <div class="user">
 
               <b>${u.name}</b><br>
-              <span class="small">${u.phone || ""}</span><br>
 
-              <button onclick="sendRequest('${u.uid}')">
-                Add Friend
-              </button>
-
-              <button onclick="openChat('${u.uid}')">
-                Chat
-              </button>
+              <button onclick="sendRequest('${u.uid}')">Add</button>
+              <button onclick="openChat('${u.uid}')">Chat</button>
 
             </div>
           `;
@@ -122,61 +109,60 @@ function sendRequest(to){
     time: Date.now()
   });
 
-  alert("Friend Request Sent");
+  alert("Request Sent");
 }
 
 // ================= LOAD REQUESTS =================
 function loadRequests(){
 
   db.collection("requests")
-    .where("to", "==", currentUser.uid)
-    .where("status", "==", "pending")
-    .onSnapshot(snap => {
+  .where("to","==",currentUser.uid)
+  .where("status","==","pending")
+  .onSnapshot(snap=>{
 
-      let html = "";
+    let html="";
 
-      snap.forEach(doc => {
+    snap.forEach(doc=>{
+      let r = doc.data();
 
-        let r = doc.data();
+      html += `
+        <div class="req">
 
-        html += `
-          <div class="req">
+          Friend Request<br>
 
-            👤 Friend Request<br>
+          <button onclick="acceptReq('${doc.id}','${r.from}')">
+            Accept
+          </button>
 
-            <button onclick="acceptReq('${doc.id}','${r.from}')">
-              Accept
-            </button>
-
-          </div>
-        `;
-      });
-
-      document.getElementById("requests").innerHTML = html;
+        </div>
+      `;
     });
+
+    document.getElementById("requests").innerHTML = html;
+  });
 }
 
-// ================= ACCEPT REQUEST =================
+// ================= ACCEPT =================
 function acceptReq(id, from){
 
   db.collection("requests").doc(id).update({
-    status: "accepted"
+    status:"accepted"
   });
 
   db.collection("friends").doc(currentUser.uid).set({
     [from]: true
-  }, { merge: true });
+  }, {merge:true});
 
   db.collection("friends").doc(from).set({
     [currentUser.uid]: true
-  }, { merge: true });
+  }, {merge:true});
 
   alert("Friend Added");
 }
 
 // ================= CHAT ID =================
-function chatId(a, b){
-  return a > b ? a + "_" + b : b + "_" + a;
+function chatId(a,b){
+  return a>b ? a+"_"+b : b+"_"+a;
 }
 
 // ================= OPEN CHAT =================
@@ -186,27 +172,25 @@ function openChat(uid){
 
   let id = chatId(currentUser.uid, uid);
 
-  db.collection("chats")
-    .doc(id)
-    .collection("messages")
-    .orderBy("time")
-    .onSnapshot(snap => {
+  db.collection("chats").doc(id)
+  .collection("messages")
+  .orderBy("time")
+  .onSnapshot(snap=>{
 
-      let html = "";
+    let html="";
 
-      snap.forEach(doc => {
+    snap.forEach(doc=>{
+      let m = doc.data();
 
-        let m = doc.data();
-
-        html += `
-          <div class="msg ${m.sender === currentUser.uid ? 'me' : 'other'}">
-            ${m.text}
-          </div>
-        `;
-      });
-
-      document.getElementById("chatBox").innerHTML = html;
+      html += `
+        <div class="msg ${m.sender===currentUser.uid?'me':'other'}">
+          ${m.text}
+        </div>
+      `;
     });
+
+    document.getElementById("chatBox").innerHTML = html;
+  });
 }
 
 // ================= SEND MESSAGE =================
@@ -214,18 +198,16 @@ function sendMessage(){
 
   let text = document.getElementById("msg").value;
 
-  if (!text || !activeChat) return;
+  if(!text || !activeChat) return;
 
   let id = chatId(currentUser.uid, activeChat);
 
-  db.collection("chats")
-    .doc(id)
-    .collection("messages")
-    .add({
-      text: text,
-      sender: currentUser.uid,
-      time: Date.now()
-    });
+  db.collection("chats").doc(id)
+  .collection("messages").add({
+    text,
+    sender: currentUser.uid,
+    time: Date.now()
+  });
 
-  document.getElementById("msg").value = "";
+  document.getElementById("msg").value="";
 }
