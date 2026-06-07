@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat Pro+</title>
+<title>Ultra Chat Pro</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -15,83 +15,146 @@ body{margin:0;font-family:Arial;background:#fff}
 
 /* TOP */
 .top{
-background:#111;color:#fff;
+background:#111;
+color:#fff;
 padding:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+text-align:center;
+font-weight:bold;
 }
 
 /* SEARCH */
-.search{display:flex;padding:10px;gap:8px}
-.search input{flex:1;padding:10px;border:1px solid #ccc;border-radius:8px}
-.search button{padding:10px;background:#000;color:#fff;border:none;border-radius:8px}
+.search{
+display:flex;
+padding:10px;
+gap:8px;
+}
+.search input{
+flex:1;
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+.search button{
+padding:10px;
+background:#000;
+color:#fff;
+border:none;
+border-radius:8px;
+}
 
-/* USERS */
-#users{padding:10px}
+/* RECENT */
+.title{
+padding:8px 10px;
+font-weight:bold;
+}
+
 .user{
 padding:10px;
 border-bottom:1px solid #eee;
-display:flex;
-justify-content:space-between;
 cursor:pointer;
 }
-.small{font-size:12px;color:gray}
 
 /* CHAT */
-#chatBox{display:none;flex-direction:column;height:70vh;border-top:1px solid #ddd}
+#chatBox{
+display:none;
+flex-direction:column;
+height:70vh;
+border-top:1px solid #ddd;
+}
 
-#msgs{flex:1;overflow-y:auto;padding:10px}
+#header{
+padding:10px;
+background:#f5f5f5;
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+}
+
+#status{
+font-size:11px;
+color:gray;
+}
+
+#typing{
+font-size:12px;
+color:gray;
+padding-left:10px;
+}
+
+#msgs{
+flex:1;
+overflow-y:auto;
+padding:10px;
+}
 
 .msg{
 padding:8px 12px;
 margin:5px;
 border-radius:10px;
 max-width:70%;
-position:relative;
 font-size:14px;
+position:relative;
 }
 
 .me{background:#000;color:#fff;margin-left:auto}
 .other{background:#eee}
 
-/* DELETE BTN */
-.del{
-position:absolute;
-top:0;right:5px;
+.tick{
 font-size:10px;
-cursor:pointer;
+color:lightgray;
+display:block;
+text-align:right;
 }
 
 /* INPUT */
-#input{display:flex;padding:10px;border-top:1px solid #ddd;gap:5px}
-#input input{flex:1;padding:10px;border:1px solid #ccc;border-radius:8px}
-#input button{background:#000;color:#fff;border:none;padding:10px;border-radius:8px}
+#input{
+display:flex;
+padding:10px;
+gap:5px;
+border-top:1px solid #ddd;
+}
 
-/* typing */
-#typing{
-font-size:12px;
-color:gray;
-padding-left:10px;
+#input input{
+flex:1;
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+#input button{
+padding:10px;
+background:#000;
+color:#fff;
+border:none;
+border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="top">
-<div id="chatName">Chat</div>
-<div id="status">●</div>
-</div>
+<div class="top">ULTRA CHAT PRO 🔥</div>
 
+<!-- SEARCH -->
 <div class="search">
-<input id="searchInput" placeholder="Search user">
+<input id="searchInput" placeholder="Search username">
 <button onclick="searchUser()">Search</button>
 </div>
 
+<div class="title">Recent Chats</div>
+<div id="recentList"></div>
+
+<div class="title">Search Result</div>
 <div id="users"></div>
 
+<!-- CHAT -->
 <div id="chatBox">
+
+<div id="header">
+<div id="chatName">Chat</div>
+<div id="status">offline</div>
+</div>
+
 <div id="typing"></div>
 <div id="msgs"></div>
 
@@ -100,9 +163,11 @@ padding-left:10px;
 <input type="file" id="img">
 <button onclick="sendMsg()">Send</button>
 </div>
+
 </div>
 
 <script>
+
 const firebaseConfig = {
 apiKey:"XXX",
 authDomain:"XXX",
@@ -112,9 +177,9 @@ storageBucket:"XXX"
 
 firebase.initializeApp(firebaseConfig);
 
-const auth=firebase.auth();
-const db=firebase.firestore();
-const storage=firebase.storage();
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
 let me,chatWith,chatId;
 
@@ -123,34 +188,33 @@ auth.onAuthStateChanged(u=>{
 if(u){
 me=u;
 setOnline(true);
+loadRecent();
+listenOnline();
 }
 });
 
 /* ONLINE */
 function setOnline(v){
 db.collection("users").doc(me.uid).set({
-online:v,last:Date.now()
+online:v,
+last:Date.now()
 },{merge:true});
 }
 
 /* SEARCH */
 function searchUser(){
 let v=document.getElementById("searchInput").value.toLowerCase();
+
+db.collection("users").get().then(snap=>{
 document.getElementById("users").innerHTML="";
 
-db.collection("users").get().then(s=>{
-s.forEach(d=>{
-let u=d.data();
+snap.forEach(doc=>{
+let u=doc.data();
 if(u.uid!=me.uid && u.name.toLowerCase().includes(v)){
 
 let div=document.createElement("div");
 div.className="user";
-div.innerHTML=`
-<div>
-<b>${u.name}</b>
-<div class="small">${u.online?"Online":"Offline"}</div>
-</div>
-`;
+div.innerHTML=`<b>${u.name}</b><br><small>${u.online?"Online":"Offline"}</small>`;
 
 div.onclick=()=>openChat(u);
 
@@ -162,6 +226,7 @@ document.getElementById("users").appendChild(div);
 
 /* OPEN CHAT */
 function openChat(u){
+
 chatWith=u;
 chatId=[me.uid,u.uid].sort().join("_");
 
@@ -172,16 +237,54 @@ loadMessages();
 listenTyping();
 }
 
+/* RECENT */
+function loadRecent(){
+
+db.collection("recentChats")
+.doc(me.uid)
+.collection("list")
+.orderBy("time","desc")
+.onSnapshot(snap=>{
+
+let box=document.getElementById("recentList");
+box.innerHTML="";
+
+snap.forEach(doc=>{
+let u=doc.data();
+
+let div=document.createElement("div");
+div.className="user";
+div.innerHTML=`<b>${u.name}</b><br><small>Tap to chat</small>`;
+
+div.onclick=()=>openChat(u);
+
+box.appendChild(div);
+});
+});
+}
+
+/* SAVE RECENT */
+function saveRecent(u){
+db.collection("recentChats")
+.doc(me.uid)
+.collection("list")
+.doc(u.uid)
+.set({uid:u.uid,name:u.name,time:Date.now()});
+}
+
 /* MESSAGES */
 function loadMessages(){
-db.collection("chats").doc(chatId)
+
+db.collection("chats")
+.doc(chatId)
 .collection("msgs")
 .orderBy("time")
-.onSnapshot(s=>{
+.onSnapshot(snap=>{
+
 let box=document.getElementById("msgs");
 box.innerHTML="";
 
-s.forEach(doc=>{
+snap.forEach(doc=>{
 let m=doc.data();
 
 let div=document.createElement("div");
@@ -190,18 +293,24 @@ div.className="msg "+(m.uid==me.uid?"me":"other");
 div.innerHTML=`
 ${m.text||""}
 ${m.img?`<br><img src="${m.img}" width="120">`:""}
-<span class="del" onclick="delMsg('${doc.id}', '${m.uid}')">x</span>
+<span class="tick">${m.seen?"Seen":"Sent"}</span>
 `;
 
 box.appendChild(div);
+
+/* seen update */
+if(m.uid!=me.uid){
+doc.ref.update({seen:true});
+}
 });
 
 box.scrollTop=box.scrollHeight;
 });
 }
 
-/* SEND MESSAGE + IMAGE */
+/* SEND */
 async function sendMsg(){
+
 let txt=document.getElementById("msgInput").value;
 let file=document.getElementById("img").files[0];
 
@@ -215,8 +324,10 @@ imgURL=await ref.getDownloadURL();
 
 if(!txt && !imgURL) return;
 
-db.collection("chats").doc(chatId)
-.collection("msgs").add({
+db.collection("chats")
+.doc(chatId)
+.collection("msgs")
+.add({
 text:txt,
 img:imgURL,
 uid:me.uid,
@@ -224,16 +335,10 @@ time:Date.now(),
 seen:false
 });
 
+saveRecent(chatWith);
+
 document.getElementById("msgInput").value="";
 document.getElementById("img").value="";
-}
-
-/* DELETE MESSAGE */
-function delMsg(id,uid){
-if(uid!=me.uid) return;
-
-db.collection("chats").doc(chatId)
-.collection("msgs").doc(id).delete();
 }
 
 /* TYPING */
@@ -247,16 +352,21 @@ time:Date.now()
 /* LISTEN TYPING */
 function listenTyping(){
 db.collection("typing").doc(chatId)
-.onSnapshot(d=>{
-if(d.exists){
-let t=d.data();
+.onSnapshot(doc=>{
+if(doc.exists){
+let t=doc.data();
 if(t.uid!=me.uid){
 document.getElementById("typing").innerText="typing...";
-setTimeout(()=>{
-document.getElementById("typing").innerText="";
-},1500);
+setTimeout(()=>document.getElementById("typing").innerText="",1500);
 }
 }
+});
+}
+
+/* ONLINE STATUS LISTEN */
+function listenOnline(){
+db.collection("users").onSnapshot(()=>{
+// auto refresh online status
 });
 }
 
@@ -264,6 +374,7 @@ document.getElementById("typing").innerText="";
 window.onbeforeunload=()=>{
 setOnline(false);
 };
+
 </script>
 
 </body>
