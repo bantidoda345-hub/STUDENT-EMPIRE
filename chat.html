@@ -1,180 +1,579 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Chat App</title>
+    <style>
+        /* CSS STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-<title>Students Empire</title>
+        body {
+            background: white;
+            min-height: 100vh;
+        }
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+        /* Main Container */
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-<style>
+        /* Sidebar Styles */
+        .sidebar {
+            width: 350px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            border-right: 2px solid #81c784;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
 
-/* BACKGROUND (SKIN + GREEN MIX) */
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f5e6d3; /* skin color */
-  color:black;
-}
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(129, 199, 132, 0.3));
+        }
 
-/* TOP BAR */
-.header{
-  background:#128C7E;
-  color:white;
-  padding:15px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-  position:sticky;
-  top:0;
-}
+        /* Header */
+        .header {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 2px solid #81c784;
+        }
 
-/* SEARCH */
-.searchBox{
-  display:flex;
-  padding:10px;
-  gap:5px;
-  background:#fff;
-}
+        .header h1 {
+            color: #2e7d32;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
 
-.searchBox input{
-  flex:1;
-  padding:10px;
-  border:1px solid #ccc;
-}
+        /* Search Box */
+        .search-box {
+            position: relative;
+        }
 
-.searchBox button{
-  background:#25D366;
-  border:none;
-  color:white;
-  padding:10px;
-}
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #81c784;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
 
-/* LAYOUT */
-.container{
-  display:flex;
-  height:calc(100vh - 120px);
-}
+        .search-box input:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
 
-/* USERS */
-.users{
-  width:35%;
-  background:#fff;
-  overflow:auto;
-  border-right:1px solid #ddd;
-}
+        .search-box::after {
+            content: '🔍';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
 
-.user{
-  padding:10px;
-  border-bottom:1px solid #eee;
-  cursor:pointer;
-}
+        /* User List */
+        .user-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
 
-.user:hover{
-  background:#f1f1f1;
-}
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
 
-/* CHAT */
-.chat{
-  width:65%;
-  display:flex;
-  flex-direction:column;
-  background:#f5e6d3;
-}
+        .user-item:hover {
+            transform: translateX(5px);
+            border-color: #81c784;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
 
-#chatBox{
-  flex:1;
-  overflow:auto;
-  padding:10px;
-}
+        .user-item.active {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-color: #4caf50;
+        }
 
-/* MSG */
-.msg{
-  padding:8px;
-  margin:5px;
-  max-width:70%;
-  border-radius:10px;
-}
+        /* Profile Picture */
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #81c784;
+            background: #f1f8e9;
+        }
 
-.me{
-  background:#DCF8C6;
-  margin-left:auto;
-}
+        .profile-pic-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: 3px solid #81c784;
+        }
 
-.other{
-  background:white;
-  border:1px solid #ddd;
-}
+        .user-info {
+            margin-left: 15px;
+            flex: 1;
+        }
 
-/* INPUT */
-.inputBox{
-  display:flex;
-  padding:10px;
-  background:white;
-}
+        .user-name {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 16px;
+        }
 
-input{
-  flex:1;
-  padding:10px;
-}
+        .user-status {
+            color: #66bb6a;
+            font-size: 12px;
+            margin-top: 5px;
+        }
 
-button{
-  background:#25D366;
-  border:none;
-  color:white;
-  padding:10px;
-}
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
 
-.req{
-  padding:10px;
-  border-bottom:1px solid #ddd;
-}
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-bottom: 2px solid #81c784;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-</style>
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header-info h2 {
+            color: #2e7d32;
+            margin-left: 15px;
+        }
+
+        /* Messages */
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f1f8e9;
+        }
+
+        .message {
+            max-width: 70%;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .message.sent {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received {
+            background: white;
+            color: #2e7d32;
+            border: 2px solid #81c784;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        /* Message Input */
+        .message-input {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid #81c784;
+            display: flex;
+            align-items: center;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #81c784;
+            border-radius: 30px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .message-input input:focus {
+            border-color: #4caf50;
+        }
+
+        .message-input button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .message-input button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            border: 3px solid #81c784;
+        }
+
+        .modal-content h2 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #81c784;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #4caf50;
+        }
+
+        /* Profile Picture Upload */
+        .profile-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-upload img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #81c784;
+            margin-bottom: 10px;
+        }
+
+        .profile-upload input[type="file"] {
+            display: none;
+        }
+
+        .profile-upload label {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #2e7d32;
+            border: 2px solid #81c784;
+        }
+
+        .btn-secondary:hover {
+            background: #e8f5e9;
+        }
+
+        /* Status Indicators */
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4caf50;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border: 2px solid white;
+        }
+
+        .status-offline {
+            background: #9e9e9e;
+        }
+
+        /* Private Request Badge */
+        .request-badge {
+            background: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #81c784;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 10px;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9, #a5d6a7);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            border: 3px solid #81c784;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-box h1 {
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Invite Button */
+        .invite-btn {
+            padding: 8px 15px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Online users count */
+        .online-count {
+            padding: 10px 20px;
+            background: #e8f5e9;
+            border-radius: 20px;
+            color: #2e7d32;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="header">🎓 Students Empire Chat</div>
-
-<!-- SEARCH -->
-<div class="searchBox">
-  <input id="search" placeholder="Search name">
-  <button onclick="searchUsers()">Search</button>
-  <button onclick="loadUsers()">All</button>
-</div>
-
-<div class="container">
-
-  <!-- USERS -->
-  <div class="users">
-
-    <h4 style="padding:10px;">Requests</h4>
-    <div id="requests"></div>
-
-    <h4 style="padding:10px;">Users</h4>
-    <div id="users"></div>
-
-  </div>
-
-  <!-- CHAT -->
-  <div class="chat">
-
-    <div id="chatBox"></div>
-
-    <div class="inputBox">
-      <input id="msg" placeholder="message">
-      <button onclick="sendMessage()">Send</button>
+    <!-- Login/Profile Setup Modal -->
+    <div id="loginModal" class="modal show">
+        <div class="modal-content">
+            <h2>👤 Profile Setup</h2>
+            <div class="profile-upload">
+                <img id="previewImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2343a047'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' fill='white' font-size='40'%3E%F0%9F%98%80%3C/text%3E%3C/svg%3E" alt="Profile">
+                <label for="profileImage">📷 Select Photo</label>
+                <input type="file" id="profileImage" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>📛 Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>📱 Phone Number</label>
+                <input type="tel" id="phone" placeholder="Enter phone number">
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="saveProfile()">Save Profile</button>
+        </div>
     </div>
 
-  </div>
+    <!-- Private Chat Request Modal -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <h2>💬 Private Chat Request</h2>
+            <p id="requestMessage" style="color: #2e7d32; margin-bottom: 20px;"></p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-primary" onclick="acceptRequest()">Accept</button>
+                <button class="btn btn-secondary" onclick="declineRequest()">Decline</button>
+            </div>
+        </div>
+    </div>
 
-</div>
+    <!-- Invite Modal -->
+    <div id="inviteModal" class="modal">
+        <div class="modal-content">
+            <h2>📨 Invite User</h2>
+            <div class="form-group">
+                <label>Search by Username or Phone</label>
+                <input type="text" id="inviteSearch" placeholder="Enter username or phone number">
+            </div>
+            <div id="inviteResults" style="margin: 20px 0;"></div>
+            <button class="btn btn-secondary" onclick="closeInviteModal()">Close</button>
+        </div>
+    </div>
 
-<script src="chat.js"></script>
+    <!-- Main App -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="header">
+                <h1>💬 Private Chat</h1>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search username or phone..." onkeyup="searchUsers()">
+                </div>
+                <div class="online-count">
+                    <span id="onlineCount">🟢 0 Online</span>
+                </div>
+            </div>
+            <div class="user-list" id="userList">
+                <!-- Users will be displayed here -->
+            </div>
+        </div>
 
-</body>
-</html>
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="profile-pic-placeholder" id="chatHeaderPic">
+                        <span id="chatHeaderInitial">?</span>
+                    </div>
+                    <h2 id="chatHeaderName">Select a chat</h2>
+                </div>
+                <button class="invite-btn" onclick="showInviteModal()">📨 Invite</button>
+            </div>
+            
+            <div class="messages" id="messages">
+                <div class="empty-state">
+                    <h2>💬
