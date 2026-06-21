@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Community</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fb;
+padding-bottom:80px;
+}
+
+.header{
+background:#0d47a1;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.post-box{
+background:white;
+margin:15px;
+padding:15px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.post-box textarea{
+width:100%;
+height:80px;
+border:1px solid #ddd;
+border-radius:8px;
+padding:10px;
+resize:none;
+outline: none;
+}
+
+.post-btn{
+margin-top:10px;
+width:100%;
+padding:12px;
+background:#0d47a1;
+color:white;
+border:none;
+border-radius:8px;
+font-size:16px;
+font-weight: bold;
+cursor: pointer;
+}
+
+.post-btn:active {
+opacity: 0.9;
+}
+
+.post{
+background:white;
+margin:15px;
+padding:15px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.user{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:10px;
+}
+
+.avatar{
+width:45px;
+height:45px;
+border-radius:50%;
+background:#0d47a1;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-weight:bold;
+overflow: hidden;
+}
+
+.avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.name{
+font-weight:bold;
+}
+
+.time{
+font-size:11px;
+color:gray;
+}
+
+.content{
+margin-top:10px;
+line-height:1.5;
+word-wrap: break-word;
+}
+
+.actions{
+display:flex;
+justify-content:space-around;
+margin-top:15px;
+padding-top:10px;
+border-top:1px solid #eee;
+}
+
+.actions div {
+cursor: pointer;
+color: #555;
+font-size: 14px;
+}
+
+.actions i{
+color:#0d47a1;
+margin-right:5px;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+box-shadow:0 -2px 10px rgba(0,0,0,.15);
+z-index: 1000;
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:#333;
+font-size:13px;
+text-align:center;
+}
+
+.bottom-nav i{
+display:block;
+font-size:20px;
+margin-bottom:4px;
+color:#0d47a1;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h2>Community</h2>
+<i class="fa-solid fa-bell"></i>
+</div>
+
+<div class="post-box">
+<textarea id="postContent" placeholder="Share something with students..."></textarea>
+<button class="post-btn" id="submitPostBtn">Post</button>
+</div>
+
+<div id="postsContainer">
+  <div style="text-align: center; color: #666; padding: 20px;">Loading posts...</div>
+</div>
+
+<nav class="bottom-nav">
+<a href="home.html">
+<i class="fa-solid fa-house"></i>
+Home
+</a>
+<a href="study.html">
+<i class="fa-solid fa-book"></i>
+Study
+</a>
+<a href="chat.html">
+<i class="fa-solid fa-comments"></i>
+Chat
+</a>
+<a href="community.html">
+<i class="fa-solid fa-users"></i>
+Community
+</a>
+<a href="profile.html">
+<i class="fa-solid fa-user"></i>
+Profile
+</a>
+</nav>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
+  authDomain: "student-empires.firebaseapp.com",
+  projectId: "student-empires",
+  storageBucket: "student-empires.firebasestorage.app",
+  messagingSenderId: "509106125707",
+  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e",
+  measurementId: "G-ETHZNFTT7S"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+
+// सुरक्षा लॉक और यूजर चेक
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+  } else {
+    currentUser = user;
+    loadCommunityPosts(); // पोस्ट लोड करें
+  }
+});
+
+// 1. डेटाबेस में नया पोस्ट सबमिट करना
+document.getElementById("submitPostBtn").addEventListener("click", async () => {
+  const text = document.getElementById("postContent").value.trim();
+  
+  if (!text) return alert("कृपया पोस्ट करने के लिए कुछ लिखें!");
+  if (!currentUser) return;
+
+  try {
+    await addDoc(collection(db, "posts"), {
+      userName: currentUser.displayName || "Empire User",
+      userEmail: currentUser.email,
+      userPhoto: currentUser.photoURL || "",
+      content: text,
+      timestamp: new Date()
+    });
+    
+    document.getElementById("postContent").value = ""; // इनपुट बॉक्स खाली करें
+  } catch (error) {
+    alert("पोस्ट करने में एरर आया: " + error.message);
+  }
+});
+
+// 2. डेटाबेस से सारे पोस्ट्स को रियल-टाइम स्क्रीन पर दिखाना
+function loadCommunityPosts() {
+  const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+  
+  onSnapshot(q, (snapshot) => {
+    const container = document.getElementById("postsContainer");
+    container.innerHTML = "";
+
+    if (snapshot.empty) {
+      container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">कम्युनिटी में अभी कोई पोस्ट नहीं है। पहले आप शुरुआत करें!</div>';
+      return;
+    }
+
+    snapshot.forEach((doc) => {
+      const postData = doc.data();
+      
+      // टाइम को अच्छे फॉर्मेट में बदलना
+      let formattedTime = "Just now";
+      if(postData.timestamp) {
+        const date = postData.timestamp.toDate();
+        formattedTime = date.toLocaleDateString() + " " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      }
+
+      // प्रोफाइल पिक्चर सेट करना (गूगल फोटो या नाम का पहला अक्षर)
+      let avatarHtml = `<div class="avatar">${postData.userName.charAt(0)}</div>`;
+      if (postData.userPhoto) {
+        avatarHtml = `<div class="avatar"><img src="${postData.userPhoto}" alt="User"></div>`;
+      }
+
+      const postDiv = document.createElement("div");
+      postDiv.className = "post";
+      postDiv.innerHTML = `
+        <div class="user">
+          ${avatarHtml}
+          <div>
+            <div class="name">${postData.userName}</div>
+            <div class="time">${formattedTime}</div>
+          </div>
+        </div>
+        <div class="content">
+          ${postData.content}
+        </div>
+        <div class="actions">
+          <div><i class="fa-solid fa-heart"></i> Like</div>
+          <div><i class="fa-solid fa-comment"></i> Comment</div>
+          <div><i class="fa-solid fa-share"></i> Share</div>
+        </div>
+      `;
+      container.appendChild(postDiv);
+    });
+  });
+}
+</script>
+
+</body>
+</html>

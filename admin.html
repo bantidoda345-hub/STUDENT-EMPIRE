@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Panel</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fb;
+padding:15px;
+padding-bottom:80px;
+display: none; /* जब तक पिन वेरिफाई नहीं होगा, तब तक पूरा पेज गायब रहेगा */
+}
+
+.header{
+background:#0d47a1;
+color:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+}
+
+.header h2{
+margin-bottom:5px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.card h3{
+margin-bottom:15px;
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:8px;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#0d47a1;
+color:white;
+border:none;
+border-radius:8px;
+font-size:15px;
+cursor: pointer;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+margin-bottom:15px;
+}
+
+.stat{
+background:white;
+padding:15px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.stat h2{
+color:#0d47a1;
+}
+
+.folder{
+background:white;
+padding:12px;
+margin-bottom:10px;
+border-radius:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border: 1px solid #eee;
+}
+
+.folder i{
+color:#d32f2f;
+cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h2>Admin Panel</h2>
+<p>Students Empire Management</p>
+</div>
+
+<div class="stats">
+<div class="stat">
+<h2 id="totalUsersCount">0</h2>
+<p>Total Users</p>
+</div>
+
+<div class="stat">
+<h2 id="totalNotesCount">0</h2>
+<p>Total Notes/PDFs</p>
+</div>
+
+<div class="stat">
+<h2 id="totalFoldersCount">0</h2>
+<p>Total Folders</p>
+</div>
+
+<div class="stat">
+<h2>0</h2>
+<p>Total Groups</p>
+</div>
+</div>
+
+<div class="card">
+<h3>Create Folder</h3>
+<input type="text" id="newFolderName" placeholder="Folder Name">
+<button id="createFolderBtn">Create Folder</button>
+</div>
+
+<div class="card">
+<h3>Upload Notes PDF Link</h3>
+<input type="text" id="pdfTitle" placeholder="PDF Title">
+<input type="text" id="pdfUrl" placeholder="Paste PDF/Drive Link Here">
+<select id="folderSelect">
+<option value="">Select Folder</option>
+</select>
+<button id="uploadPdfBtn">Upload PDF Link</button>
+</div>
+
+<div class="card">
+<h3>Existing Folders</h3>
+<div id="foldersContainer">
+  </div>
+</div>
+
+<div class="card">
+<h3>Send Notification</h3>
+<input type="text" placeholder="Notification Title">
+<input type="text" placeholder="Message">
+<button>Send To All Users</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
+  authDomain: "student-empires.firebaseapp.com",
+  projectId: "student-empires",
+  storageBucket: "student-empires.firebasestorage.app",
+  messagingSenderId: "509106125707",
+  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+  } else if (user.email !== ADMIN_EMAIL) {
+    alert("Warning: आप एडमिन नहीं हैं! वापस भेजा जा रहा है।");
+    window.location.href = "home.html";
+  } else {
+    try {
+      // डेटाबेस से सीक्रेट पिन को फेच करना (यह कोड में कहीं नहीं दिखेगा)
+      const querySnapshot = await getDocs(collection(db, "admin_config"));
+      let adminPinFromDB = "";
+      
+      querySnapshot.forEach((doc) => {
+        adminPinFromDB = doc.data().pin;
+      });
+
+      // प्रॉम्ट बॉक्स
+      const enteredPin = prompt("सुरक्षा सत्यापन: कृपया अपना एडमिन सीक्रेट पिन दर्ज करें:");
+      
+      if (enteredPin && enteredPin === adminPinFromDB.toString()) {
+        document.body.style.display = "block"; // सही पिन होने पर ही दिखेगा पूरा पेज
+        loadAdminData();
+      } else {
+        alert("गलत सिक्योरिटी पिन! एक्सेस अस्वीकार कर दिया गया है।");
+        await signOut(auth);
+        window.location.href = "index.html";
+      }
+    } catch (error) {
+      alert("सुरक्षा जांच विफल! फायरबेस रूल्स चेक करें।");
+      await signOut(auth);
+      window.location.href = "index.html";
+    }
+  }
+});
+
+function loadAdminData() {
+  onSnapshot(collection(db, "folders"), (snapshot) => {
+    const selectDropdown = document.getElementById("folderSelect");
+    const foldersContainer = document.getElementById("foldersContainer");
+    const totalFoldersCount = document.getElementById("totalFoldersCount");
+    
+    selectDropdown.innerHTML = '<option value="">Select Folder</option>';
+    foldersContainer.innerHTML = '';
+    
+    totalFoldersCount.innerText = snapshot.size; 
+
+    snapshot.forEach((folderDoc) => {
+      const folderData = folderDoc.data();
+      const folderId = folderDoc.id;
+
+      selectDropdown.innerHTML += `<option value="${folderData.name}">${folderData.name}</option>`;
+
+      const folderDiv = document.createElement("div");
+      folderDiv.className = "folder";
+      folderDiv.innerHTML = `
+        <span><i class="fa-solid fa-folder"></i> ${folderData.name}</span>
+        <i class="fa-solid fa-trash" onclick="deleteFolder('${folderId}')"></i>
+      `;
+      foldersContainer.appendChild(folderDiv);
+    });
+  });
+
+  onSnapshot(collection(db, "materials"), (snapshot) => {
+    document.getElementById("totalNotesCount").innerText = snapshot.size;
+  });
+
+  onSnapshot(collection(db, "users"), (snapshot) => {
+    document.getElementById("totalUsersCount").innerText = snapshot.size;
+  });
+}
+
+document.getElementById("createFolderBtn").addEventListener("click", async () => {
+  const folderName = document.getElementById("newFolderName").value.trim();
+  if (!folderName) return alert("कृपया फ़ोल्डर का नाम लिखें!");
+
+  try {
+    await addDoc(collection(db, "folders"), {
+      name: folderName,
+      createdAt: new Date()
+    });
+    alert(`"${folderName}" फ़ोल्डर बन गया!`);
+    document.getElementById("newFolderName").value = "";
+  } catch (error) {
+    alert("एरर: " + error.message);
+  }
+});
+
+document.getElementById("uploadPdfBtn").addEventListener("click", async () => {
+  const title = document.getElementById("pdfTitle").value.trim();
+  const url = document.getElementById("pdfUrl").value.trim();
+  const selectedFolder = document.getElementById("folderSelect").value;
+
+  if (!title || !url || !selectedFolder) {
+    return alert("कृपया टाइटल, लिंक और फ़ोल्डर तीनों सिलेक्ट करें!");
+  }
+
+  try {
+    await addDoc(collection(db, "materials"), {
+      title: title,
+      url: url,
+      folder: selectedFolder,
+      uploadedAt: new Date()
+    });
+    alert("PDF लिंक सफलतापूर्वक अपलोड हो गया!");
+    document.getElementById("pdfTitle").value = "";
+    document.getElementById("pdfUrl").value = "";
+    document.getElementById("folderSelect").value = "";
+  } catch (error) {
+    alert("अपलोड एरर: " + error.message);
+  }
+});
+
+window.deleteFolder = async function(id) {
+  if (confirm("क्या आप इस फ़ोल्डर को डिलीट करना चाहते हैं?")) {
+    try {
+      await deleteDoc(doc(db, "folders", id));
+      alert("फ़ोल्डर डिलीट हो गया!");
+    } catch (error) {
+      alert("डिलीट करने में एरर: " + error.message);
+    }
+  }
+}
+</script>
+
+</body>
+</html>

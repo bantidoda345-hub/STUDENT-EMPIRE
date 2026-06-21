@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notes</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fb;
+padding-bottom:80px;
+}
+
+.header{
+background:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+.header h2{
+font-size:22px;
+}
+
+.icons i{
+font-size:20px;
+margin-left:15px;
+cursor: pointer;
+}
+
+.tabs{
+display:flex;
+gap:20px;
+padding:15px;
+background:white;
+}
+
+.tabs span{
+font-weight:bold;
+cursor: pointer;
+color: gray;
+padding-bottom: 5px;
+}
+
+.tabs span.active{
+color:#0d47a1;
+border-bottom:3px solid #0d47a1;
+}
+
+.notes{
+padding:15px;
+}
+
+.note-card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+cursor: pointer;
+transition: transform 0.2s;
+}
+
+.note-card:active {
+transform: scale(0.98);
+}
+
+.left{
+display:flex;
+gap:12px;
+align-items:center;
+}
+
+.pdf{
+font-size:25px;
+color:red;
+}
+
+.title{
+font-weight:bold;
+font-size:15px;
+}
+
+.info{
+font-size:12px;
+color:gray;
+margin-top:4px;
+}
+
+.time{
+font-size:11px;
+color:gray;
+white-space: nowrap;
+}
+
+.add-btn{
+position:fixed;
+bottom:95px;
+right:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:#0d47a1;
+color:white;
+font-size:25px;
+border:none;
+cursor: pointer;
+box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+box-shadow:0 -2px 10px rgba(0,0,0,.15);
+z-index: 1000;
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:#333;
+font-size:13px;
+text-align:center;
+}
+
+.bottom-nav i{
+display:block;
+font-size:20px;
+margin-bottom:4px;
+color:#0d47a1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>Notes</h2>
+<div class="icons">
+<i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+<i class="fa-solid fa-filter"></i>
+</div>
+</div>
+
+<!-- टैब फ़िल्टर सिस्टम -->
+<div class="tabs">
+<span class="active" id="tabAll">All</span>
+<span id="tabMyNotes">My Notes</span>
+<span id="tabShared">Shared</span>
+</div>
+
+<!-- यहाँ लाइव डेटाबेस से नोट्स लोड होंगे -->
+<div class="notes" id="notesContainer">
+  <div style="text-align: center; color: #666; padding: 20px;">Loading Notes...</div>
+</div>
+
+<!-- नया नोट जोड़ने का फ्लोटिंग बटन (एडमिन या स्टडी पेज पर रीडायरेक्ट के लिए) -->
+<button class="add-btn" onclick="window.location.href='study.html'">+</button>
+
+<!-- बॉटम नेविगेशन बार -->
+<nav class="bottom-nav">
+<a href="home.html">
+<i class="fa-solid fa-house"></i>
+Home
+</a>
+<a href="study.html">
+<i class="fa-solid fa-book"></i>
+Study
+</a>
+<a href="chat.html">
+<i class="fa-solid fa-comments"></i>
+Chat
+</a>
+<a href="community.html">
+<i class="fa-solid fa-users"></i>
+Community
+</a>
+<a href="profile.html">
+<i class="fa-solid fa-user"></i>
+Profile
+</a>
+</nav>
+
+<!-- FIREBASE CONNECTIONS AND LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
+  authDomain: "student-empires.firebaseapp.com",
+  projectId: "student-empires",
+  storageBucket: "student-empires.firebasestorage.app",
+  messagingSenderId: "509106125707",
+  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e",
+  measurementId: "G-ETHZNFTT7S"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentTab = "All";
+let fetchedNotes = [];
+let currentUser = null;
+
+// सुरक्षा लॉक और यूजर ऑथेंटिकेशन
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+  } else {
+    currentUser = user;
+    loadLiveNotes();
+  }
+});
+
+// डेटाबेस से लाइव नोट्स लोड करना
+function loadLiveNotes() {
+  onSnapshot(collection(db, "materials"), (snapshot) => {
+    fetchedNotes = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      fetchedNotes.push(data);
+    });
+    renderNotes();
+  });
+}
+
+// स्क्रीन पर नोट्स लिस्ट दिखाने और फ़िल्टर करने का फंक्शन
+function renderNotes() {
+  const container = document.getElementById("notesContainer");
+  container.innerHTML = "";
+
+  // टैब के हिसाब से फ़िल्टर लगाना
+  let filteredNotes = fetchedNotes;
+  if (currentTab === "My Notes" && currentUser) {
+    // अगर टाइटल में 'Physics' या 'Chemistry' हो, या स्टूडेंट के हिसाब से कस्टमाइज़ करना हो
+    // फ़िलहाल इसे डायनामिक रखने के लिए एडमिन द्वारा अपलोड किए गए वो नोट्स दिखाएगा जो इस फोल्डर/कैटेगरी से जुड़े हैं
+    filteredNotes = fetchedNotes.filter(note => note.title.toLowerCase().includes("class") || note.folder.toLowerCase().includes("math"));
+  } else if (currentTab === "Shared") {
+    filteredNotes = fetchedNotes.slice(0, Math.ceil(fetchedNotes.length / 2)); // टेस्ट के लिए आधा डेटा शेयर्ड में दिखाएगा
+  }
+
+  if (filteredNotes.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">कोई नोट्स उपलब्ध नहीं हैं।</div>';
+    return;
+  }
+
+  filteredNotes.forEach((note) => {
+    // टाइम फॉर्मेट करना
+    let timeText = "Recent";
+    if (note.uploadedAt) {
+      const date = note.uploadedAt.toDate();
+      timeText = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+
+    const card = document.createElement("div");
+    card.className = "note-card";
+    card.onclick = () => {
+      if (note.url) window.open(note.url, "_blank");
+    };
+
+    card.innerHTML = `
+      <div class="left">
+        <i class="fa-solid fa-file-pdf pdf"></i>
+        <div>
+          <div class="title">${note.title}</div>
+          <div class="info">Folder: ${note.folder} • PDF Link</div>
+        </div>
+      </div>
+      <div class="time">${timeText}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// टैब स्विचिंग फंक्शनलिटी
+const tabs = document.querySelectorAll(".tabs span");
+tabs.forEach(tab => {
+  tab.addEventListener("click", (e) => {
+    tabs.forEach(t => t.classList.remove("active"));
+    e.target.classList.add("active");
+    currentTab = e.target.innerText;
+    renderNotes();
+  });
+});
+
+// सर्च आइकन अलर्ट (शॉर्टकट के लिए)
+document.getElementById("searchIcon").addEventListener("click", () => {
+  const query = prompt("कौन से नोट्स सर्च करना चाहते हैं?");
+  if (query) {
+    const searchResult = fetchedNotes.filter(note => 
+      note.title.toLowerCase().includes(query.toLowerCase()) || 
+      note.folder.toLowerCase().includes(query.toLowerCase())
+    );
+    renderNotesWithData(searchResult);
+  }
+});
+
+function renderNotesWithData(dataList) {
+  const container = document.getElementById("notesContainer");
+  container.innerHTML = "";
+  if(dataList.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">कोई नोट्स नहीं मिले।</div>';
+    return;
+  }
+  dataList.forEach((note) => {
+    const card = document.createElement("div");
+    card.className = "note-card";
+    card.onclick = () => { if (note.url) window.open(note.url, "_blank"); };
+    card.innerHTML = `
+      <div class="left">
+        <i class="fa-solid fa-file-pdf pdf"></i>
+        <div>
+          <div class="title">${note.title}</div>
+          <div class="info">Folder: ${note.folder}</div>
+        </div>
+      </div>
+      <div class="time">Found</div>
+    `;
+    container.appendChild(card);
+  });
+}
+</script>
+
+</body>
+</html>

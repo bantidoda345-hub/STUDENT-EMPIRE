@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profile</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fb;
+padding-bottom:80px;
+}
+
+.profile-header{
+background:#0d47a1;
+color:white;
+text-align:center;
+padding:30px 20px;
+}
+
+.profile-img{
+width:100px;
+height:100px;
+border-radius:50%;
+background:white;
+margin:auto;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:45px;
+color:#0d47a1;
+overflow: hidden; /* फ़ोटो को गोल रखने के लिए */
+}
+
+.profile-img img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.username{
+margin-top:15px;
+font-size:22px;
+font-weight:bold;
+}
+
+.email{
+margin-top:5px;
+font-size:14px;
+opacity:.9;
+}
+
+.menu{
+padding:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+text-decoration:none;
+color:black;
+cursor: pointer;
+}
+
+.left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.left i{
+font-size:20px;
+color:#0d47a1;
+}
+
+#adminBtn{
+display:none; /* डिफ़ॉल्ट रूप से छुपा रहेगा */
+}
+
+.logout{
+background:#ff4d4d;
+color:white;
+}
+
+.logout .left i {
+color: white;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+box-shadow:0 -2px 10px rgba(0,0,0,.15);
+z-index: 1000;
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:#333;
+font-size:13px;
+text-align:center;
+}
+
+.bottom-nav i{
+display:block;
+font-size:20px;
+margin-bottom:4px;
+color:#0d47a1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="profile-header">
+<div class="profile-img" id="userPhoto">
+<i class="fa-solid fa-user"></i>
+</div>
+<div class="username" id="userName">Guest User</div>
+<div class="email" id="userEmail">guest@studentsempire.com</div>
+</div>
+
+<div class="menu">
+
+<a href="#" class="card">
+<div class="left">
+<i class="fa-solid fa-book"></i>
+<span>My Notes</span>
+</div>
+<i class="fa-solid fa-chevron-right"></i>
+</a>
+
+<a href="#" class="card">
+<div class="left">
+<i class="fa-solid fa-file-pdf"></i>
+<span>Saved PDFs</span>
+</div>
+<i class="fa-solid fa-chevron-right"></i>
+</a>
+
+<a href="#" class="card">
+<div class="left">
+<i class="fa-solid fa-users"></i>
+<span>My Groups</span>
+</div>
+<i class="fa-solid fa-chevron-right"></i>
+</a>
+
+<a href="#" class="card">
+<div class="left">
+<i class="fa-solid fa-gear"></i>
+<span>Settings</span>
+</div>
+<i class="fa-solid fa-chevron-right"></i>
+</a>
+
+<a href="admin.html" class="card" id="adminBtn">
+<div class="left">
+<i class="fa-solid fa-shield-halved"></i>
+<span>Admin Panel</span>
+</div>
+<i class="fa-solid fa-chevron-right"></i>
+</a>
+
+<div class="card logout" id="logoutBtn">
+<div class="left">
+<i class="fa-solid fa-right-from-bracket"></i>
+<span>Logout</span>
+</div>
+</div>
+
+</div>
+
+<nav class="bottom-nav">
+<a href="home.html">
+<i class="fa-solid fa-house"></i>
+Home
+</a>
+<a href="study.html">
+<i class="fa-solid fa-book"></i>
+Study
+</a>
+<a href="chat.html">
+<i class="fa-solid fa-comments"></i>
+Chat
+</a>
+<a href="community.html">
+<i class="fa-solid fa-users"></i>
+Community
+</a>
+<a href="profile.html">
+<i class="fa-solid fa-user"></i>
+Profile
+</a>
+</nav>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
+  authDomain: "student-empires.firebaseapp.com",
+  projectId: "student-empires",
+  storageBucket: "student-empires.firebasestorage.app",
+  messagingSenderId: "509106125707",
+  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e",
+  measurementId: "G-ETHZNFTT7S"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// एडमिन ईमेल आईडी
+const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    // अगर यूजर लॉगिन नहीं है तो सीधे लॉगिन स्क्रीन पर भेजें
+    window.location.href = "index.html";
+  } else {
+    // 1. यूजर की डिटेल्स स्क्रीन पर सेट करना
+    document.getElementById("userName").innerText = user.displayName || "Empire User";
+    document.getElementById("userEmail").innerText = user.email;
+    
+    // अगर गूगल प्रोफाइल फोटो उपलब्ध है तो उसे दिखाना
+    if (user.photoURL) {
+      document.getElementById("userPhoto").innerHTML = `<img src="${user.photoURL}" alt="Profile">`;
+    }
+
+    // 2. एडमिन बटन की सुरक्षा जांच
+    if (user.email === ADMIN_EMAIL) {
+      document.getElementById("adminBtn").style.display = "flex";
+    } else {
+      document.getElementById("adminBtn").style.display = "none";
+    }
+  }
+});
+
+// 3. लॉगआउट फंक्शन चालू करना
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  if (confirm("क्या आप लॉगआउट करना चाहते हैं?")) {
+    signOut(auth).then(() => {
+      window.location.href = "index.html";
+    }).catch((error) => {
+      alert("Error logging out: " + error.message);
+    });
+  }
+});
+</script>
+
+</body>
+</html>

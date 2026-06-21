@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Private Chat</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fb;
+padding-bottom:80px;
+height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+.header{
+background:#0d47a1;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+position: sticky;
+top: 0;
+z-index: 10;
+}
+
+.header h2{
+font-size:22px;
+}
+
+/* Tabs UI System */
+.chat-tabs {
+display: flex;
+background: white;
+box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.chat-tabs div {
+flex: 1;
+text-align: center;
+padding: 12px;
+font-weight: bold;
+color: gray;
+cursor: pointer;
+border-bottom: 3px solid transparent;
+font-size: 14px;
+}
+.chat-tabs div.active-tab {
+color: #0d47a1;
+border-bottom: 3px solid #0d47a1;
+}
+
+/* Screen Management */
+.screen {
+display: none;
+flex: 1;
+overflow-y: auto;
+padding: 10px;
+}
+.screen.active-screen {
+display: block;
+}
+
+/* Chat Card Style Retained */
+.chat-card{
+background:white;
+border-radius:12px;
+padding:12px;
+margin-bottom:10px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+cursor: pointer;
+}
+
+.left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.avatar{
+width:50px;
+height:50px;
+border-radius:50%;
+background:#0d47a1;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:20px;
+font-weight:bold;
+overflow: hidden;
+}
+
+.avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.name{
+font-weight:bold;
+font-size:15px;
+}
+
+.msg{
+font-size:13px;
+color:gray;
+margin-top:3px;
+word-break: break-all;
+}
+
+.right{
+text-align:right;
+}
+
+.time{
+font-size:12px;
+color:gray;
+}
+
+.action-btn {
+background: #0d47a1;
+color: white;
+border: none;
+padding: 8px 14px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: bold;
+cursor: pointer;
+}
+.action-btn.secondary {
+background: #2e7d32;
+}
+.action-btn.pending {
+background: #ef6c00;
+}
+
+/* Dedicated Realtime Private Chat Popup View */
+#privateChatWindow {
+display: none;
+flex-direction: column;
+background: #f0f2f5;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+z-index: 2000;
+}
+.win-header {
+background: #0d47a1;
+color: white;
+padding: 15px;
+display: flex;
+align-items: center;
+gap: 15px;
+}
+.win-header .back-icon {
+font-size: 20px;
+cursor: pointer;
+}
+.win-messages {
+flex: 1;
+overflow-y: auto;
+padding: 15px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+padding-bottom: 80px;
+}
+.bubble {
+max-width: 75%;
+padding: 10px 14px;
+border-radius: 15px;
+font-size: 14px;
+line-height: 1.4;
+word-wrap: break-word;
+}
+.bubble.me {
+background: #0d47a1;
+color: white;
+align-self: flex-end;
+border-bottom-right-radius: 2px;
+}
+.bubble.friend {
+background: white;
+color: black;
+align-self: flex-start;
+border-bottom-left-radius: 2px;
+box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.win-input-bar {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+display: flex;
+padding: 12px;
+background: white;
+box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+align-items: center;
+}
+.win-input-bar input {
+flex: 1;
+padding: 12px 15px;
+border: 1px solid #ddd;
+border-radius: 25px;
+outline: none;
+font-size: 14px;
+}
+.win-input-bar button {
+background: #0d47a1;
+color: white;
+border: none;
+padding: 12px 16px;
+border-radius: 50%;
+margin-left: 10px;
+cursor: pointer;
+font-size: 16px;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+box-shadow:0 -2px 10px rgba(0,0,0,.15);
+z-index: 10;
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:#333;
+font-size:13px;
+text-align:center;
+}
+
+.bottom-nav i{
+display:block;
+font-size:20px;
+margin-bottom:4px;
+color:#0d47a1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>Private Chats</h2>
+<i class="fa-solid fa-magnifying-glass"></i>
+</div>
+
+<!-- टैब बार -->
+<div class="chat-tabs">
+  <div class="active-tab" onclick="switchChatTab('tab-chats')">Chats</div>
+  <div onclick="switchChatTab('tab-users')">All Users</div>
+  <div onclick="switchChatTab('tab-requests')">Requests</div>
+</div>
+
+<!-- 1. प्राइवेट चैट्स रूम लिस्ट -->
+<div id="tab-chats" class="screen active-screen">
+  <div class="chat-list" id="activeChatsList">
+    <div style="text-align: center; color: #666; padding: 20px;">Loading conversations...</div>
+  </div>
+</div>
+
+<!-- 2. सभी यूज़र्स की लिस्ट -->
+<div id="tab-users" class="screen">
+  <div class="chat-list" id="allUsersList">
+    <div style="text-align: center; color: #666; padding: 20px;">Loading network...</div>
+  </div>
+</div>
+
+<!-- 3. आई हुई फ्रेंड रिक्वेस्ट्स -->
+<div id="tab-requests" class="screen">
+  <div class="chat-list" id="friendRequestsList">
+    <div style="text-align: center; color: #666; padding: 20px;">No new requests.</div>
+  </div>
+</div>
+
+<!-- 4. एक्चुअल प्राइवेट चैट रूम विंडो (पॉपअप लेयर) -->
+<div id="privateChatWindow">
+  <div class="win-header">
+    <i class="fa-solid fa-arrow-left back-icon" onclick="closePrivateChat()"></i>
+    <div class="avatar" id="winAvatar">?</div>
+    <div>
+      <div class="name" id="winName">Student</div>
+      <div style="font-size: 11px; color: #a5d6a7;">End-to-End Connected</div>
+    </div>
+  </div>
+  
+  <div class="win-messages" id="winMessagesBox"></div>
+  
+  <div class="win-input-bar">
+    <input type="text" id="winMessageInput" placeholder="Type a message...">
+    <button id="winSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<!-- बॉटम नेविगेशन बार -->
+<nav class="bottom-nav">
+<a href="home.html"><i class="fa-solid fa-house"></i>Home</a>
+<a href="study.html"><i class="fa-solid fa-book"></i>Study</a>
+<a href="chat.html"><i class="fa-solid fa-comments"></i>Chat</a>
+<a href="community.html"><i class="fa-solid fa-users"></i>Community</a>
+<a href="profile.html"><i class="fa-solid fa-user"></i>Profile</a>
+</nav>
+
+<!-- FIREBASE CLIENT IMPLEMENTATION -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, addDoc, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
+  authDomain: "student-empires.firebaseapp.com",
+  projectId: "student-empires",
+  storageBucket: "student-empires.firebasestorage.app",
+  messagingSenderId: "509106125707",
+  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let activeRoomId = null;
+let msgUnsubscribe = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+  } else {
+    currentUser = user;
+    
+    // प्रत्येक लॉगिन यूजर की डिटेल्स स्टोर/अपडेट करना ताकि सबको DP दिखे
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      name: user.displayName || "Empire Student",
+      email: user.email,
+      photo: user.photoURL || "",
+      lastActive: new Date()
+    }, { merge: true });
+
+    initRealtimeData();
+  }
+});
+
+function initRealtimeData() {
+  loadUsers();
+  loadIncomingRequests();
+  loadChatRooms();
+}
+
+// 1. ऐप के सभी रजिस्टर्ड यूज़र्स लोड करना
+function loadUsers() {
+  onSnapshot(collection(db, "users"), (snapshot) => {
+    const list = document.getElementById("allUsersList");
+    list.innerHTML = "";
+
+    snapshot.forEach(userDoc => {
+      const u = userDoc.data();
+      if(u.uid === currentUser.uid) return;
+
+      let pfx = u.photo ? `<img src="${u.photo}">` : u.name.charAt(0);
+      const card = document.createElement("div");
+      card.className = "chat-card";
+      card.innerHTML = `
+        <div class="left">
+          <div class="avatar">${pfx}</div>
+          <div>
+            <div class="name">${u.name}</div>
+            <div class="msg">${u.email}</div>
+          </div>
+        </div>
+        <button class="action-btn" id="ubtn-${u.uid}" onclick="triggerRequest('${u.uid}', '${u.name}', '${u.photo || ''}')">Connect</button>
+      `;
+      list.appendChild(card);
+      syncButtonStatus(u.uid);
+    });
+  });
+}
+
+// फ्रेंड रिक्वेस्ट भेजना
+window.triggerRequest = async function(targetUid, targetName, targetPhoto) {
+  const reqId = `${currentUser.uid}_${targetUid}`;
+  await setDoc(doc(db, "friend_requests", reqId), {
+    fromId: currentUser.uid,
+    fromName: currentUser.displayName || "Empire Student",
+    fromPhoto: currentUser.photoURL || "",
+    toId: targetUid,
+    status: "pending"
+  });
+  alert("Friend request sent successfully!");
+};
+
+// बटन स्टेटस रियल-टाइम बदलना
+async function syncButtonStatus(targetUid) {
+  const btn = document.getElementById(`ubtn-${targetUid}`);
+  if(!btn) return;
+
+  onSnapshot(collection(db, "friend_requests"), async (snap) => {
+    snap.forEach(d => {
+      const r = d.data();
+      if(r.fromId === currentUser.uid && r.toId === targetUid && r.status === "pending") {
+        btn.innerText = "Pending";
+        btn.className = "action-btn pending";
+        btn.disabled = true;
+      }
+    });
+  });
+
+  const combId = currentUser.uid < targetUid ? `${currentUser.uid}_${targetUid}` : `${targetUid}_${currentUser.uid}`;
+  onSnapshot(doc(db, "friendships", combId), (d) => {
+    if(d.exists()) {
+      btn.innerText = "Chat";
+      btn.className = "action-btn secondary";
+      btn.onclick = () => launchChat(targetUid);
+    }
+  });
+}
+
+// 2. आई हुई फ्रेंड रिक्वेस्ट्स संभालना
+function loadIncomingRequests() {
+  const q = query(collection(db, "friend_requests"), where("toId", "==", currentUser.uid), where("status", "==", "pending"));
+  onSnapshot(q, (snapshot) => {
+    const list = document.getElementById("friendRequestsList");
+    list.innerHTML = snapshot.empty ? '<div style="text-align:center;color:gray;padding:20px;">No requests found</div>' : '';
+
+    snapshot.forEach(docSnap => {
+      const r = docSnap.data();
+      let pfx = r.fromPhoto ? `<img src="${r.fromPhoto}">` : r.fromName.charAt(0);
+      
+      const card = document.createElement("div");
+      card.className = "chat-card";
+      card.innerHTML = `
+        <div class="left">
+          <div class="avatar">${pfx}</div>
+          <div>
+            <div class="name">${r.fromName}</div>
+            <div class="msg">Wants to chat with you</div>
+          </div>
+        </div>
+        <button class="action-btn secondary" onclick="acceptFriendship('${docSnap.id}', '${r.fromId}', '${r.fromName}', '${r.fromPhoto}')">Accept</button>
+      `;
+      list.appendChild(card);
+    });
+  });
+}
+
+// रिक्वेस्ट एक्सेप्ट करके फ्रेंडशिप क्रिएट करना
+window.acceptFriendship = async function(docId, fromId, fromName, fromPhoto) {
+  await setDoc(doc(db, "friend_requests", docId), { status: "accepted" }, { merge: true });
+  
+  const combId = currentUser.uid < fromId ? `${currentUser.uid}_${fromId}` : `${fromId}_${currentUser.uid}`;
+  await setDoc(doc(db, "friendships", combId), {
+    pair: [currentUser.uid, fromId],
+    names: { [currentUser.uid]: currentUser.displayName || "Empire Student", [fromId]: fromName },
+    photos: { [currentUser.uid]: currentUser.photoURL || "", [fromId]: fromPhoto },
+    lastMessage: "Connected! Start chatting...",
+    timestamp: new Date()
+  });
+  alert("Request Accepted! You can now chat.");
+  switchChatTab('tab-chats');
+};
+
+// 3. जिन लोगों से फ्रेंडशिप हो चुकी है उनके प्राइवेट चैट रूम्स दिखाना
+function loadChatRooms() {
+  const q = query(collection(db, "friendships"), where("pair", "array-contains", currentUser.uid), orderBy("timestamp", "desc"));
+  onSnapshot(q, (snapshot) => {
+    const list = document.getElementById("activeChatsList");
+    list.innerHTML = snapshot.empty ? '<div style="text-align:center;color:gray;padding:20px;">No active chats yet. Go to "All Users" to connect!</div>' : '';
+
+    snapshot.forEach(docSnap => {
+      const f = docSnap.data();
+      const targetId = f.pair.find(id => id !== currentUser.uid);
+      const targetName = f.names[targetId];
+      const targetPhoto = f.photos[targetId];
+
+      let pfx = targetPhoto ? `<img src="${targetPhoto}">` : targetName.charAt(0);
+      let timeStr = f.timestamp ? f.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+
+      const card = document.createElement("div");
+      card.className = "chat-card";
+      card.onclick = () => launchChat(targetId);
+      card.innerHTML = `
+        <div class="left">
+          <div class="avatar">${pfx}</div>
+          <div>
+            <div class="name">${targetName}</div>
+            <div class="msg">${f.lastMessage}</div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="time">${timeStr}</div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  });
+}
+
+// 4. किसी एक यूज़र के साथ प्राइवेट चैट विंडो खोलना
+async function launchChat(targetId) {
+  activeRoomId = currentUser.uid < targetId ? `${currentUser.uid}_${targetId}` : `${targetId}_${currentUser.uid}`;
+  
+  const uDoc = await getDoc(doc(db, "users", targetId));
+  if(uDoc.exists()) {
+    const data = uDoc.data();
+    document.getElementById("winName").innerText = data.name;
+    document.getElementById("winAvatar").innerHTML = data.photo ? `<img src="${data.photo}">` : data.name.charAt(0);
+  }
+
+  document.getElementById("privateChatWindow").style.display = "flex";
+
+  // पुराने किसी लिसनर को हटाना
+  if(msgUnsubscribe) msgUnsubscribe();
+
+  // रीयलटाइम मेसेजेस लिसनर एक्टिव करना
+  const mq = query(collection(db, "private_rooms", activeRoomId, "messages"), orderBy("timestamp", "asc"));
+  msgUnsubscribe = onSnapshot(mq, (snap) => {
+    const mBox = document.getElementById("winMessagesBox");
+    mBox.innerHTML = "";
+    
+    snap.forEach(mDoc => {
+      const m = mDoc.data();
+      const bubble = document.createElement("div");
+      bubble.className = `bubble ${m.senderId === currentUser.uid ? 'me' : 'friend'}`;
+      bubble.innerText = m.text;
+      mBox.appendChild(bubble);
+    });
+    mBox.scrollTop = mBox.scrollHeight;
+  });
+}
+
+// प्राइवेट चैट क्लोज करना
+window.closePrivateChat = function() {
+  document.getElementById("privateChatWindow").style.display = "none";
+  if(msgUnsubscribe) msgUnsubscribe();
+};
+
+// मैसेज सेंड लॉजिक
+document.getElementById("winSendBtn").addEventListener("click", emitMessage);
+document.getElementById("winMessageInput").addEventListener("keypress", (e) => {
+  if(e.key === "Enter") emitMessage();
+});
+
+async function emitMessage() {
+  const input = document.getElementById("winMessageInput");
+  const text = input.value.trim();
+  if(!text || !activeRoomId) return;
+
+  // 1. मैसेज सब-कलेक्शन में डालें
+  await addDoc(collection(db, "private_rooms", activeRoomId, "messages"), {
+    senderId: currentUser.uid,
+    text: text,
+    timestamp: new Date()
+  });
+
+  // 2. मुख्य फ्रेंडशिप डॉक्यूमेंट का लास्ट मैसेज अपडेट करें (ताकि मुख्य स्क्रीन पर दिखे)
+  await setDoc(doc(db, "friendships", activeRoomId), {
+    lastMessage: text,
+    timestamp: new Date()
+  }, { merge: true });
+
+  input.value = "";
+}
+
+// फ्रंटएंड टैब स्विचिंग
+window.switchChatTab = function(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+  document.querySelectorAll('.chat-tabs div').forEach(t => t.classList.remove('active-tab'));
+  
+  document.getElementById(screenId).classList.add('active-screen');
+  event.target.classList.add('active-tab');
+};
+</script>
+
+</body>
+</html>
