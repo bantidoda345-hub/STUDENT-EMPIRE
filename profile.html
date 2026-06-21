@@ -3,220 +3,254 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Profile</title>
-
+<title>Profile & Settings</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
+:root {
+  --bg-color: #f5f7fb;
+  --card-bg: white;
+  --text-color: #333;
+  --sub-text: #666;
+  --border-color: #eee;
+}
+
+/* डार्क मोड के कलर्स */
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #f5f5f5;
+  --sub-text: #aaa;
+  --border-color: #333;
+}
+
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:Arial,sans-serif;
+transition: background 0.3s, color 0.3s;
 }
 
 body{
-background:#f5f7fb;
+background: var(--bg-color);
+color: var(--text-color);
+padding:15px;
 padding-bottom:80px;
 }
 
-.profile-header{
-background:#0d47a1;
-color:white;
-text-align:center;
-padding:30px 20px;
+.profile-card {
+background: var(--card-bg);
+padding: 20px;
+border-radius: 12px;
+text-align: center;
+box-shadow: 0 2px 8px rgba(0,0,0,.05);
+margin-bottom: 20px;
 }
 
-.profile-img{
-width:100px;
-height:100px;
-border-radius:50%;
-background:white;
-margin:auto;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:45px;
-color:#0d47a1;
-overflow: hidden; /* फ़ोटो को गोल रखने के लिए */
-}
-
-.profile-img img {
-width: 100%;
-height: 100%;
+.profile-card img {
+width: 90px;
+height: 90px;
+border-radius: 50%;
+border: 3px solid #0d47a1;
+margin-bottom: 10px;
 object-fit: cover;
 }
 
-.username{
-margin-top:15px;
-font-size:22px;
-font-weight:bold;
+.profile-card h2 { font-size: 20px; margin-bottom: 5px; }
+.profile-card p { color: var(--sub-text); font-size: 14px; }
+
+.section-title {
+font-size: 14px;
+color: #0d47a1;
+font-weight: bold;
+text-transform: uppercase;
+margin-bottom: 10px;
+padding-left: 5px;
 }
 
-.email{
-margin-top:5px;
-font-size:14px;
-opacity:.9;
+.settings-group {
+background: var(--card-bg);
+border-radius: 12px;
+box-shadow: 0 2px 8px rgba(0,0,0,.05);
+margin-bottom: 20px;
+overflow: hidden;
 }
 
-.menu{
-padding:15px;
-}
-
-.card{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
-text-decoration:none;
-color:black;
+.setting-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 15px;
+border-bottom: 1px solid var(--border-color);
 cursor: pointer;
 }
 
-.left{
-display:flex;
-align-items:center;
-gap:12px;
+.setting-item:last-child { border-bottom: none; }
+
+.setting-left {
+display: flex;
+align-items: center;
+gap: 15px;
+font-size: 15px;
 }
 
-.left i{
-font-size:20px;
-color:#0d47a1;
+.setting-left i {
+font-size: 18px;
+color: #0d47a1;
+width: 20px;
+text-align: center;
 }
 
-#adminBtn{
-display:none; /* डिफ़ॉल्ट रूप से छुपा रहेगा */
+.setting-right {
+color: var(--sub-text);
+font-size: 13px;
 }
 
-.logout{
-background:#ff4d4d;
-color:white;
+/* स्विच बटन (Toggle Switch) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
 }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc; transition: .4s; border-radius: 34px;
+}
+.slider:before {
+  position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+  background-color: white; transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: #0d47a1; }
+input:checked + .slider:before { transform: translateX(18px); }
 
-.logout .left i {
-color: white;
+/* बॉटम नेविगेशन */
+.bottom-nav {
+position:fixed; bottom:0; left:0; right:0; background:var(--card-bg);
+display:flex; justify-content:space-around; padding:10px 0;
+border-top:1px solid var(--border-color); box-shadow:0 -2px 10px rgba(0,0,0,.05);
 }
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:12px;
-box-shadow:0 -2px 10px rgba(0,0,0,.15);
-z-index: 1000;
-}
-
-.bottom-nav a{
-text-decoration:none;
-color:#333;
-font-size:13px;
-text-align:center;
-}
-
-.bottom-nav i{
-display:block;
-font-size:20px;
-margin-bottom:4px;
-color:#0d47a1;
-}
+.bottom-nav a { text-decoration:none; color:var(--sub-text); font-size:12px; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bottom-nav a.active { color:#0d47a1; font-weight:bold; }
 </style>
 </head>
-
 <body>
 
-<div class="profile-header">
-<div class="profile-img" id="userPhoto">
-<i class="fa-solid fa-user"></i>
-</div>
-<div class="username" id="userName">Guest User</div>
-<div class="email" id="userEmail">guest@studentsempire.com</div>
-</div>
-
-<div class="menu">
-
-<a href="#" class="card">
-<div class="left">
-<i class="fa-solid fa-book"></i>
-<span>My Notes</span>
-</div>
-<i class="fa-solid fa-chevron-right"></i>
-</a>
-
-<a href="#" class="card">
-<div class="left">
-<i class="fa-solid fa-file-pdf"></i>
-<span>Saved PDFs</span>
-</div>
-<i class="fa-solid fa-chevron-right"></i>
-</a>
-
-<a href="#" class="card">
-<div class="left">
-<i class="fa-solid fa-users"></i>
-<span>My Groups</span>
-</div>
-<i class="fa-solid fa-chevron-right"></i>
-</a>
-
-<a href="#" class="card">
-<div class="left">
-<i class="fa-solid fa-gear"></i>
-<span>Settings</span>
-</div>
-<i class="fa-solid fa-chevron-right"></i>
-</a>
-
-<a href="admin.html" class="card" id="adminBtn">
-<div class="left">
-<i class="fa-solid fa-shield-halved"></i>
-<span>Admin Panel</span>
-</div>
-<i class="fa-solid fa-chevron-right"></i>
-</a>
-
-<div class="card logout" id="logoutBtn">
-<div class="left">
-<i class="fa-solid fa-right-from-bracket"></i>
-<span>Logout</span>
-</div>
+<!-- प्रोफाइल इन्फो कार्ड -->
+<div class="profile-card">
+  <img id="profilePic" src="https://via.placeholder.com/150" alt="Profile">
+  <h2 id="profileName">Loading Name...</h2>
+  <p id="profileEmail">Loading Email...</p>
 </div>
 
+<!-- 🔥 स्पेशल सेक्शन: सिर्फ असली ओनर/एडमिन (बंटी डोडा भाई) के लिए गुप्त बटन -->
+<div class="section-title" id="adminSectionTitle" style="display: none;">Owner Controller</div>
+<div class="settings-group" id="adminBtnGroup" style="display: none;">
+  <div class="setting-item" onclick="window.location.href='admin.html'" style="background: rgba(13, 71, 161, 0.1);">
+    <div class="setting-left" style="color: #0d47a1; font-weight: bold;">
+      <i class="fa-solid fa-user-shield" style="color: #0d47a1;"></i>
+      <span>Go To Admin Panel</span>
+    </div>
+    <div class="setting-right"><i class="fa-solid fa-chevron-right" style="color: #0d47a1;"></i></div>
+  </div>
 </div>
 
+<!-- सेक्शन 1: सामान्य सेटिंग्स -->
+<div class="section-title">General Settings</div>
+<div class="settings-group">
+  <!-- न्यू फीचर: डार्क मोड -->
+  <div class="setting-item">
+    <div class="setting-left">
+      <i class="fa-solid fa-moon"></i>
+      <span>Dark Mode</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggle" onclick="toggleDarkMode()">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <!-- शेयर ऐप -->
+  <div class="setting-item" onclick="shareApp()">
+    <div class="setting-left">
+      <i class="fa-solid fa-share-nodes"></i>
+      <span>Share App With Friends</span>
+    </div>
+    <div class="setting-right"><i class="fa-solid fa-chevron-right"></i></div>
+  </div>
+</div>
+
+<!-- सेक्शन 2: सपोर्ट और हेल्प -->
+<div class="section-title">Support & Info</div>
+<div class="settings-group">
+  <!-- कांटेक्ट सपोर्ट -->
+  <div class="setting-item" onclick="contactSupport()">
+    <div class="setting-left">
+      <i class="fa-solid fa-headset"></i>
+      <span>Contact Support / Report Problem</span>
+    </div>
+    <div class="setting-right"><i class="fa-solid fa-chevron-right"></i></div>
+  </div>
+
+  <!-- न्यू फीचर: चैट कैश क्लियर करना -->
+  <div class="setting-item" onclick="clearCache()">
+    <div class="setting-left">
+      <i class="fa-solid fa-trash-can"></i>
+      <span>Clear Local Chat Cache</span>
+    </div>
+    <div class="setting-right"><i class="fa-solid fa-chevron-right"></i></div>
+  </div>
+
+  <!-- न्यू फीचर: डेवलपर क्रेडिट (बंटी डोडा ओनर) -->
+  <div class="setting-item" onclick="showDeveloper()">
+    <div class="setting-left">
+      <i class="fa-solid fa-code"></i>
+      <span>About Developer</span>
+    </div>
+    <div class="setting-right"><i class="fa-solid fa-chevron-right"></i></div>
+  </div>
+
+  <!-- न्यू फीचर: ऐप वर्जन चेक -->
+  <div class="setting-item" onclick="checkUpdate()">
+    <div class="setting-left">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>App Version</span>
+    </div>
+    <div class="setting-right">v1.0.2 (Up to date)</div>
+  </div>
+</div>
+
+<!-- सेक्शन 3: अकाउंट सुरक्षा -->
+<div class="section-title">Account Actions</div>
+<div class="settings-group">
+  <div class="setting-item" onclick="logoutUser()">
+    <div class="setting-left" style="color: #d32f2f;">
+      <i class="fa-solid fa-right-from-bracket" style="color: #d32f2f;"></i>
+      <span>Log Out</span>
+    </div>
+  </div>
+  <div class="setting-item" onclick="deleteAccount()">
+    <div class="setting-left" style="color: #d32f2f;">
+      <i class="fa-solid fa-user-slash" style="color: #d32f2f;"></i>
+      <span>Delete Account</span>
+    </div>
+  </div>
+</div>
+
+<!-- बॉटम नेविगेशन बार -->
 <nav class="bottom-nav">
-<a href="home.html">
-<i class="fa-solid fa-house"></i>
-Home
-</a>
-<a href="study.html">
-<i class="fa-solid fa-book"></i>
-Study
-</a>
-<a href="chat.html">
-<i class="fa-solid fa-comments"></i>
-Chat
-</a>
-<a href="community.html">
-<i class="fa-solid fa-users"></i>
-Community
-</a>
-<a href="profile.html">
-<i class="fa-solid fa-user"></i>
-Profile
-</a>
+  <a href="home.html"><i class="fa-solid fa-house"></i>Home</a>
+  <a href="study.html"><i class="fa-solid fa-book"></i>Study</a>
+  <a href="chat.html"><i class="fa-solid fa-comments"></i>Chat</a>
+  <a href="profile.html" class="active"><i class="fa-solid fa-user"></i>Profile</a>
 </nav>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, deleteDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
@@ -224,50 +258,127 @@ const firebaseConfig = {
   projectId: "student-empires",
   storageBucket: "student-empires.firebasestorage.app",
   messagingSenderId: "509106125707",
-  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e",
-  measurementId: "G-ETHZNFTT7S"
+  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// एडमिन ईमेल आईडी
-const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
+const ADMIN_EMAIL = "bantidoda345@gmail.com"; // ओनर की स्पेशल ईमेल आईडी
+let currentUser = null;
 
-onAuthStateChanged(auth, (user) => {
+// डार्क मोड लोकल स्टोरेज चेक
+if (localStorage.getItem("theme") === "dark") {
+  document.documentElement.setAttribute("data-theme", "dark");
+  document.getElementById("darkModeToggle").checked = true;
+}
+
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    // अगर यूजर लॉगिन नहीं है तो सीधे लॉगिन स्क्रीन पर भेजें
     window.location.href = "index.html";
   } else {
-    // 1. यूजर की डिटेल्स स्क्रीन पर सेट करना
-    document.getElementById("userName").innerText = user.displayName || "Empire User";
-    document.getElementById("userEmail").innerText = user.email;
-    
-    // अगर गूगल प्रोफाइल फोटो उपलब्ध है तो उसे दिखाना
-    if (user.photoURL) {
-      document.getElementById("userPhoto").innerHTML = `<img src="${user.photoURL}" alt="Profile">`;
-    }
+    currentUser = user;
+    document.getElementById("profileName").innerText = user.displayName || "Student";
+    document.getElementById("profileEmail").innerText = user.email;
+    if(user.photoURL) document.getElementById("profilePic").src = user.photoURL;
 
-    // 2. एडमिन बटन की सुरक्षा जांच
+    // 🔥 अगर बंटी डोडा भाई लॉगिन हैं, तो एडमिन बटन लाइव शो कर दो
     if (user.email === ADMIN_EMAIL) {
-      document.getElementById("adminBtn").style.display = "flex";
-    } else {
-      document.getElementById("adminBtn").style.display = "none";
+      document.getElementById("adminSectionTitle").style.display = "block";
+      document.getElementById("adminBtnGroup").style.display = "block";
     }
   }
 });
 
-// 3. लॉगआउट फंक्शन चालू करना
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  if (confirm("क्या आप लॉगआउट करना चाहते हैं?")) {
-    signOut(auth).then(() => {
-      window.location.href = "index.html";
-    }).catch((error) => {
-      alert("Error logging out: " + error.message);
-    });
+// 1. डार्क मोड फंक्शन
+window.toggleDarkMode = function() {
+  const isChecked = document.getElementById("darkModeToggle").checked;
+  if (isChecked) {
+    document.documentElement.setAttribute("data-theme", "dark");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    localStorage.setItem("theme", "light");
   }
-});
-</script>
+}
 
+// 2. शेयर ऐप फंक्शन
+window.shareApp = function() {
+  const shareData = {
+    title: 'Students Empire',
+    text: 'भाई, इस ऐप पर फ्री नोट्स, लाइव चैट और स्टडी मटेरियल मिल रहा है, अभी चेक कर!',
+    url: window.location.origin
+  };
+  if (navigator.share) {
+    navigator.share(shareData).catch(console.error);
+  } else {
+    navigator.clipboard.writeText(window.location.origin);
+    alert("ऐप लिंक कॉपी कर लिया गया है! दोस्तों को शेयर करें।");
+  }
+}
+
+// 3. कांटेक्ट सपोर्ट
+window.contactSupport = async function() {
+  const issue = prompt("अपनी समस्या या फीडबैक यहाँ लिखें (यह सीधे एडमिन के पास जाएगा):");
+  if (!issue || !issue.trim()) return;
+
+  try {
+    await addDoc(collection(db, "support_tickets"), {
+      userId: currentUser.uid,
+      userName: currentUser.displayName,
+      userEmail: currentUser.email,
+      message: issue,
+      timestamp: new Date()
+    });
+    alert("आपकी रिपोर्ट दर्ज कर ली गई है। धन्यवाद!");
+  } catch (error) {
+    alert("एरर: " + error.message);
+  }
+}
+
+// 4. लोकल कैश क्लियर करना
+window.clearCache = function() {
+  if(confirm("क्या आप लोकल चैट डेटा रीसेट करना चाहते हैं? इससे ऐप रीफ्रेश हो जाएगी।")) {
+    localStorage.removeItem("activeRoomId");
+    alert("लोकल कैश सफलतापूर्वक साफ़ कर दिया गया है!");
+    window.location.reload();
+  }
+}
+
+// 5. डेवलपर/ओनर इन्फो दिखाना
+window.showDeveloper = function() {
+  alert("👑 Students Empire App 👑\n\nOwner & Founder: Banti Doda\nManaged by: Yash Mobile & Electronics\n\nThank you for using our Platform! Build v1.0.2");
+}
+
+// 6. अपडेट चेक
+window.checkUpdate = function() {
+  alert("आपका ऐप पूरी तरह से अपडेटेड है! वर्जन: v1.0.2");
+}
+
+// 7. लॉगआउट
+window.logoutUser = async function() {
+  if (confirm("क्या आप लॉगआउट करना चाहते हैं?")) {
+    await signOut(auth);
+    window.location.href = "index.html";
+  }
+}
+
+// 8. अकाउंट डिलीट
+window.deleteAccount = async function() {
+  const check = confirm("क्या आप निश्चित रूप से अपना अकाउंट हमेशा के लिए हटाना चाहते हैं?");
+  if (!check) return;
+  const confirmText = prompt("अकाउंट हटाने के लिए 'DELETE' लिखें:");
+  if (confirmText !== "DELETE") return alert("गलत टेक्स्ट!");
+
+  try {
+    await deleteDoc(doc(db, "users", currentUser.uid));
+    await deleteUser(currentUser);
+    window.location.href = "index.html";
+  } catch (error) {
+    alert("सुरक्षा कारणों से, कृपया ऐप रीस्टार्ट करके दोबारा कोशिश करें।");
+  }
+}
+</script>
 </body>
 </html>
