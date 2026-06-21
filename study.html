@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Study Material</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fb;
+padding-bottom:80px;
+}
+
+.header{
+background:#0d47a1;
+color:white;
+padding:15px;
+}
+
+.header h2{
+font-size:24px;
+}
+
+.search-box{
+padding:15px;
+}
+
+.search-box input{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+padding:15px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 2px 10px rgba(0,0,0,.1);
+text-decoration:none;
+color:black;
+}
+
+.card i{
+font-size:35px;
+color:#0d47a1;
+margin-bottom:10px;
+}
+
+.card h3{
+font-size:16px;
+}
+
+.materials{
+padding:15px;
+}
+
+.material{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.btn{
+background:#0d47a1;
+color:white;
+padding:8px 12px;
+border-radius:8px;
+text-decoration:none;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+box-shadow:0 -2px 10px rgba(0,0,0,.15);
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:#333;
+font-size:14px;
+text-align:center;
+}
+
+.bottom-nav i{
+display:block;
+font-size:20px;
+margin-bottom:4px;
+color:#0d47a1;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>Study Material</h2>
+</div>
+
+<div class="search-box">
+<input type="text" placeholder="Search Study Material">
+</div>
+
+<div class="grid">
+
+<a href="#" class="card">
+<i class="fa-solid fa-atom"></i>
+<h3>Physics</h3>
+</a>
+
+<a href="#" class="card">
+<i class="fa-solid fa-flask"></i>
+<h3>Chemistry</h3>
+</a>
+
+<a href="#" class="card">
+<i class="fa-solid fa-square-root-variable"></i>
+<h3>Mathematics</h3>
+</a>
+
+<a href="#" class="card">
+<i class="fa-solid fa-laptop-code"></i>
+<h3>Computer</h3>
+</a>
+
+</div>
+
+<div class="materials">
+
+<div class="material">
+<span>Physics Chapter 1 PDF</span>
+<a href="#" class="btn">Open</a>
+</div>
+
+<div class="material">
+<span>Chemistry Notes PDF</span>
+<a href="#" class="btn">Open</a>
+</div>
+
+<div class="material">
+<span>Math Formula Book</span>
+<a href="#" class="btn">Open</a>
+</div>
+
+</div>
+
+<nav class="bottom-nav">
+
+<a href="home.html">
+<i class="fa-solid fa-house"></i>
+Home
+</a>
+
+<a href="study.html">
+<i class="fa-solid fa-book"></i>
+Study
+</a>
+
+<a href="chat.html">
+<i class="fa-solid fa-comments"></i>
+Chat
+</a>
+
+<a href="community.html">
+<i class="fa-solid fa-users"></i>
+Community
+</a>
+
+<a href="profile.html">
+<i class="fa-solid fa-user"></i>
+Profile
+</a>
+
+</nav>
+
+</body>
+</html>
