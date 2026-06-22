@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Students Empire</title>
+<title>Students Empire - Dashboard</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
     :root { --primary: #0d47a1; --light: #f0f4ff; }
@@ -11,22 +11,17 @@
     body { background: #fdfdfd; padding-bottom: 80px; }
 
     /* Top Branding Section */
-    .brand-section { background: var(--primary); padding: 40px 20px; text-align: center; color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
-    .brand-section h1 { font-size: 28px; margin-bottom: 5px; letter-spacing: 1px; }
-    .brand-section p { opacity: 0.8; font-size: 14px; }
+    .brand-section { background: var(--primary); padding: 40px 20px 60px 20px; text-align: center; color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
+    .brand-section h1 { font-size: 26px; margin-bottom: 5px; }
+    .brand-section p { opacity: 0.9; font-size: 15px; font-weight: 500; }
 
-    /* Quick Grid - 4 Main Buttons */
-    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; margin-top: -30px; }
-    .main-btn { background: white; padding: 25px 10px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transition: 0.3s; cursor: pointer; }
+    /* Grid - 8 Buttons */
+    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; margin-top: -40px; }
+    .main-btn { background: white; padding: 20px 10px; border-radius: 20px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.06); transition: 0.3s; cursor: pointer; border: 1px solid #f0f0f0; }
     .main-btn:active { transform: scale(0.95); }
-    .main-btn i { font-size: 30px; color: var(--primary); margin-bottom: 12px; }
-    .main-btn span { display: block; font-weight: 600; color: #333; font-size: 14px; }
+    .main-btn i { font-size: 26px; color: var(--primary); margin-bottom: 10px; }
+    .main-btn span { display: block; font-weight: 600; color: #333; font-size: 13px; }
 
-    /* Recent Updates */
-    .section-title { padding: 10px 20px; font-size: 18px; font-weight: bold; color: #333; }
-    .update-list { padding: 0 20px; }
-    .update-item { background: #f8f9fe; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid #eef; }
-    
     .bottom-nav { position:fixed; bottom:0; width:100%; background:white; display:flex; justify-content:space-around; padding:15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
     .bottom-nav a { text-decoration:none; color:#888; font-size:12px; display:flex; flex-direction:column; align-items:center; }
     .bottom-nav a.active { color: var(--primary); }
@@ -35,32 +30,38 @@
 <body>
 
 <div class="brand-section">
-    <h1 id="welcomeUser">Students Empire</h1>
-    <p>आपका अपना डिजिटल क्लासरूम</p>
+    <h1>STUDENTS EMPIRE</h1>
+    <p id="welcomeUser">Loading...</p>
 </div>
 
 <div class="action-grid">
+    <!-- Active Buttons -->
     <div class="main-btn" onclick="window.location.href='study.html'">
-        <i class="fa-solid fa-book-open-reader"></i>
-        <span>Study Material</span>
+        <i class="fa-solid fa-book-open"></i><span>Study Material</span>
     </div>
-    <div class="main-btn" onclick="window.location.href='exam.html'">
-        <i class="fa-solid fa-pen-nib"></i>
-        <span>Mock Tests</span>
+    <div class="main-btn" onclick="window.location.href='chat.html'">
+        <i class="fa-solid fa-comments"></i><span>Ask Doubt</span>
     </div>
-    <div class="main-btn" onclick="window.location.href='video.html'">
-        <i class="fa-solid fa-circle-play"></i>
-        <span>Video Lectures</span>
+    <div class="main-btn" onclick="window.location.href='community.html'">
+        <i class="fa-solid fa-users"></i><span>Community</span>
     </div>
-    <div class="main-btn" onclick="window.location.href='notes.html'">
-        <i class="fa-solid fa-clipboard-list"></i>
-        <span>Handwritten Notes</span>
+    <div class="main-btn" onclick="window.location.href='profile.html'">
+        <i class="fa-solid fa-user"></i><span>My Profile</span>
     </div>
-</div>
 
-<div class="section-title">Latest Updates</div>
-<div class="update-list" id="updatesContainer">
-    <div class="update-item">Loading...</div>
+    <!-- Coming Soon Buttons -->
+    <div class="main-btn" onclick="alert('Coming Soon! यह फीचर जल्दी ही आ रहा है।')">
+        <i class="fa-solid fa-pen-nib" style="color:#777"></i><span>Mock Tests</span>
+    </div>
+    <div class="main-btn" onclick="alert('Coming Soon! यह फीचर जल्दी ही आ रहा है।')">
+        <i class="fa-solid fa-circle-play" style="color:#777"></i><span>Video Classes</span>
+    </div>
+    <div class="main-btn" onclick="alert('Coming Soon! यह फीचर जल्दी ही आ रहा है।')">
+        <i class="fa-solid fa-clipboard-list" style="color:#777"></i><span>Daily Notes</span>
+    </div>
+    <div class="main-btn" onclick="alert('Coming Soon! यह फीचर जल्दी ही आ रहा है।')">
+        <i class="fa-solid fa-graduation-cap" style="color:#777"></i><span>Job Alerts</span>
+    </div>
 </div>
 
 <nav class="bottom-nav">
@@ -73,31 +74,17 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // यहाँ अपना config डाल लेना
-    const app = initializeApp({ /* ...YOUR_CONFIG... */ });
+    const firebaseConfig = { /* अपना कॉन्फ़िग यहाँ डाल देना */ };
+    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
     onAuthStateChanged(auth, (user) => {
-        if (user) document.getElementById("welcomeUser").innerText = `Hi, ${user.displayName || 'Student'}`;
-        else window.location.href = "index.html";
-    });
-
-    // Recent Updates Loader
-    const q = query(collection(db, "materials"), orderBy("uploadedAt", "desc"), limit(3));
-    onSnapshot(q, (snapshot) => {
-        const container = document.getElementById("updatesContainer");
-        container.innerHTML = "";
-        snapshot.forEach((doc) => {
-            container.innerHTML += `
-                <div class="update-item">
-                    <i class="fa-solid fa-file-pdf" style="color: #0d47a1;"></i>
-                    <div><b>${doc.data().title}</b><br><small>New Study Material</small></div>
-                </div>
-            `;
-        });
+        if (user) {
+            document.getElementById("welcomeUser").innerText = `Welcome, ${user.displayName || 'Student'}`;
+        } else {
+            window.location.href = "index.html";
+        }
     });
 </script>
 </body>
