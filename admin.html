@@ -44,14 +44,16 @@ box-shadow:0 2px 8px rgba(0,0,0,.08);
 
 .card h3{
 margin-bottom:15px;
+color: #0d47a1;
 }
 
-input,select{
+input,select,textarea{
 width:100%;
 padding:12px;
 margin-bottom:10px;
 border:1px solid #ddd;
 border-radius:8px;
+font-size: 14px;
 }
 
 button{
@@ -63,6 +65,11 @@ border:none;
 border-radius:8px;
 font-size:15px;
 cursor: pointer;
+font-weight: bold;
+}
+
+button:active{
+opacity: 0.9;
 }
 
 .stats{
@@ -84,7 +91,7 @@ box-shadow:0 2px 8px rgba(0,0,0,.08);
 color:#0d47a1;
 }
 
-.folder{
+.folder, .complaint-box{
 background:white;
 padding:12px;
 margin-bottom:10px;
@@ -95,9 +102,35 @@ align-items:center;
 border: 1px solid #eee;
 }
 
-.folder i{
+.complaint-box {
+flex-direction: column;
+align-items: flex-start;
+gap: 8px;
+border-left: 4px solid #d32f2f;
+}
+
+.complaint-header {
+width: 100%;
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-weight: bold;
+color: #333;
+}
+
+.folder i, .complaint-box i{
 color:#d32f2f;
 cursor: pointer;
+padding: 5px;
+}
+
+.file-input-wrapper {
+background: #e3f2fd;
+padding: 10px;
+border-radius: 8px;
+border: 1px dashed #0d47a1;
+margin-bottom: 10px;
+text-align: center;
 }
 </style>
 </head>
@@ -125,8 +158,8 @@ cursor: pointer;
 </div>
 
 <div class="stat">
-<h2>0</h2>
-<p>Total Groups</p>
+<h2 id="totalComplaintsCount">0</h2>
+<p>Active Complaints</p>
 </div>
 </div>
 
@@ -137,19 +170,37 @@ cursor: pointer;
 </div>
 
 <div class="card">
-<h3>Upload Notes PDF Link</h3>
-<input type="text" id="pdfTitle" placeholder="PDF Title">
-<input type="text" id="pdfUrl" placeholder="Paste PDF/Drive Link Here">
+<h3>Upload Study Material / Notes / Pics</h3>
+<input type="text" id="pdfTitle" placeholder="Material Title (e.g., Physics Notes Chapter 1)">
+
+<select id="pageTargetSelect">
+  <option value="study">Send to Study.html (Competition Exam)</option>
+  <option value="notes">Send to Notes.html (College / School Notes)</option>
+</select>
+
+<input type="text" id="pdfUrl" placeholder="Paste Drive Link or Image URL here">
+<div class="file-input-wrapper">
+  <p style="font-size: 12px; color: #555; margin-bottom: 5px;">Or select a local File/Pic to get link (Optional):</p>
+  <input type="file" id="fileUploader" style="margin: 0; padding: 5px;">
+</div>
+
 <select id="folderSelect">
 <option value="">Select Folder</option>
 </select>
-<button id="uploadPdfBtn">Upload PDF Link</button>
+<button id="uploadPdfBtn">Upload Material</button>
 </div>
 
 <div class="card">
 <h3>Existing Folders</h3>
 <div id="foldersContainer">
   </div>
+</div>
+
+<div class="card">
+<h3>User Complaints & Feedbacks</h3>
+<div id="complaintsContainer">
+  <div style="text-align: center; color: #666;">No complaints filed yet.</div>
+</div>
 </div>
 
 <div class="card">
@@ -187,19 +238,17 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "home.html";
   } else {
     try {
-      // डेटाबेस से सीक्रेट पिन को फेच करना (यह कोड में कहीं नहीं दिखेगा)
       const querySnapshot = await getDocs(collection(db, "admin_config"));
       let adminPinFromDB = "";
-      
+
       querySnapshot.forEach((doc) => {
         adminPinFromDB = doc.data().pin;
       });
 
-      // प्रॉम्ट बॉक्स
       const enteredPin = prompt("सुरक्षा सत्यापन: कृपया अपना एडमिन सीक्रेट पिन दर्ज करें:");
-      
+
       if (enteredPin && enteredPin === adminPinFromDB.toString()) {
-        document.body.style.display = "block"; // सही पिन होने पर ही दिखेगा पूरा पेज
+        document.body.style.display = "block"; 
         loadAdminData();
       } else {
         alert("गलत सिक्योरिटी पिन! एक्सेस अस्वीकार कर दिया गया है।");
@@ -215,14 +264,15 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 function loadAdminData() {
+  // फोल्डर्स लोड करना
   onSnapshot(collection(db, "folders"), (snapshot) => {
     const selectDropdown = document.getElementById("folderSelect");
     const foldersContainer = document.getElementById("foldersContainer");
     const totalFoldersCount = document.getElementById("totalFoldersCount");
-    
+
     selectDropdown.innerHTML = '<option value="">Select Folder</option>';
     foldersContainer.innerHTML = '';
-    
+
     totalFoldersCount.innerText = snapshot.size; 
 
     snapshot.forEach((folderDoc) => {
@@ -241,15 +291,48 @@ function loadAdminData() {
     });
   });
 
+  // पीडीएफ काउंट्स लोड करना
   onSnapshot(collection(db, "materials"), (snapshot) => {
     document.getElementById("totalNotesCount").innerText = snapshot.size;
   });
 
+  // यूज़र्स काउंट्स लोड करना
   onSnapshot(collection(db, "users"), (snapshot) => {
     document.getElementById("totalUsersCount").innerText = snapshot.size;
   });
+
+  // 🚨 शिकायतों (Complaints) को लाइव लोड करना
+  onSnapshot(collection(db, "complaints"), (snapshot) => {
+    const complaintsContainer = document.getElementById("complaintsContainer");
+    document.getElementById("totalComplaintsCount").innerText = snapshot.size;
+    
+    complaintsContainer.innerHTML = "";
+    if(snapshot.empty) {
+      complaintsContainer.innerHTML = '<div style="text-align: center; color: #666; padding:10px;">कोई शिकायत नहीं मिली! सब बढ़िया है।</div>';
+      return;
+    }
+
+    snapshot.forEach((compDoc) => {
+      const compData = compDoc.data();
+      const compId = compDoc.id;
+
+      const compDiv = document.createElement("div");
+      compDiv.className = "complaint-box";
+      compDiv.innerHTML = `
+        <div class="complaint-header">
+          <span><i class="fa-solid fa-user-circle"></i> User: ${compData.userEmail || "Anonymous"}</span>
+          <i class="fa-solid fa-circle-check" style="color: green;" onclick="deleteComplaint('${compId}')" title="Mark Resolved"></i>
+        </div>
+        <p style="text-align:left; color:#333; font-size:14px; width:100%; word-wrap:break-word;">
+          <b>Complaint:</b> ${compData.text || compData.message}
+        </p>
+      `;
+      complaintsContainer.appendChild(compDiv);
+    });
+  });
 }
 
+// नया फोल्डर बनाना
 document.getElementById("createFolderBtn").addEventListener("click", async () => {
   const folderName = document.getElementById("newFolderName").value.trim();
   if (!folderName) return alert("कृपया फ़ोल्डर का नाम लिखें!");
@@ -266,13 +349,43 @@ document.getElementById("createFolderBtn").addEventListener("click", async () =>
   }
 });
 
+// लोकल फ़ाइल अपलोडर से यूआरएल जेनेरेट का लॉजिक (फ्री इमेजबॉक्स एपीआई द्वारा)
+document.getElementById("fileUploader").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  document.getElementById("pdfUrl").value = "Generating link, please wait...";
+  const formData = new FormData();
+  formData.append("image", file);
+
+  try {
+    // इमेजेस/पिक्स के लिए फ्री होस्टिंग लिंक जनरेटर
+    const res = await fetch("https://api.imgbb.com/1/upload?key=67f1b7bebf4fa2514e2c94314fc37775", {
+      method: "POST",
+      body: formData
+    });
+    const json = await res.json();
+    if(json.success) {
+      document.getElementById("pdfUrl").value = json.data.url;
+      alert("फ़ाइल/पिक का लिंक सफलतापूर्वक बन गया!");
+    } else {
+      alert("लिंक जनरेट नहीं हो पाया, कृपया मैन्युअल यूआरएल पेस्ट करें।");
+    }
+  } catch (err) {
+    document.getElementById("pdfUrl").value = "";
+    alert("लिंक जनरेशन फ़ेल हुआ।");
+  }
+});
+
+// मैटेरियल/नोट्स/पीडीएफ अपलोड करना
 document.getElementById("uploadPdfBtn").addEventListener("click", async () => {
   const title = document.getElementById("pdfTitle").value.trim();
   const url = document.getElementById("pdfUrl").value.trim();
   const selectedFolder = document.getElementById("folderSelect").value;
+  const targetPage = document.getElementById("pageTargetSelect").value; // study या notes
 
   if (!title || !url || !selectedFolder) {
-    return alert("कृपया टाइटल, लिंक और फ़ोल्डर तीनों सिलेक्ट करें!");
+    return alert("कृपया टाइटल, लिंक/पिक और फ़ोल्डर तीनों सिलेक्ट करें!");
   }
 
   try {
@@ -280,17 +393,20 @@ document.getElementById("uploadPdfBtn").addEventListener("click", async () => {
       title: title,
       url: url,
       folder: selectedFolder,
+      target: targetPage, // यह पहचान कराएगा कि study.html में दिखाना है या notes.html में
       uploadedAt: new Date()
     });
-    alert("PDF लिंक सफलतापूर्वक अपलोड हो गया!");
+    alert("सामग्री सफलतापूर्वक अपलोड हो गई!");
     document.getElementById("pdfTitle").value = "";
     document.getElementById("pdfUrl").value = "";
     document.getElementById("folderSelect").value = "";
+    document.getElementById("fileUploader").value = "";
   } catch (error) {
     alert("अपलोड एरर: " + error.message);
   }
 });
 
+// फोल्डर डिलीट करना
 window.deleteFolder = async function(id) {
   if (confirm("क्या आप इस फ़ोल्डर को डिलीट करना चाहते हैं?")) {
     try {
@@ -298,6 +414,18 @@ window.deleteFolder = async function(id) {
       alert("फ़ोल्डर डिलीट हो गया!");
     } catch (error) {
       alert("डिलीट करने में एरर: " + error.message);
+    }
+  }
+}
+
+// 🚨 शिकायत डिलीट/सॉल्व करना
+window.deleteComplaint = async function(id) {
+  if (confirm("क्या यह शिकायत हल हो चुकी है? इसे हटाने के लिए ओके दबाएं।")) {
+    try {
+      await deleteDoc(doc(db, "complaints", id));
+      alert("शिकायत लिस्ट से हटा दी गई!");
+    } catch (error) {
+      alert("हटाने में एरर: " + error.message);
     }
   }
 }
