@@ -7,6 +7,13 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- 🛡️ वर्सेल लूप ब्रेकर कवच: अगर लोकल स्टोरेज में लॉगिन नहीं है, तभी इंडेक्स पर भेजेगा, वर्ना लूप रोक देगा -->
+<script>
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "index.html";
+  }
+</script>
+
 <style>
 *{
 margin:0;
@@ -74,7 +81,6 @@ gap:15px;
 padding:15px;
 }
 
-/* कड़क और नया कार्ड स्टाइल */
 .card{
 background:white;
 padding:20px;
@@ -204,7 +210,6 @@ color:#0d47a1;
 
 <div class="quick-title"><i class="fa-solid fa-star"></i> Academic Services</div>
 
-<!-- बदल दिए गए नए और कस्टमाइज्ड बटन्स -->
 <section class="quick-grid">
 <div class="card" onclick="window.location.href='study.html'">
 <div class="icon-wrapper"><i class="fa-solid fa-graduation-cap"></i></div>
@@ -234,7 +239,6 @@ color:#0d47a1;
 </div>
 </section>
 
-<!-- बॉटम नेविगेशन बार जो एक्टिव पेज को हाइलाइट करेगा -->
 <nav class="bottom-nav">
 <a href="home.html" class="active">
 <i class="fa-solid fa-house"></i>
@@ -281,10 +285,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// 🛠️ सुधरा हुआ Firebase स्टेट लिसनर
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    window.location.href = "index.html";
+    // सिर्फ तभी बाहर फेंकेगा जब लोकल मेमोरी में भी लॉगआउट हो चुका हो
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+      window.location.href = "index.html";
+    }
   } else {
+    // अगर यूजर सही सलामत मिल गया, तो लोकल मेमोरी भी पक्की कर लो
+    localStorage.setItem("isLoggedIn", "true");
     if(user.displayName) {
       document.getElementById("welcomeUser").innerText = `Welcome, ${user.displayName}!`;
     }
