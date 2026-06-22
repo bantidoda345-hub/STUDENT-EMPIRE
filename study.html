@@ -109,7 +109,7 @@ margin-top: 10px;
 
 .materials{
 padding:15px;
-display: none; /* शुरुआत में छुपा रहेगा, फोल्डर क्लिक पर दिखेगा */
+display: none; /* शुरुआत में छुपा रहेगा */
 }
 
 .material{
@@ -138,6 +138,22 @@ border: none;
 
 .btn:active {
 opacity: 0.9;
+}
+
+/* 📺 नया पीडीएफ व्यूअर कंटेनर स्टाइल */
+.pdf-viewer-container {
+display: none;
+padding: 15px;
+background: #white;
+margin-top: 10px;
+}
+
+.pdf-viewer-container iframe {
+width: 100%;
+height: 550px;
+border: 2px solid #0d47a1;
+border-radius: 12px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
 .bottom-nav{
@@ -197,6 +213,11 @@ color:#0d47a1;
   <div style="grid-column: span 2; text-align: center; color: #666;">Loading Folders...</div>
 </div>
 
+<div class="pdf-viewer-container" id="pdfViewerZone">
+  <div style="font-weight: bold; margin-bottom: 8px; color: #0d47a1;"><i class="fa-solid fa-eye"></i> Reading Document:</div>
+  <iframe id="pdfIframe" src=""></iframe>
+</div>
+
 <div class="section-title" id="pdfTitle" style="display: none;"><i class="fa-solid fa-file-pdf"></i> Available PDFs</div>
 <div class="materials" id="materialsContainer">
   <div style="text-align: center; color: #666;">Loading PDFs...</div>
@@ -246,7 +267,6 @@ const db = getFirestore(app);
 
 let allMaterials = []; 
 
-// सुरक्षा लॉक
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "index.html";
@@ -256,7 +276,6 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 1. डेटाबेस से लाइव फ़ोल्डर्स लोड करना
 function loadFolders() {
   onSnapshot(collection(db, "folders"), (snapshot) => {
     const grid = document.getElementById("foldersGrid");
@@ -272,7 +291,7 @@ function loadFolders() {
       const card = document.createElement("div");
       card.className = "card";
       card.id = `folder-${folder.name.replace(/\s+/g, '')}`;
-      
+
       card.onclick = () => {
         selectFolder(folder.name);
       };
@@ -286,7 +305,6 @@ function loadFolders() {
   });
 }
 
-// 2. डेटाबेस से लाइव PDF मैटेरियल्स लोड करना
 function loadMaterials() {
   onSnapshot(collection(db, "materials"), (snapshot) => {
     allMaterials = []; 
@@ -298,7 +316,6 @@ function loadMaterials() {
         url: data.url || data.link
       });
     });
-    // शुरुआत में कुछ भी रेंडर नहीं करेंगे क्योंकि बाहर सिर्फ फोल्डर दिखाने हैं
   });
 }
 
@@ -325,66 +342,90 @@ function renderMaterials(dataList) {
   });
 }
 
-// 🛠️ व्हाइट स्क्रीन बाईपास करने के लिए स्पेशल फंक्शन
+// 🛠️ हर तरह के यूआरएल को सेफली लोड करने का मास्टर फंक्शन
 window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
-  // यह कोड ऐप के WebView को पूरी तरह बाईपास करेगा और क्रोम ब्राउज़र में डाउनलोड पेज खोलेगा
-  const link = document.createElement('a');
-  link.href = pdfUrl;
-  link.setAttribute('download', ''); // यह फाइल को डाउनलोड के लिए फोर्स करेगा
-  link.setAttribute('target', '_blank');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+
+  let finalUrl = pdfUrl;
+
+  // अगर गूगल ड्राइव का नॉर्मल लिंक है तो उसे एम्बेड लिंक में बदलो
+  if(pdfUrl.includes("drive.google.com")) {
+    if(pdfUrl.includes("/view")) {
+      finalUrl = pdfUrl.replace("/view", "/preview");
+    } else if(pdfUrl.includes("?id=")) {
+      const id = pdfUrl.split("id=")[1].split("&")[0];
+      finalUrl = `https://drive.google.com/file/d/${id}/preview`;
+    }
+  } else {
+    // अन्य सामान्य लिंक्स के लिए गूगल का ऑफिशियल डॉक्स व्यूअर फ्रेम यूज करेंगे
+    finalUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}`;
+  }
+
+  // पीडीएफ की लिस्ट छुपाओ और व्यूअर बॉक्स में पीडीएफ दिखाओ
+  document.getElementById("materialsContainer").style.display = "none";
+  document.getElementById("pdfTitle").style.display = "none";
+  
+  const viewerZone = document.getElementById("pdfViewerZone");
+  const iframe = document.getElementById("pdfIframe");
+  
+  iframe.src = finalUrl;
+  viewerZone.style.display = "block";
+  
+  // बैक बटन का टेक्स्ट बदलो ताकि यूजर समझ सके कि लिस्ट में वापस जाना है
+  document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to List`;
 }
 
-
-// फोल्डर सिलेक्ट करने पर फ़िल्टर, फोल्डर छुपाना और बैक बटन दिखाना
 window.selectFolder = function(folderName) {
-  // फोल्डर्स ग्रिड और सर्च बॉक्स को छुपाएं
   document.getElementById("foldersGrid").style.display = "none";
   document.getElementById("folderTitle").style.display = "none";
   document.getElementById("searchBoxContainer").style.display = "none";
+  document.getElementById("pdfViewerZone").style.display = "none"; // प्रिव्यू बंद रखें
 
-  // पीडीएफ लिस्ट और बैक बटन को दिखाएं
   document.getElementById("materialsContainer").style.display = "block";
   document.getElementById("pdfTitle").style.display = "block";
   document.getElementById("backBtn").style.display = "block";
-  
-  // पीडीएफ को फोल्डर के हिसाब से फ़िल्टर करें
+  document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to Folders`;
+
   const filtered = allMaterials.filter(item => item.folder.toLowerCase() === folderName.toLowerCase());
   renderMaterials(filtered);
 }
 
-// फ़िल्टर रीсет करना (वापस फोल्डर्स की स्क्रीन पर जाना)
 window.resetFilter = function() {
+  // अगर इस समय पीडीएफ खुली हुई है, तो पहले वापस पीडीएफ लिस्ट पर ले जाओ
+  if(document.getElementById("pdfViewerZone").style.display === "block") {
+    document.getElementById("pdfViewerZone").style.display = "none";
+    document.getElementById("pdfIframe").src = "";
+    document.getElementById("materialsContainer").style.display = "block";
+    document.getElementById("pdfTitle").style.display = "block";
+    document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to Folders`;
+    return;
+  }
+
   document.getElementById("searchInput").value = "";
-  
-  // बैक बटन और पीडीएफ लिस्ट छुपाएं
   document.getElementById("backBtn").style.display = "none";
   document.getElementById("materialsContainer").style.display = "none";
   document.getElementById("pdfTitle").style.display = "none";
+  document.getElementById("pdfViewerZone").style.display = "none";
 
-  // फोल्डर्स ग्रिड और सर्च बॉक्स वापस दिखाएं
   document.getElementById("foldersGrid").style.display = "grid";
   document.getElementById("folderTitle").style.display = "block";
   document.getElementById("searchBoxContainer").style.display = "block";
 }
 
-// लाइव सर्च फ़िल्टर फंक्शन
 function filterData() {
   const searchText = document.getElementById("searchInput").value.toLowerCase();
   if(searchText === "") {
     resetFilter();
     return;
   }
-  
-  // अगर यूजर सर्च बार में टाइप कर रहा है, तो फोल्डर्स छुपाकर मैचिंग पीडीएफ दिखाएं
+
   document.getElementById("foldersGrid").style.display = "none";
   document.getElementById("folderTitle").style.display = "none";
+  document.getElementById("pdfViewerZone").style.display = "none";
   document.getElementById("materialsContainer").style.display = "block";
   document.getElementById("pdfTitle").style.display = "block";
   document.getElementById("backBtn").style.display = "block";
+  document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to Folders`;
 
   const filtered = allMaterials.filter(item => {
     return item.title.toLowerCase().includes(searchText) || item.folder.toLowerCase().includes(searchText);
