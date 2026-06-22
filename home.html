@@ -11,60 +11,54 @@
     body { background: #f4f7fe; padding-bottom: 80px; }
 
     .brand-section { background: var(--primary); padding: 40px 20px 60px; text-align: center; color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
-    .brand-section h1 { font-size: 24px; margin-bottom: 5px; }
-    .brand-section p { font-size: 14px; opacity: 0.9; }
+    .brand-section h1 { font-size: 26px; margin-bottom: 5px; letter-spacing: 1px; }
+    .brand-section p { font-size: 15px; opacity: 0.9; font-weight: 500; }
 
-    .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; margin-top: -30px; }
-    .btn-card { background: white; padding: 15px 10px; border-radius: 18px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+    .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; margin-top: -30px; }
+    .btn-card { background: white; padding: 20px 10px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; border: 1px solid #f0f0f0; }
     .btn-card:active { transform: scale(0.96); }
-    .btn-card i { font-size: 22px; color: var(--primary); margin-bottom: 5px; }
-    .btn-card span { display: block; font-size: 11px; font-weight: bold; margin-bottom: 5px; }
-    .rating { color: #ffc107; font-size: 10px; }
+    .btn-card i { font-size: 26px; color: var(--primary); margin-bottom: 10px; }
+    .btn-card span { display: block; font-size: 13px; font-weight: bold; color: #333; }
 
-    .bottom-nav { position:fixed; bottom:0; width:100%; background:white; display:flex; justify-content:space-around; padding:15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
-    .bottom-nav a { text-decoration:none; color:#888; font-size:12px; display:flex; flex-direction:column; align-items:center; }
-    .bottom-nav a.active { color: var(--primary); }
+    .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:15px; box-shadow:0 -2px 10px rgba(0,0,0,.1); z-index: 1000; }
+    .bottom-nav a { text-decoration:none; color:#666; font-size:12px; text-align:center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bottom-nav a.active { color: #0d47a1; font-weight: bold; }
+    .bottom-nav i { font-size: 20px; }
 </style>
 </head>
 <body>
 
 <div class="brand-section">
     <h1>STUDENTS EMPIRE</h1>
-    <p id="userNameDisplay">Welcome back!</p>
+    <p id="userNameDisplay">Loading...</p>
 </div>
 
 <div class="action-grid">
-    <!-- Active Features -->
     <div class="btn-card" onclick="window.location.href='study.html'">
         <i class="fa-solid fa-book"></i><span>Study</span>
-        <div class="rating"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
     </div>
     <div class="btn-card" onclick="window.location.href='notes.html'">
         <i class="fa-solid fa-note-sticky"></i><span>Notes</span>
-        <div class="rating"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
     </div>
     <div class="btn-card" onclick="window.location.href='chat.html'">
         <i class="fa-solid fa-comments"></i><span>Doubt</span>
-        <div class="rating"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
     </div>
     <div class="btn-card" onclick="window.location.href='profile.html'">
         <i class="fa-solid fa-user"></i><span>Profile</span>
-        <div class="rating"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></div>
     </div>
-
-    <!-- Coming Soon Features -->
-    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-pen-nib"></i><span>Mock Test</span><div class="rating"><i class="fa-regular fa-star"></i>...</div></div>
-    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-video"></i><span>Videos</span><div class="rating"><i class="fa-regular fa-star"></i>...</div></div>
-    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-briefcase"></i><span>Jobs</span><div class="rating"><i class="fa-regular fa-star"></i>...</div></div>
-    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-newspaper"></i><span>News</span><div class="rating"><i class="fa-regular fa-star"></i>...</div></div>
-    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-calendar-days"></i><span>Exams</span><div class="rating"><i class="fa-regular fa-star"></i>...</div></div>
-    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-star"></i><span>Tips</span><div class="rating"><i class="fa-regular fa-star"></i>...</div></div>
+    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-pen-nib"></i><span>Mock Test</span></div>
+    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-video"></i><span>Videos</span></div>
+    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-briefcase"></i><span>Jobs</span></div>
+    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-newspaper"></i><span>News</span></div>
+    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-calendar-days"></i><span>Exams</span></div>
+    <div class="btn-card" onclick="alert('Coming Soon!')"><i class="fa-solid fa-star"></i><span>Tips</span></div>
 </div>
 
 <nav class="bottom-nav">
     <a href="home.html" class="active"><i class="fa-solid fa-house"></i>Home</a>
     <a href="study.html"><i class="fa-solid fa-book"></i>Study</a>
     <a href="chat.html"><i class="fa-solid fa-comments"></i>Chat</a>
+    <a href="community.html"><i class="fa-solid fa-users"></i>Community</a>
     <a href="profile.html"><i class="fa-solid fa-user"></i>Profile</a>
 </nav>
 
@@ -72,13 +66,24 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const firebaseConfig = { /* Apna Config */ };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
+        authDomain: "student-empires.firebaseapp.com",
+        projectId: "student-empires",
+        storageBucket: "student-empires.firebasestorage.app",
+        messagingSenderId: "509106125707",
+        appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e",
+        measurementId: "G-ETHZNFTT7S"
+    };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            document.getElementById("userNameDisplay").innerText = `Hi, ${user.displayName || 'Student'}`;
+            document.getElementById("userNameDisplay").innerText = `Welcome, ${user.displayName || 'Student'}`;
+        } else {
+            window.location.href = "index.html";
         }
     });
 </script>
