@@ -7,13 +7,6 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<!-- 🛡️ वर्सेल लूप ब्रेकर कवच: अगर लोकल स्टोरेज में लॉगिन नहीं है, तभी इंडेक्स पर भेजेगा, वर्ना लूप रोक देगा -->
-<script>
-  if (localStorage.getItem("isLoggedIn") !== "true") {
-    window.location.href = "index.html";
-  }
-</script>
-
 <style>
 *{
 margin:0;
@@ -285,20 +278,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🛠️ सुधरा हुआ Firebase स्टेट लिसनर
+// 🛠️ बिल्कुल क्लीन Firebase स्टेट लिसनर (बिना किसी लूप झंझट के)
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    // सिर्फ तभी बाहर फेंकेगा जब लोकल मेमोरी में भी लॉगआउट हो चुका हो
-    if (localStorage.getItem("isLoggedIn") !== "true") {
-      window.location.href = "index.html";
-    }
-  } else {
-    // अगर यूजर सही सलामत मिल गया, तो लोकल मेमोरी भी पक्की कर लो
-    localStorage.setItem("isLoggedIn", "true");
+  if (user) {
     if(user.displayName) {
       document.getElementById("welcomeUser").innerText = `Welcome, ${user.displayName}!`;
     }
     loadRecentUpdates();
+  } else {
+    // अगर यूजर लॉगआउट है, तो सीधे बिना किसी ड्रामे के इंडेक्स पर भेज दो
+    window.location.href = "index.html";
   }
 });
 
