@@ -3,11 +3,11 @@ const cors = require('cors');
 
 const app = express();
 
-// परफॉर्मेंस और सिक्योरिटी सेटिंग्स
+// Performance aur Security settings
 app.use(express.json());
 app.use(cors());
 
-// 1. होम रूट (यह चेक करने के लिए कि Vercel पर सर्वर चालू है)
+// 1. Home Route (Yeh check karne ke liye ki Vercel par server chal raha hai)
 app.get('/', (req, res) => {
     res.json({
         status: "success",
@@ -17,10 +17,14 @@ app.get('/', (req, res) => {
     });
 });
 
-// 2. हेल्थ और लोड चेक API
+// 2. Health aur Load Check API
 app.get('/api/health', (req, res) => {
     res.json({
         online: true,
         type: "Serverless Function",
         uptimeSeconds: Math.round(process.uptime())
     });
+});
+
+// Sabse Important: Vercel serverless environment ke liye app ko export karna zaroori hai
+module.exports = app;
