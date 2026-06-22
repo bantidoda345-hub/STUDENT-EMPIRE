@@ -109,6 +109,7 @@ margin-top: 10px;
 
 .materials{
 padding:15px;
+display: none; /* शुरुआत में छुपा रहेगा, फोल्डर क्लिक पर दिखेगा */
 }
 
 .material{
@@ -131,6 +132,8 @@ border-radius:8px;
 text-decoration:none;
 font-weight: bold;
 font-size: 14px;
+cursor: pointer;
+border: none;
 }
 
 .btn:active {
@@ -182,10 +185,10 @@ color:#0d47a1;
 
 <div class="header">
 <h2>Study Material</h2>
-<button class="back-btn" id="backBtn" onclick="resetFilter()"><i class="fa-solid fa-arrow-left"></i> Show All</button>
+<button class="back-btn" id="backBtn" onclick="resetFilter()"><i class="fa-solid fa-arrow-left"></i> Back to Folders</button>
 </div>
 
-<div class="search-box">
+<div class="search-box" id="searchBoxContainer">
 <input type="text" id="searchInput" placeholder="Search Books, Exam or Subjects...">
 </div>
 
@@ -194,7 +197,7 @@ color:#0d47a1;
   <div style="grid-column: span 2; text-align: center; color: #666;">Loading Folders...</div>
 </div>
 
-<div class="section-title"><i class="fa-solid fa-file-pdf"></i> Available PDFs / Study Materials</div>
+<div class="section-title" id="pdfTitle" style="display: none;"><i class="fa-solid fa-file-pdf"></i> Available PDFs</div>
 <div class="materials" id="materialsContainer">
   <div style="text-align: center; color: #666;">Loading PDFs...</div>
 </div>
@@ -289,14 +292,13 @@ function loadMaterials() {
     allMaterials = []; 
     snapshot.forEach(doc => {
       const data = doc.data();
-      // संभालें अगर फील्ड का नाम url या link हो
       allMaterials.push({
         title: data.title,
         folder: data.folder,
         url: data.url || data.link
       });
     });
-    renderMaterials(allMaterials); 
+    // शुरुआत में कुछ भी रेंडर नहीं करेंगे क्योंकि बाहर सिर्फ फोल्डर दिखाने हैं
   });
 }
 
@@ -305,7 +307,7 @@ function renderMaterials(dataList) {
   container.innerHTML = "";
 
   if(dataList.length === 0) {
-    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">कोई नोट्स नहीं मिले!</div>';
+    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">इस फोल्डर में कोई नोट्स नहीं मिले!</div>';
     return;
   }
 
@@ -317,50 +319,74 @@ function renderMaterials(dataList) {
         <span style="font-weight: bold; display: block; color: #2c3e50;">${item.title}</span>
         <span style="font-size: 12px; color: #666;"><i class="fa-solid fa-tag"></i> ${item.folder}</span>
       </div>
-      <a href="${item.url}" target="_blank" class="btn">Open PDF</a>
+      <button class="btn" onclick="secureOpenPdf('${item.url}')">Open PDF</button>
     `;
     container.appendChild(materialDiv);
   });
 }
 
-// फोल्डर सिलेक्ट करने पर फ़िल्टर और बैक बटन दिखाना
-window.selectFolder = function(folderName) {
-  document.getElementById("searchInput").value = folderName;
-  document.getElementById("backBtn").style.display = "block";
-  
-  // सभी कार्ड्स से क्लास हटाकर सिलेक्टेड वाले पर लगाना
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected-folder'));
-  const activeCard = document.getElementById(`folder-${folderName.replace(/\s+/g, '')}`);
-  if(activeCard) activeCard.classList.add('selected-folder');
-
-  filterData();
+// 🛠️ व्हाइट स्क्रीन बाईपास करने के लिए स्पेशल फंक्शन
+window.secureOpenPdf = function(pdfUrl) {
+  if(!pdfUrl) return;
+  // यह कोड ऐप के WebView को बाईपास करके सीधे सिस्टम ब्राउज़र (Chrome) में पीडीएफ को सेफली ट्रिगर करेगा
+  window.open(pdfUrl, '_system');
+  window.open(pdfUrl, '_blank');
 }
 
-// फ़िल्टर रीसेट करना
+// फोल्डर सिलेक्ट करने पर फ़िल्टर, फोल्डर छुपाना और बैक बटन दिखाना
+window.selectFolder = function(folderName) {
+  // फोल्डर्स ग्रिड और सर्च बॉक्स को छुपाएं
+  document.getElementById("foldersGrid").style.display = "none";
+  document.getElementById("folderTitle").style.display = "none";
+  document.getElementById("searchBoxContainer").style.display = "none";
+
+  // पीडीएफ लिस्ट और बैक बटन को दिखाएं
+  document.getElementById("materialsContainer").style.display = "block";
+  document.getElementById("pdfTitle").style.display = "block";
+  document.getElementById("backBtn").style.display = "block";
+  
+  // पीडीएफ को फोल्डर के हिसाब से फ़िल्टर करें
+  const filtered = allMaterials.filter(item => item.folder.toLowerCase() === folderName.toLowerCase());
+  renderMaterials(filtered);
+}
+
+// फ़िल्टर रीсет करना (वापस फोल्डर्स की स्क्रीन पर जाना)
 window.resetFilter = function() {
   document.getElementById("searchInput").value = "";
+  
+  // बैक बटन और पीडीएफ लिस्ट छुपाएं
   document.getElementById("backBtn").style.display = "none";
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected-folder'));
-  renderMaterials(allMaterials);
+  document.getElementById("materialsContainer").style.display = "none";
+  document.getElementById("pdfTitle").style.display = "none";
+
+  // फोल्डर्स ग्रिड और सर्च बॉक्स वापस दिखाएं
+  document.getElementById("foldersGrid").style.display = "grid";
+  document.getElementById("folderTitle").style.display = "block";
+  document.getElementById("searchBoxContainer").style.display = "block";
 }
 
 // लाइव सर्च फ़िल्टर फंक्शन
 function filterData() {
   const searchText = document.getElementById("searchInput").value.toLowerCase();
+  if(searchText === "") {
+    resetFilter();
+    return;
+  }
+  
+  // अगर यूजर सर्च बार में टाइप कर रहा है, तो फोल्डर्स छुपाकर मैचिंग पीडीएफ दिखाएं
+  document.getElementById("foldersGrid").style.display = "none";
+  document.getElementById("folderTitle").style.display = "none";
+  document.getElementById("materialsContainer").style.display = "block";
+  document.getElementById("pdfTitle").style.display = "block";
+  document.getElementById("backBtn").style.display = "block";
+
   const filtered = allMaterials.filter(item => {
     return item.title.toLowerCase().includes(searchText) || item.folder.toLowerCase().includes(searchText);
   });
   renderMaterials(filtered);
 }
 
-document.getElementById("searchInput").addEventListener("input", () => {
-  if(document.getElementById("searchInput").value === "") {
-    document.getElementById("backBtn").style.display = "none";
-  } else {
-    document.getElementById("backBtn").style.display = "block";
-  }
-  filterData();
-});
+document.getElementById("searchInput").addEventListener("input", filterData);
 </script>
 
 </body>
