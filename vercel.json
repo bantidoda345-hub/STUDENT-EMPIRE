@@ -9,42 +9,5 @@
       "src": "*.html",
       "use": "@vercel/static"
     }
-  ],
-  "routes": [
-    {
-      "src": "/admin",
-      "dest": "/admin.html"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "api/server.js"
-    },
-    {
-      "src": "/home",
-      "dest": "/home.html"
-    },
-    {
-      "src": "/chat",
-      "dest": "/chat.html"
-    },
-    {
-      "src": "/study",
-      "dest": "/study.html"
-    },
-    {
-      "src": "/community",
-      "dest": "/community.html"
-    },
-    {
-      "src": "/profile",
-      "dest": "/profile.html"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/$",
-      "dest": "/index.html"
-    }
   ]
 }
