@@ -328,10 +328,16 @@ function renderMaterials(dataList) {
 // 🛠️ व्हाइट स्क्रीन बाईपास करने के लिए स्पेशल फंक्शन
 window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
-  // यह कोड ऐप के WebView को बाईपास करके सीधे सिस्टम ब्राउज़र (Chrome) में पीडीएफ को सेफली ट्रिगर करेगा
-  window.open(pdfUrl, '_system');
-  window.open(pdfUrl, '_blank');
+  // यह कोड ऐप के WebView को पूरी तरह बाईपास करेगा और क्रोम ब्राउज़र में डाउनलोड पेज खोलेगा
+  const link = document.createElement('a');
+  link.href = pdfUrl;
+  link.setAttribute('download', ''); // यह फाइल को डाउनलोड के लिए फोर्स करेगा
+  link.setAttribute('target', '_blank');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
+
 
 // फोल्डर सिलेक्ट करने पर फ़िल्टर, फोल्डर छुपाना और बैक बटन दिखाना
 window.selectFolder = function(folderName) {
