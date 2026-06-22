@@ -3,319 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Students Empire</title>
-
+<title>Students Empire - Dashboard</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
+    :root { --primary: #0d47a1; --accent: #1976d2; --bg: #f8f9fe; }
+    *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+    body { background: var(--bg); padding-bottom: 80px; }
 
-body{
-background:#f5f7fb;
-padding-bottom:80px;
-}
+    /* Header */
+    header { background: var(--primary); color: white; padding: 20px; border-radius: 0 0 25px 25px; }
+    .logo h2 { font-size: 22px; }
+    
+    /* Modern Banner */
+    .banner { margin: 20px; background: white; padding: 25px; border-radius: 20px; border-left: 5px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .banner h1 { font-size: 20px; color: var(--primary); margin-bottom: 5px; }
+    
+    /* Services Grid */
+    .quick-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; padding:0 15px; }
+    .card { background: white; padding: 20px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transition: 0.3s; }
+    .card:active { transform: scale(0.95); }
+    .icon-wrapper { width: 50px; height: 50px; background: #e3f2fd; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+    .icon-wrapper i { color: var(--primary); font-size: 20px; }
 
-header{
-background:#0d47a1;
-color:white;
-padding:15px;
-box-shadow: 0 2px 10px rgba(0,0,0,.1);
-}
+    /* Stats/Motivation Section */
+    .info-strip { display: flex; justify-content: space-between; padding: 15px; margin: 10px 15px; background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    
+    .updates { padding: 15px; }
+    .update-box { background: white; padding: 15px; margin-bottom: 10px; border-radius: 15px; display: flex; align-items: center; gap: 15px; border-left: 4px solid var(--primary); }
 
-.logo h2{
-font-size:24px;
-letter-spacing: 1px;
-}
-
-.logo p{
-font-size:12px;
-opacity:.8;
-margin-top: 2px;
-}
-
-.banner{
-margin:15px;
-background:linear-gradient(135deg,#0d47a1,#1976d2);
-color:white;
-padding:25px;
-border-radius:15px;
-box-shadow: 0 4px 15px rgba(13, 71, 161, 0.2);
-}
-
-.banner h1{
-font-size:24px;
-margin-bottom:10px;
-}
-
-.quick-title{
-padding:0 15px;
-font-size:18px;
-font-weight:bold;
-margin-bottom:10px;
-color: #333;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-.quick-title i {
-color: #0d47a1;
-}
-
-.quick-grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-padding:15px;
-}
-
-.card{
-background:white;
-padding:20px;
-border-radius:15px;
-text-align:center;
-box-shadow:0 4px 12px rgba(0,0,0,.05);
-cursor:pointer;
-border: 1px solid rgba(13, 71, 161, 0.05);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 8px;
-min-height: 110px;
-transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.card:active {
-transform: scale(0.95);
-box-shadow: 0 2px 6px rgba(0,0,0,.1);
-}
-
-.card .icon-wrapper {
-background: rgba(13, 71, 161, 0.08);
-width: 50px;
-height: 50px;
-display: flex;
-align-items: center;
-justify-content: center;
-border-radius: 50%;
-margin-bottom: 5px;
-}
-
-.card i{
-font-size:24px;
-color:#0d47a1;
-}
-
-.card span{
-display:block;
-font-size:14px;
-font-weight:bold;
-color: #2c3e50;
-}
-
-.updates{
-padding:15px;
-}
-
-.updates h3{
-margin-bottom:10px;
-color: #333;
-font-size: 18px;
-}
-
-.update-box{
-background:white;
-padding:15px;
-margin-bottom:10px;
-border-radius:12px;
-box-shadow:0 3px 10px rgba(0,0,0,.05);
-display: flex;
-align-items: center;
-gap: 12px;
-border-left: 4px solid #0d47a1;
-}
-
-.update-box i {
-color: #0d47a1;
-font-size: 18px;
-}
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:10px;
-box-shadow:0 -2px 15px rgba(0,0,0,.1);
-z-index: 1000;
-}
-
-.bottom-nav a{
-text-decoration:none;
-color:#666;
-font-size:12px;
-text-align:center;
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 4px;
-}
-
-.bottom-nav a.active {
-color: #0d47a1;
-font-weight: bold;
-}
-
-.bottom-nav i{
-display:block;
-font-size:20px;
-color:#666;
-}
-
-.bottom-nav a.active i {
-color:#0d47a1;
-}
+    .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:12px; box-shadow:0 -5px 15px rgba(0,0,0,0.05); z-index: 1000; }
+    .bottom-nav a { text-decoration:none; color:#999; font-size:11px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bottom-nav a.active { color: var(--primary); font-weight: bold; }
 </style>
 </head>
-
 <body>
 
 <header>
-<div class="logo">
-<h2>STUDENTS EMPIRE</h2>
-<p>Empowering Students, Building Futures</p>
-</div>
+    <div class="logo">
+        <h2 id="welcomeUser">Hello, Student!</h2>
+        <p>Ready to learn today?</p>
+    </div>
 </header>
 
-<section class="banner">
-<h1 id="welcomeUser">Welcome To Students Empire</h1>
-<p>Your All-In-One Platform For Academic Success</p>
-</section>
-
-<div class="quick-title"><i class="fa-solid fa-star"></i> Academic Services</div>
-
-<section class="quick-grid">
-<div class="card" onclick="window.location.href='study.html'">
-<div class="icon-wrapper"><i class="fa-solid fa-graduation-cap"></i></div>
-<span>Syllabus & Info</span>
+<div class="banner">
+    <h1>🔥 मोटिवेशन ऑफ़ द डे</h1>
+    <p id="quote">"सफलता मेहनत करने वालों पर फिदा होती है!"</p>
 </div>
 
-<div class="card" onclick="window.location.href='notes.html'">
-<div class="icon-wrapper"><i class="fa-solid fa-note-sticky"></i></div>
-<span>Notes Corner</span>
+<div class="quick-grid">
+    <div class="card" onclick="window.location.href='study.html'">
+        <div class="icon-wrapper"><i class="fa-solid fa-book-open"></i></div>
+        <span>Study Material</span>
+    </div>
+    <div class="card" onclick="window.location.href='community.html'">
+        <div class="icon-wrapper"><i class="fa-solid fa-users"></i></div>
+        <span>Community</span>
+    </div>
+    <div class="card" onclick="window.location.href='chat.html'">
+        <div class="icon-wrapper"><i class="fa-solid fa-comments"></i></div>
+        <span>Ask Doubt</span>
+    </div>
+    <div class="card" onclick="window.location.href='profile.html'">
+        <div class="icon-wrapper"><i class="fa-solid fa-user-gear"></i></div>
+        <span>My Profile</span>
+    </div>
 </div>
-
-<div class="card" onclick="window.location.href='study.html'">
-<div class="icon-wrapper"><i class="fa-solid fa-file-pdf"></i></div>
-<span>PYQ Papers</span>
-</div>
-
-<div class="card" onclick="window.location.href='profile.html'">
-<div class="icon-wrapper"><i class="fa-solid fa-headset"></i></div>
-<span>Owner Support</span>
-</div>
-</section>
 
 <section class="updates">
-<h3>Recent Updates</h3>
-<div id="updatesContainer">
-  <div class="update-box"><i class="fa-solid fa-bell"></i> Loading recent updates...</div>
-</div>
+    <h3>📢 Latest Updates</h3>
+    <div id="updatesContainer">
+        <div class="update-box">Loading...</div>
+    </div>
 </section>
 
 <nav class="bottom-nav">
-<a href="home.html" class="active">
-<i class="fa-solid fa-house"></i>
-Home
-</a>
-
-<a href="study.html">
-<i class="fa-solid fa-book"></i>
-Study
-</a>
-
-<a href="chat.html">
-<i class="fa-solid fa-comments"></i>
-Chat
-</a>
-
-<a href="community.html">
-<i class="fa-solid fa-users"></i>
-Community
-</a>
-
-<a href="profile.html">
-<i class="fa-solid fa-user"></i>
-Profile
-</a>
+    <a href="home.html" class="active"><i class="fa-solid fa-house"></i>Home</a>
+    <a href="study.html"><i class="fa-solid fa-book"></i>Study</a>
+    <a href="chat.html"><i class="fa-solid fa-comments"></i>Chat</a>
+    <a href="community.html"><i class="fa-solid fa-users"></i>Groups</a>
+    <a href="profile.html"><i class="fa-solid fa-user"></i>Profile</a>
 </nav>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    // Firebase कोड वैसे ही रहेगा जैसा तुम्हारा पहले था...
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
-  authDomain: "student-empires.firebaseapp.com",
-  projectId: "student-empires",
-  storageBucket: "student-empires.firebasestorage.app",
-  messagingSenderId: "509106125707",
-  appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e",
-  measurementId: "G-ETHZNFTT7S"
-};
+    const firebaseConfig = { /* वही तुम्हारा पुराना वाला config */ };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// 🛠️ बिल्कुल क्लीन Firebase स्टेट लिसनर (बिना किसी लूप झंझट के)
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    if(user.displayName) {
-      document.getElementById("welcomeUser").innerText = `Welcome, ${user.displayName}!`;
-    }
-    loadRecentUpdates();
-  } else {
-    // अगर यूजर लॉगआउट है, तो सीधे बिना किसी ड्रामे के इंडेक्स पर भेज दो
-    window.location.href = "index.html";
-  }
-});
-
-function loadRecentUpdates() {
-  const q = query(collection(db, "materials"), orderBy("uploadedAt", "desc"), limit(3));
-
-  onSnapshot(q, (snapshot) => {
-    const container = document.getElementById("updatesContainer");
-
-    if (snapshot.empty) {
-      container.innerHTML = '<div class="update-box"><i class="fa-solid fa-circle-info"></i> No recent updates available.</div>';
-      return;
-    }
-
-    container.innerHTML = "";
-
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      container.innerHTML += `
-        <div class="update-box" style="cursor:pointer;" onclick="window.location.href='study.html'">
-          <i class="fa-solid fa-file-circle-plus"></i>
-          <span>New PDF Added: <b>${data.title}</b> in ${data.folder}</span>
-        </div>
-      `;
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById("welcomeUser").innerText = `Hello, ${user.displayName || 'Student'}!`;
+            loadRecentUpdates();
+        } else {
+            window.location.href = "index.html";
+        }
     });
-  });
-}
-</script>
 
+    function loadRecentUpdates() {
+        const q = query(collection(db, "materials"), orderBy("uploadedAt", "desc"), limit(3));
+        onSnapshot(q, (snapshot) => {
+            const container = document.getElementById("updatesContainer");
+            container.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                container.innerHTML += `
+                    <div class="update-box" onclick="window.location.href='study.html'">
+                        <i class="fa-solid fa-bell"></i>
+                        <span><b>${data.title}</b> <br><small style="color:#666">Check in ${data.folder}</small></span>
+                    </div>
+                `;
+            });
+        });
+    }
+</script>
 </body>
 </html>
