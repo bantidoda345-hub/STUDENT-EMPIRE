@@ -5,68 +5,102 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Students Empire</title>
 
+<!-- Font Awesome for Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<!-- ⚡ सुपर फ़ास्ट रीडायरेक्ट: पेज लोड होने की भी प्रतीक्षा नहीं करेगा, अगर लॉगिन है तो तुरंत भेजेगा -->
+<script>
+  if (localStorage.getItem("isLoggedIn") === "true") {
+    window.location.href = "home.html";
+  }
+</script>
+
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(135deg,#0d47a1,#1976d2);
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* प्रीमियम गहरा रॉयल ब्लू ग्रेडिएंट पृष्ठभूमि */
+  background: linear-gradient(135deg, #051937, #0d47a1, #1976d2);
 }
 
-.login-box{
-width:90%;
-max-width:400px;
-background:#fff;
-padding:30px;
-border-radius:20px;
-text-align:center;
-box-shadow:0 10px 30px rgba(0,0,0,.2);
+.login-box {
+  width: 90%;
+  max-width: 380px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px 30px;
+  border-radius: 24px;
+  text-align: center;
+  /* हमारे नए लोगो से मैच करता हुआ प्रीमियम गोल्ड और ब्लू शैडो बॉर्डर */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), inset 0 0 0 2px #ffd700;
+  position: relative;
 }
 
-.logo{
-font-size:70px;
-color:#0d47a1;
-margin-bottom:15px;
+.logo-container {
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, #ffd700, #b8860b);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 20px auto;
+  box-shadow: 0 8px 16px rgba(13, 71, 161, 0.2);
 }
 
-<h1>
-color:#0d47a1;
-margin-bottom:5px;
+.logo-container i {
+  font-size: 45px;
+  color: #0d47a1;
 }
 
-p{
-color:#666;
-margin-bottom:25px;
+h1 {
+  color: #051937;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
-#googleLogin{
-width:100%;
-padding:14px;
-border:none;
-border-radius:10px;
-background:#4285F4;
-color:white;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
+p {
+  color: #555;
+  font-size: 15px;
+  margin-bottom: 30px;
+}
+
+#googleLogin {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: #4285F4;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+
+#googleLogin:hover {
+  background: #357ae8;
+  transform: translateY(-1px);
 }
 
 #googleLogin:active {
-opacity: 0.9;
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(66, 133, 244, 0.3);
 }
 </style>
 </head>
@@ -75,18 +109,18 @@ opacity: 0.9;
 
 <div class="login-box">
 
-<div class="logo">
-<i class="fa-solid fa-graduation-cap"></i>
-</div>
+  <!-- नया एम्पायर स्टाइल लोगो कंटेनर -->
+  <div class="logo-container">
+    <i class="fa-solid fa-graduation-cap"></i>
+  </div>
 
-<h1>Students Empire</h1>
+  <h1>Students Empire</h1>
+  <p>Empowering Scholars Globally</p>
 
-<p>Login With Google</p>
-
-<button id="googleLogin">
-<i class="fa-brands fa-google"></i>
-Continue With Google
-</button>
+  <button id="googleLogin">
+    <i class="fa-brands fa-google"></i>
+    Continue With Google
+  </button>
 
 </div>
 
@@ -109,9 +143,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// अगर छात्र पहले से ही लॉग्ड इन है, तो सीधे home.html पर भेजें
+// Firebase स्टेट लिसनर (बैकअप के लिए)
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    localStorage.setItem("isLoggedIn", "true");
     window.location.href = "home.html";
   }
 });
@@ -121,6 +156,9 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     if (result.user) {
+      // 1. लोकल मेमोरी में स्टोर करें कि लॉगिन हो चुका है
+      localStorage.setItem("isLoggedIn", "true");
+      // 2. होम पेज पर भेजें
       window.location.href = "home.html";
     }
   } catch (error) {
