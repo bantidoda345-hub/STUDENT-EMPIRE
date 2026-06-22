@@ -140,22 +140,6 @@ border: none;
 opacity: 0.9;
 }
 
-/* 📺 नया पीडीएफ व्यूअर कंटेनर स्टाइल */
-.pdf-viewer-container {
-display: none;
-padding: 15px;
-background: #white;
-margin-top: 10px;
-}
-
-.pdf-viewer-container iframe {
-width: 100%;
-height: 550px;
-border: 2px solid #0d47a1;
-border-radius: 12px;
-box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-}
-
 .bottom-nav{
 position:fixed;
 bottom:0;
@@ -211,11 +195,6 @@ color:#0d47a1;
 <div class="section-title" id="folderTitle"><i class="fa-solid fa-layer-group"></i> Exam Categories</div>
 <div class="grid" id="foldersGrid">
   <div style="grid-column: span 2; text-align: center; color: #666;">Loading Folders...</div>
-</div>
-
-<div class="pdf-viewer-container" id="pdfViewerZone">
-  <div style="font-weight: bold; margin-bottom: 8px; color: #0d47a1;"><i class="fa-solid fa-eye"></i> Reading Document:</div>
-  <iframe id="pdfIframe" src=""></iframe>
 </div>
 
 <div class="section-title" id="pdfTitle" style="display: none;"><i class="fa-solid fa-file-pdf"></i> Available PDFs</div>
@@ -342,44 +321,35 @@ function renderMaterials(dataList) {
   });
 }
 
-// 🛠️ हर तरह के यूआरएल को सेफली लोड करने का मास्टर फंक्शन
+// 🛠️ बिल्कुल नया मास्टर फ़ंक्शन जो बिना तोड़े हर लिंक को बाहर सेफ़ली खोलेगा
 window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
 
-  let finalUrl = pdfUrl;
+  let cleanedUrl = pdfUrl.trim();
 
-  // अगर गूगल ड्राइव का नॉर्मल लिंक है तो उसे एम्बेड लिंक में बदलो
-  if(pdfUrl.includes("drive.google.com")) {
-    if(pdfUrl.includes("/view")) {
-      finalUrl = pdfUrl.replace("/view", "/preview");
-    } else if(pdfUrl.includes("?id=")) {
-      const id = pdfUrl.split("id=")[1].split("&")[0];
-      finalUrl = `https://drive.google.com/file/d/${id}/preview`;
+  // अगर गूगल ड्राइव का लिंक है, तो उसकी आईडी निकालकर डायरेक्ट व्यू मोड सेट करेंगे
+  if(cleanedUrl.includes("drive.google.com")) {
+    let fileId = "";
+    if(cleanedUrl.includes("/d/")) {
+      fileId = cleanedUrl.split("/d/")[1].split("/")[0];
+    } else if(cleanedUrl.includes("id=")) {
+      fileId = cleanedUrl.split("id=")[1].split("&")[0];
     }
-  } else {
-    // अन्य सामान्य लिंक्स के लिए गूगल का ऑफिशियल डॉक्स व्यूअर फ्रेम यूज करेंगे
-    finalUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}`;
+    
+    if(fileId) {
+      // यह लिंक बिना किसी रिस्ट्रिक्शन या 404 के सीधे फोन ब्राउज़र में खुलता है
+      cleanedUrl = `https://drive.google.com/file/d/${fileId}/view?usp=drivesdk`;
+    }
   }
 
-  // पीडीएफ की लिस्ट छुपाओ और व्यूअर बॉक्स में पीडीएफ दिखाओ
-  document.getElementById("materialsContainer").style.display = "none";
-  document.getElementById("pdfTitle").style.display = "none";
-  
-  const viewerZone = document.getElementById("pdfViewerZone");
-  const iframe = document.getElementById("pdfIframe");
-  
-  iframe.src = finalUrl;
-  viewerZone.style.display = "block";
-  
-  // बैक बटन का टेक्स्ट बदलो ताकि यूजर समझ सके कि लिस्ट में वापस जाना है
-  document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to List`;
+  // एंड्रॉइड ऐप के वेबव्यू को ब्लॉक करने से रोकने का सबसे बेस्ट तरीका
+  window.open(cleanedUrl, '_blank');
 }
 
 window.selectFolder = function(folderName) {
   document.getElementById("foldersGrid").style.display = "none";
   document.getElementById("folderTitle").style.display = "none";
   document.getElementById("searchBoxContainer").style.display = "none";
-  document.getElementById("pdfViewerZone").style.display = "none"; // प्रिव्यू बंद रखें
 
   document.getElementById("materialsContainer").style.display = "block";
   document.getElementById("pdfTitle").style.display = "block";
@@ -391,21 +361,10 @@ window.selectFolder = function(folderName) {
 }
 
 window.resetFilter = function() {
-  // अगर इस समय पीडीएफ खुली हुई है, तो पहले वापस पीडीएफ लिस्ट पर ले जाओ
-  if(document.getElementById("pdfViewerZone").style.display === "block") {
-    document.getElementById("pdfViewerZone").style.display = "none";
-    document.getElementById("pdfIframe").src = "";
-    document.getElementById("materialsContainer").style.display = "block";
-    document.getElementById("pdfTitle").style.display = "block";
-    document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to Folders`;
-    return;
-  }
-
   document.getElementById("searchInput").value = "";
   document.getElementById("backBtn").style.display = "none";
   document.getElementById("materialsContainer").style.display = "none";
   document.getElementById("pdfTitle").style.display = "none";
-  document.getElementById("pdfViewerZone").style.display = "none";
 
   document.getElementById("foldersGrid").style.display = "grid";
   document.getElementById("folderTitle").style.display = "block";
@@ -421,7 +380,6 @@ function filterData() {
 
   document.getElementById("foldersGrid").style.display = "none";
   document.getElementById("folderTitle").style.display = "none";
-  document.getElementById("pdfViewerZone").style.display = "none";
   document.getElementById("materialsContainer").style.display = "block";
   document.getElementById("pdfTitle").style.display = "block";
   document.getElementById("backBtn").style.display = "block";
