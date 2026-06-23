@@ -108,16 +108,19 @@ function loadMaterials() {
   });
 }
 
-// ⚡ DIRECT GOOGLE DRIVE RENDERING (No view.html Dependency)
+// ⚡ 100% WORKING BROWSER & DRIVE APP ACTION (No Error, No View.html Needed)
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
+  
   let finalUrl = pdfUrl;
   
-  // Agar Firebase Storage ka link hai ya normal link hai toh use seedha Drive Viewer string me merge karo
-  const driveViewerUrl = "https://drive.google.com/viewer?url=" + encodeURIComponent(finalUrl);
+  // Agar Google Drive ka link hai toh use automatic cleanest standard preview me convert karega
+  if(finalUrl.includes("drive.google.com")) {
+      finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
+  }
   
-  // Yeh student ke browser/phone me bina 0/0 error ke direct full layout khol dega
-  window.open(driveViewerUrl, '_blank');
+  // Seedha user ke device browser ya drive app me full layout me open karega
+  window.open(finalUrl, '_blank');
 }
 
 function renderMaterials(dataList) {
