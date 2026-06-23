@@ -108,14 +108,19 @@ function loadMaterials() {
   });
 }
 
-// 🛠️ यहाँ से बदलाव किया है
+// ⚡ FIXED: DIRECT OPEN GOOGLE DRIVE IN NEW TAB (No view.html dependency, No home page redirect)
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
+  
   let finalUrl = pdfUrl;
+  
+  // Agar Google Drive ka link hai toh use automatic cleanest standard preview me convert karega
   if(finalUrl.includes("drive.google.com")) {
       finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
   }
-  window.location.href = `view.html?url=${encodeURIComponent(finalUrl)}&title=${encodeURIComponent(title)}`;
+  
+  // Naye tab me direct bina kisi error ke full file open ho jayegi
+  window.open(finalUrl, '_blank');
 }
 
 function renderMaterials(dataList) {
