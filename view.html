@@ -4,74 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Material</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { margin: 0; background: #525659; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; overflow: hidden; }
-        .header { background: #0d47a1; color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 100; }
-        #pdfViewerContainer { flex-grow: 1; overflow-y: auto; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 15px; scroll-behavior: smooth; }
-        canvas { box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 100%; height: auto; background: white; border-radius: 4px; }
-        .loading-msg { color: white; text-align: center; margin-top: 50px; font-size: 16px; }
+        body { 
+            margin: 0; 
+            padding: 0;
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            background: #f4f6f9; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header { 
+            background: #0d47a1; 
+            color: white; 
+            padding: 15px; 
+            text-align: center; 
+            font-weight: bold; 
+            font-size: 18px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+        }
+        .container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .pdf-icon {
+            font-size: 80px;
+            color: #d32f2f;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .file-title {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+        .info-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        .open-btn {
+            background: #0d47a1;
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .open-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(13, 71, 161, 0.2);
+        }
     </style>
 </head>
 <body>
 
-    <div class="header" id="fileName">Loading PDF...</div>
-    <div id="pdfViewerContainer">
-        <div class="loading-msg" id="loadingText">⏳ PDF Open ho rahi hai, kripya prateeksha karein...</div>
+    <div class="header" id="topHeader">Study Material</div>
+
+    <div class="container">
+        <i class="fa-solid fa-file-pdf pdf-icon"></i>
+        <div class="file-title" id="fileName">Loading PDF Details...</div>
+        <p class="info-text">Niche diye gaye button par click karke PDF ko sahi tarike se padhein.</p>
+        
+        <a href="#" id="openPdfBtn" class="open-btn">
+            <i class="fa-solid fa-folder-open"></i> Open PDF Document
+        </a>
     </div>
 
     <script>
-        // PDF.js worker ko connect karna jaruri hai
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
         const urlParams = new URLSearchParams(window.location.search);
         const pdfUrl = urlParams.get('url');
         const title = urlParams.get('title');
 
         if(pdfUrl) {
-            document.getElementById('fileName').innerText = title || "Study Material";
-            loadPDF(pdfUrl);
+            const displayTitle = title || "Study Material";
+            document.getElementById('fileName').innerText = displayTitle;
+            document.getElementById('topHeader').innerText = displayTitle;
+
+            // ⚡ Magic Trick: Isse file bina iframe k jhanjhat k direct full screen khulegi browser ya drive app me
+            document.getElementById('openPdfBtn').href = pdfUrl;
         } else {
-            document.body.innerHTML = "<h3 style='text-align:center; margin-top:20px; color: white;'>File not found!</h3>";
-        }
-
-        async function loadPDF(url) {
-            const container = document.getElementById('pdfViewerContainer');
-            const loadingText = document.getElementById('loadingText');
-
-            try {
-                // Firebase secure link se direct PDF load karega
-                const loadingTask = pdfjsLib.getDocument(url);
-                const pdf = await loadingTask.promise;
-                
-                // Loading text ko hatao jab pages render hone shuru ho
-                loadingText.style.display = 'none';
-
-                // Saare pages ko ek ke baad ek niche render karega (Scrolling View)
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    
-                    // Mobile aur Desktop dono ke liye dynamic scale setup
-                    const viewport = page.getViewport({ scale: window.innerWidth < 600 ? 1.0 : 1.5 });
-                    
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-
-                    container.appendChild(canvas);
-                    await page.render(renderContext).promise;
-                }
-            } catch (error) {
-                console.error(error);
-                loadingText.innerText = "❌ Error: PDF load nahi ho payi. Link sahi nahi hai ya network issue hai.";
-                loadingText.style.color = "#ff8a80";
-            }
+            document.body.innerHTML = `
+                <div class="container">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size:60px; color:#d32f2f; margin-bottom:15px;"></i>
+                    <h3 style="color: #333;">File Not Found!</h3>
+                    <p style="color:#666;">Kripya sahi link par click karke dobara koshish karein.</p>
+                </div>`;
         }
     </script>
 </body>
