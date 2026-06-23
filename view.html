@@ -4,30 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Material</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
-        body { margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #f4f6f9; }
-        iframe { flex-grow: 1; width: 100%; border: none; }
-        .header { background: #0d47a1; color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
+        body { margin: 0; background: #525659; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; overflow: hidden; }
+        .header { background: #0d47a1; color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 100; }
+        #pdfViewerContainer { flex-grow: 1; overflow-y: auto; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 15px; scroll-behavior: smooth; }
+        canvas { box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 100%; height: auto; background: white; border-radius: 4px; }
+        .loading-msg { color: white; text-align: center; margin-top: 50px; font-size: 16px; }
     </style>
 </head>
 <body>
+
     <div class="header" id="fileName">Loading PDF...</div>
-    <iframe id="pdfFrame" src=""></iframe>
+    <div id="pdfViewerContainer">
+        <div class="loading-msg" id="loadingText">⏳ PDF Open ho rahi hai, kripya prateeksha karein...</div>
+    </div>
 
     <script>
+        // PDF.js worker ko connect karna jaruri hai
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
         const urlParams = new URLSearchParams(window.location.search);
         const pdfUrl = urlParams.get('url');
         const title = urlParams.get('title');
 
         if(pdfUrl) {
             document.getElementById('fileName').innerText = title || "Study Material";
-
-            // Method: Google Docs Viewer ka use karein jo Firebase secure tokens ko bhi aaram se load kar deta hai
-            const viewerUrl = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(pdfUrl);
-            
-            document.getElementById('pdfFrame').src = viewerUrl;
+            loadPDF(pdfUrl);
         } else {
-            document.body.innerHTML = "<h3 style='text-align:center; margin-top:20px; color: red;'>File not found!</h3>";
+            document.body.innerHTML = "<h3 style='text-align:center; margin-top:20px; color: white;'>File not found!</h3>";
+        }
+
+        async function loadPDF(url) {
+            const container = document.getElementById('pdfViewerContainer');
+            const loadingText = document.getElementById('loadingText');
+
+            try {
+                // Firebase secure link se direct PDF load karega
+                const loadingTask = pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+                
+                // Loading text ko hatao jab pages render hone shuru ho
+                loadingText.style.display = 'none';
+
+                // Saare pages ko ek ke baad ek niche render karega (Scrolling View)
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    
+                    // Mobile aur Desktop dono ke liye dynamic scale setup
+                    const viewport = page.getViewport({ scale: window.innerWidth < 600 ? 1.0 : 1.5 });
+                    
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+
+                    container.appendChild(canvas);
+                    await page.render(renderContext).promise;
+                }
+            } catch (error) {
+                console.error(error);
+                loadingText.innerText = "❌ Error: PDF load nahi ho payi. Link sahi nahi hai ya network issue hai.";
+                loadingText.style.color = "#ff8a80";
+            }
         }
     </script>
 </body>
