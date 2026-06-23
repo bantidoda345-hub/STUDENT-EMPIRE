@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Material</title>
+    <style>
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; }
+        iframe { flex-grow: 1; width: 100%; border: none; }
+        .header { background: #0d47a1; color: white; padding: 15px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header" id="fileName">Loading PDF...</div>
+    <iframe id="pdfFrame" src=""></iframe>
+
+    <script>
+        // URL से लिंक और टाइटल उठाना
+        const urlParams = new URLSearchParams(window.location.search);
+        const pdfUrl = urlParams.get('url');
+        const title = urlParams.get('title');
+
+        if(pdfUrl) {
+            document.getElementById('pdfFrame').src = pdfUrl;
+            document.getElementById('fileName').innerText = title || "Study Material";
+        } else {
+            document.body.innerHTML = "<h3>File not found!</h3>";
+        }
+    </script>
+</body>
+</html>
