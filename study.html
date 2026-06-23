@@ -108,18 +108,15 @@ function loadMaterials() {
   });
 }
 
-// ⚡ FIXED: DIRECT OPEN GOOGLE DRIVE IN NEW TAB (No view.html dependency, No home page redirect)
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
-  
+
   let finalUrl = pdfUrl;
-  
-  // Agar Google Drive ka link hai toh use automatic cleanest standard preview me convert karega
+
   if(finalUrl.includes("drive.google.com")) {
       finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
   }
-  
-  // Naye tab me direct bina kisi error ke full file open ho jayegi
+
   window.open(finalUrl, '_blank');
 }
 
@@ -154,6 +151,20 @@ window.resetFilter = function() {
   document.getElementById("folderTitle").style.display = "block";
   document.getElementById("searchBoxContainer").style.display = "block";
 }
+
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  const term = e.target.value.toLowerCase();
+  if(term.trim() === "") {
+      resetFilter();
+  } else {
+      document.getElementById("foldersGrid").style.display = "none";
+      document.getElementById("folderTitle").style.display = "none";
+      document.getElementById("materialsContainer").style.display = "block";
+      document.getElementById("pdfTitle").style.display = "block";
+      const filtered = allMaterials.filter(item => item.title.toLowerCase().includes(term) || item.folder.toLowerCase().includes(term));
+      renderMaterials(filtered);
+  }
+});
 </script>
 </body>
 </html>
