@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -260,6 +261,9 @@ display: block;
 </head>
 <body>
 
+<!-- ========================================== -->
+<!-- 1. MAIN DASHBOARD PAGE -->
+<!-- ========================================== -->
 <div id="mainDashboardPage" class="page active">
   <div class="header">
     <h2>Admin Panel</h2>
@@ -278,6 +282,7 @@ display: block;
     </div>
   </div>
 
+  <!-- मुख्य दो सेक्शन्स के बड़े बटन -->
   <div class="main-menu-grid">
     <div class="menu-card" onclick="switchPage('notesPage')">
       <i class="fa-solid fa-book-open"></i>
@@ -291,10 +296,12 @@ display: block;
     </div>
   </div>
 
+  <!-- शिकायतें देखने का बटन -->
   <button style="margin-bottom: 15px; background: #e65100;" onclick="switchPage('complaintsPage')">
     <i class="fa-solid fa-bell"></i> View Active Complaints (<span id="totalComplaintsCount">0</span>)
   </button>
 
+  <!-- नोटिफिकेशन सेंड बॉक्स -->
   <div class="card">
     <h3>Send Notification To All</h3>
     <input type="text" id="notifTitle" placeholder="Notification Title">
@@ -304,6 +311,9 @@ display: block;
 </div>
 
 
+<!-- ========================================== -->
+<!-- 2. COLLEGE NOTES MANAGEMENT PAGE -->
+<!-- ========================================== -->
 <div id="notesPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -313,20 +323,22 @@ display: block;
     </div>
   </div>
 
+  <!-- फोल्डर क्रिएशन -->
   <div class="card">
     <h3>Create Notes Folder</h3>
     <input type="text" id="notesFolderName" placeholder="Folder Name (e.g., BA 2nd Sem)">
     <button onclick="createNewFolder('notes')">Create Folder</button>
   </div>
 
+  <!-- मटेरियल अपलोड -->
   <div class="card">
     <h3>Upload Notes PDF / Pic</h3>
     <input type="text" id="notesMaterialTitle" placeholder="Material Title">
     <input type="text" id="notesMaterialUrl" placeholder="Paste Drive Link or Image URL">
 
     <div class="file-input-wrapper">
-      <p style="font-size: 11px; color: #555; margin-bottom: 5px;">Or auto-upload local PDF / File:</p>
-      <input type="file" onchange="uploadDirectToFirebase(this, 'notesMaterialUrl')" style="margin: 0; padding: 5px;">
+      <p style="font-size: 11px; color: #555; margin-bottom: 5px;">Or generate link from local file:</p>
+      <input type="file" onchange="uploadToImgbb(this, 'notesMaterialUrl')" style="margin: 0; padding: 5px;">
     </div>
 
     <select id="notesFolderSelect">
@@ -335,6 +347,7 @@ display: block;
     <button onclick="uploadMaterial('notes')">Upload Material to Notes</button>
   </div>
 
+  <!-- एक्सिस्टिंग डेटा कंट्रोल -->
   <div class="card">
     <h3>Notes Folders & PDFs (All Controlled)</h3>
     <h4 style="color:#555; margin:10px 0 5px 0; font-size:14px;">Folders:</h4>
@@ -346,6 +359,9 @@ display: block;
 </div>
 
 
+<!-- ========================================== -->
+<!-- 3. COMPETITION STUDY MANAGEMENT PAGE -->
+<!-- ========================================== -->
 <div id="studyPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -355,20 +371,22 @@ display: block;
     </div>
   </div>
 
+  <!-- फोल्डर क्रिएशन -->
   <div class="card">
     <h3>Create Study Folder</h3>
     <input type="text" id="studyFolderName" placeholder="Folder Name (e.g., Current Affairs 2026)">
     <button onclick="createNewFolder('study')">Create Folder</button>
   </div>
 
+  <!-- मटेरियल अपलोड -->
   <div class="card">
     <h3>Upload Study PDF / Pic</h3>
     <input type="text" id="studyMaterialTitle" placeholder="Material Title (e.g., Current Affairs Part 1)">
     <input type="text" id="studyMaterialUrl" placeholder="Paste Direct Download/Drive Link">
 
     <div class="file-input-wrapper">
-      <p style="font-size: 11px; color: #555; margin-bottom: 5px;">Or auto-upload local PDF / File:</p>
-      <input type="file" onchange="uploadDirectToFirebase(this, 'studyMaterialUrl')" style="margin: 0; padding: 5px;">
+      <p style="font-size: 11px; color: #555; margin-bottom: 5px;">Or generate link from local file:</p>
+      <input type="file" onchange="uploadToImgbb(this, 'studyMaterialUrl')" style="margin: 0; padding: 5px;">
     </div>
 
     <select id="studyFolderSelect">
@@ -377,6 +395,7 @@ display: block;
     <button onclick="uploadMaterial('study')">Upload Material to Study</button>
   </div>
 
+  <!-- एक्सिस्टिंग डेटा कंट्रोल -->
   <div class="card">
     <h3>Study Folders & PDFs (All Controlled)</h3>
     <h4 style="color:#555; margin:10px 0 5px 0; font-size:14px;">Folders:</h4>
@@ -388,6 +407,9 @@ display: block;
 </div>
 
 
+<!-- ========================================== -->
+<!-- 4. COMPLAINTS VIEW PAGE -->
+<!-- ========================================== -->
 <div id="complaintsPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -398,15 +420,18 @@ display: block;
   </div>
 
   <div id="complaintsListContainer">
-    </div>
+    <!-- शिकायतें यहाँ लाइव लोड होंगी -->
+  </div>
 </div>
 
 
+<!-- ========================================== -->
+<!-- FIREBASE & CORE APPLICATION LOGIC -->
+<!-- ========================================== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
@@ -420,7 +445,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
 
@@ -623,29 +647,33 @@ window.deleteItem = async function(collectionName, id) {
   }
 }
 
-// Firebase Storage mein direct PDF/File auto-upload karne ka logic
-window.uploadDirectToFirebase = async function(inputElement, targetInputId) {
+// फ्री इमेजबॉक्स एपीआई लिंक जनरेटर लॉजिक
+window.uploadToImgbb = async function(inputElement, targetInputId) {
   const file = inputElement.files[0];
   if (!file) return;
 
-  const inputField = document.getElementById(targetInputId);
-  inputField.value = "⏳ Uploading file to Firebase, please wait...";
-
-  // Path automatic handle karega dynamic unique timestamp ke saath
-  const fileRef = ref(storage, 'admin_uploads/' + Date.now() + "_" + file.name);
+  document.getElementById(targetInputId).value = "Generating Link, please wait...";
+  const formData = new FormData();
+  formData.append("image", file);
 
   try {
-    const snapshot = await uploadBytes(fileRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    
-    inputField.value = downloadURL; // URL box me direct link aa jayega
-    alert("⚡ File uploaded successfully! Link generate ho gaya h.");
+    const res = await fetch("https://api.imgbb.com/1/upload?key=67f1b7bebf4fa2514e2c94314fc37775", {
+      method: "POST",
+      body: formData
+    });
+    const json = await res.json();
+    if(json.success) {
+      document.getElementById(targetInputId).value = json.data.url;
+      alert("लिंक तैयार है!");
+    } else {
+      alert("लिंक नहीं बन पाया, कृपया डायरेक्ट लिंक पेस्ट करें।");
+      document.getElementById(targetInputId).value = "";
+    }
   } catch (err) {
-    inputField.value = "";
-    alert("Upload Fail! Firebase Storage rules check karein: " + err.message);
-    console.error(err);
+    document.getElementById(targetInputId).value = "";
+    alert("सर्वर एरर, लिंक जनरेशन फेल।");
   }
 }
 </script>
 </body>
-</html>
+</html
