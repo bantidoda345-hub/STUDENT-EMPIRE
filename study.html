@@ -110,13 +110,12 @@ function loadMaterials() {
 
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
-
   let finalUrl = pdfUrl;
-
+  
   if(finalUrl.includes("drive.google.com")) {
       finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
   }
-
+  
   window.open(finalUrl, '_blank');
 }
 
