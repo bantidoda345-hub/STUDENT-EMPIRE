@@ -116,17 +116,8 @@ function loadMaterials() {
 
 window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
-  var finalUrl = pdfUrl;
-  
-  // Clean string split solution that compiler will easily accept
-  if (finalUrl.indexOf("drive.google.com") !== -1) {
-      var parts = finalUrl.split("/view");
-      if (parts.length > 0) {
-          finalUrl = parts[0] + "/preview";
-      }
-  }
-  
-  window.open(finalUrl, "_blank");
+  // Bina kisi string replace ya edit ke seedha preview viewer URL binding
+  window.open(pdfUrl, "_blank");
 };
 
 function renderMaterials(dataList) {
@@ -147,7 +138,12 @@ function renderMaterials(dataList) {
     btn.className = "btn";
     btn.innerText = "Open";
     btn.onclick = function() {
-        window.secureOpenPdf(item.url);
+        // Direct link view fix jisse download na ho aur direct user ko content show ho jaye
+        var cleanLink = item.url;
+        if(cleanLink.indexOf("drive.google.com") !== -1) {
+            cleanLink = "https://docs.google.com/viewer?embedded=true&url=" + encodeURIComponent(cleanLink);
+        }
+        window.secureOpenPdf(cleanLink);
     };
     
     div.appendChild(infoDiv);
