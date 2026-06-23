@@ -110,16 +110,16 @@ function loadMaterials() {
 
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
-
+  
   let finalUrl = pdfUrl;
-
-  if (finalUrl.indexOf("drive.google.com") !== -1) {
-      let matches = finalUrl.match(/\/d\/([^/]+)/);
-      if (matches && matches[1]) {
-          finalUrl = "https://drive.google.com/file/d/" + matches[1] + "/preview";
-      }
+  
+  // Bilkul saaf aur safe link replacement bina kisi build breaking symbols ke
+  if (finalUrl.includes("drive.google.com")) {
+      finalUrl = finalUrl.replace("/view?usp=drivesdk", "/preview");
+      finalUrl = finalUrl.replace("/view", "/preview");
+      finalUrl = finalUrl.replace("/edit", "/preview");
   }
-
+  
   window.open(finalUrl, '_blank');
 };
 
@@ -130,8 +130,8 @@ function renderMaterials(dataList) {
   dataList.forEach(item => {
     const div = document.createElement("div");
     div.className = "material";
-    div.innerHTML = '<div><b>' + item.title + '</b><br><small>' + item.folder + '</small></div>' +
-                     '<button class="btn" onclick="secureOpenPdf(\'' + item.url + '\', \'' + item.title + '\')">Open</button>';
+    div.innerHTML = `<div><b>${item.title}</b><br><small>${item.folder}</small></div>
+                     <button class="btn" onclick="secureOpenPdf('${item.url}', '${item.title}')">Open</button>`;
     container.appendChild(div);
   });
 }
