@@ -8,176 +8,27 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#f5f7fb;
-padding-bottom:80px;
-}
-
-.header{
-background:#0d47a1;
-color:white;
-padding:15px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-}
-
-.header h2{
-font-size:24px;
-}
-
-.back-btn {
-background: rgba(255, 255, 255, 0.2);
-color: white;
-padding: 6px 12px;
-border-radius: 8px;
-font-size: 14px;
-cursor: pointer;
-border: none;
-display: none;
-}
-
-.search-box{
-padding:15px;
-}
-
-.search-box input{
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
-outline: none;
-}
-
-/* फ़ोल्डर्स ग्रिड स्टाइल */
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-padding:15px;
-}
-
-.card{
-background:white;
-padding:20px;
-border-radius:15px;
-text-align:center;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
-text-decoration:none;
-color:black;
-cursor: pointer;
-transition: transform 0.2s, border 0.2s;
-border: 1px solid transparent;
-}
-
-.card:active {
-transform: scale(0.95);
-}
-
-.card.selected-folder {
-border: 1px solid #0d47a1;
-background: #e3f2fd;
-}
-
-.card i{
-font-size:35px;
-color:#0d47a1;
-margin-bottom:10px;
-}
-
-.card h3{
-font-size:15px;
-font-weight: bold;
-color: #333;
-}
-
-.section-title {
-padding: 0 15px;
-font-size: 16px;
-font-weight: bold;
-color: #0d47a1;
-margin-top: 10px;
-}
-
-.materials{
-padding:15px;
-display: none; /* शुरुआत में छुपा रहेगा */
-}
-
-.material{
-background:white;
-padding:15px;
-margin-bottom:10px;
-border-radius:12px;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-left: 4px solid #1976d2;
-}
-
-.btn{
-background:#0d47a1;
-color:white;
-padding:8px 12px;
-border-radius:8px;
-text-decoration:none;
-font-weight: bold;
-font-size: 14px;
-cursor: pointer;
-border: none;
-}
-
-.btn:active {
-opacity: 0.9;
-}
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:12px;
-box-shadow:0 -2px 10px rgba(0,0,0,.15);
-z-index: 1000;
-}
-
-.bottom-nav a{
-text-decoration:none;
-color:#333;
-font-size:14px;
-text-align:center;
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 4px;
-}
-
-.bottom-nav a.active {
-color: #0d47a1;
-font-weight: bold;
-}
-
-.bottom-nav i{
-display:block;
-font-size:20px;
-color:#666;
-}
-
-.bottom-nav a.active i {
-color:#0d47a1;
-}
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+body{ background:#f5f7fb; padding-bottom:80px; }
+.header{ background:#0d47a1; color:white; padding:15px; display: flex; align-items: center; justify-content: space-between; }
+.header h2{ font-size:24px; }
+.back-btn { background: rgba(255, 255, 255, 0.2); color: white; padding: 6px 12px; border-radius: 8px; font-size: 14px; cursor: pointer; border: none; display: none; }
+.search-box{ padding:15px; }
+.search-box input{ width:100%; padding:12px; border:none; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.1); outline: none; }
+.grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:15px; padding:15px; }
+.card{ background:white; padding:20px; border-radius:15px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.1); text-decoration:none; color:black; cursor: pointer; transition: transform 0.2s; border: 1px solid transparent; }
+.card:active { transform: scale(0.95); }
+.card i{ font-size:35px; color:#0d47a1; margin-bottom:10px; }
+.card h3{ font-size:15px; font-weight: bold; color: #333; }
+.section-title { padding: 0 15px; font-size: 16px; font-weight: bold; color: #0d47a1; margin-top: 10px; }
+.materials{ padding:15px; display: none; }
+.material{ background:white; padding:15px; margin-bottom:10px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.1); display:flex; justify-content:space-between; align-items:center; border-left: 4px solid #1976d2; }
+.btn{ background:#0d47a1; color:white; padding:8px 12px; border-radius:8px; text-decoration:none; font-weight: bold; font-size: 14px; cursor: pointer; border: none; }
+.bottom-nav{ position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:12px; box-shadow:0 -2px 10px rgba(0,0,0,.15); z-index: 1000; }
+.bottom-nav a{ text-decoration:none; color:#333; font-size:14px; text-align:center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bottom-nav a.active { color: #0d47a1; font-weight: bold; }
+.bottom-nav i{ display:block; font-size:20px; color:#666; }
+.bottom-nav a.active i { color:#0d47a1; }
 </style>
 </head>
 
@@ -185,7 +36,7 @@ color:#0d47a1;
 
 <div class="header">
 <h2>Study Material</h2>
-<button class="back-btn" id="backBtn" onclick="resetFilter()"><i class="fa-solid fa-arrow-left"></i> Back to Folders</button>
+<button class="back-btn" id="backBtn" onclick="resetFilter()"><i class="fa-solid fa-arrow-left"></i> Back</button>
 </div>
 
 <div class="search-box" id="searchBoxContainer">
@@ -193,36 +44,17 @@ color:#0d47a1;
 </div>
 
 <div class="section-title" id="folderTitle"><i class="fa-solid fa-layer-group"></i> Exam Categories</div>
-<div class="grid" id="foldersGrid">
-  <div style="grid-column: span 2; text-align: center; color: #666;">Loading Folders...</div>
-</div>
+<div class="grid" id="foldersGrid"></div>
 
 <div class="section-title" id="pdfTitle" style="display: none;"><i class="fa-solid fa-file-pdf"></i> Available PDFs</div>
-<div class="materials" id="materialsContainer">
-  <div style="text-align: center; color: #666;">Loading PDFs...</div>
-</div>
+<div class="materials" id="materialsContainer"></div>
 
 <nav class="bottom-nav">
-<a href="home.html">
-<i class="fa-solid fa-house"></i>
-Home
-</a>
-<a href="study.html" class="active">
-<i class="fa-solid fa-book"></i>
-Study
-</a>
-<a href="chat.html">
-<i class="fa-solid fa-comments"></i>
-Chat
-</a>
-<a href="community.html">
-<i class="fa-solid fa-users"></i>
-Community
-</a>
-<a href="profile.html">
-<i class="fa-solid fa-user"></i>
-Profile
-</a>
+<a href="home.html"><i class="fa-solid fa-house"></i>Home</a>
+<a href="study.html" class="active"><i class="fa-solid fa-book"></i>Study</a>
+<a href="chat.html"><i class="fa-solid fa-comments"></i>Chat</a>
+<a href="community.html"><i class="fa-solid fa-users"></i>Community</a>
+<a href="profile.html"><i class="fa-solid fa-user"></i>Profile</a>
 </nav>
 
 <script type="module">
@@ -247,38 +79,20 @@ const db = getFirestore(app);
 let allMaterials = []; 
 
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-  } else {
-    loadFolders();
-    loadMaterials();
-  }
+  if (!user) window.location.href = "index.html";
+  else { loadFolders(); loadMaterials(); }
 });
 
 function loadFolders() {
   onSnapshot(collection(db, "folders"), (snapshot) => {
     const grid = document.getElementById("foldersGrid");
     grid.innerHTML = "";
-
-    if(snapshot.empty) {
-      grid.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #666;">No Folders Available</div>';
-      return;
-    }
-
     snapshot.forEach(doc => {
       const folder = doc.data();
       const card = document.createElement("div");
       card.className = "card";
-      card.id = `folder-${folder.name.replace(/\s+/g, '')}`;
-
-      card.onclick = () => {
-        selectFolder(folder.name);
-      };
-
-      card.innerHTML = `
-        <i class="fa-solid fa-folder-open"></i>
-        <h3>${folder.name}</h3>
-      `;
+      card.onclick = () => selectFolder(folder.name);
+      card.innerHTML = `<i class="fa-solid fa-folder-open"></i><h3>${folder.name}</h3>`;
       grid.appendChild(card);
     });
   });
@@ -289,110 +103,52 @@ function loadMaterials() {
     allMaterials = []; 
     snapshot.forEach(doc => {
       const data = doc.data();
-      allMaterials.push({
-        title: data.title,
-        folder: data.folder,
-        url: data.url || data.link
-      });
+      allMaterials.push({ title: data.title, folder: data.folder, url: data.url || data.link });
     });
   });
+}
+
+// 🛠️ यहाँ से बदलाव किया है
+window.secureOpenPdf = function(pdfUrl, title) {
+  if(!pdfUrl) return;
+  let finalUrl = pdfUrl;
+  if(finalUrl.includes("drive.google.com")) {
+      finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
+  }
+  window.location.href = `view.html?url=${encodeURIComponent(finalUrl)}&title=${encodeURIComponent(title)}`;
 }
 
 function renderMaterials(dataList) {
   const container = document.getElementById("materialsContainer");
   container.innerHTML = "";
-
-  if(dataList.length === 0) {
-    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">इस फोल्डर में कोई नोट्स नहीं मिले!</div>';
-    return;
-  }
-
+  if(dataList.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px;">No notes found!</div>'; return; }
   dataList.forEach(item => {
-    const materialDiv = document.createElement("div");
-    materialDiv.className = "material";
-    materialDiv.innerHTML = `
-      <div>
-        <span style="font-weight: bold; display: block; color: #2c3e50;">${item.title}</span>
-        <span style="font-size: 12px; color: #666;"><i class="fa-solid fa-tag"></i> ${item.folder}</span>
-      </div>
-      <button class="btn" onclick="secureOpenPdf('${item.url}')">Open PDF</button>
-    `;
-    container.appendChild(materialDiv);
+    const div = document.createElement("div");
+    div.className = "material";
+    div.innerHTML = `<div><b>${item.title}</b><br><small>${item.folder}</small></div>
+                     <button class="btn" onclick="secureOpenPdf('${item.url}', '${item.title}')">Open</button>`;
+    container.appendChild(div);
   });
-}
-
-// 🛠️ बिल्कुल नया मास्टर फ़ंक्शन जो बिना तोड़े हर लिंक को बाहर सेफ़ली खोलेगा
-window.secureOpenPdf = function(pdfUrl) {
-  if(!pdfUrl) return;
-
-  let cleanedUrl = pdfUrl.trim();
-
-  // अगर गूगल ड्राइव का लिंक है, तो उसकी आईडी निकालकर डायरेक्ट व्यू मोड सेट करेंगे
-  if(cleanedUrl.includes("drive.google.com")) {
-    let fileId = "";
-    if(cleanedUrl.includes("/d/")) {
-      fileId = cleanedUrl.split("/d/")[1].split("/")[0];
-    } else if(cleanedUrl.includes("id=")) {
-      fileId = cleanedUrl.split("id=")[1].split("&")[0];
-    }
-    
-    if(fileId) {
-      // यह लिंक बिना किसी रिस्ट्रिक्शन या 404 के सीधे फोन ब्राउज़र में खुलता है
-      cleanedUrl = `https://drive.google.com/file/d/${fileId}/view?usp=drivesdk`;
-    }
-  }
-
-  // एंड्रॉइड ऐप के वेबव्यू को ब्लॉक करने से रोकने का सबसे बेस्ट तरीका
-  window.open(cleanedUrl, '_blank');
 }
 
 window.selectFolder = function(folderName) {
   document.getElementById("foldersGrid").style.display = "none";
   document.getElementById("folderTitle").style.display = "none";
   document.getElementById("searchBoxContainer").style.display = "none";
-
   document.getElementById("materialsContainer").style.display = "block";
   document.getElementById("pdfTitle").style.display = "block";
   document.getElementById("backBtn").style.display = "block";
-  document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to Folders`;
-
-  const filtered = allMaterials.filter(item => item.folder.toLowerCase() === folderName.toLowerCase());
-  renderMaterials(filtered);
+  renderMaterials(allMaterials.filter(item => item.folder.toLowerCase() === folderName.toLowerCase()));
 }
 
 window.resetFilter = function() {
-  document.getElementById("searchInput").value = "";
   document.getElementById("backBtn").style.display = "none";
   document.getElementById("materialsContainer").style.display = "none";
   document.getElementById("pdfTitle").style.display = "none";
-
   document.getElementById("foldersGrid").style.display = "grid";
   document.getElementById("folderTitle").style.display = "block";
   document.getElementById("searchBoxContainer").style.display = "block";
 }
-
-function filterData() {
-  const searchText = document.getElementById("searchInput").value.toLowerCase();
-  if(searchText === "") {
-    resetFilter();
-    return;
-  }
-
-  document.getElementById("foldersGrid").style.display = "none";
-  document.getElementById("folderTitle").style.display = "none";
-  document.getElementById("materialsContainer").style.display = "block";
-  document.getElementById("pdfTitle").style.display = "block";
-  document.getElementById("backBtn").style.display = "block";
-  document.getElementById("backBtn").innerHTML = `<i class="fa-solid fa-arrow-left"></i> Back to Folders`;
-
-  const filtered = allMaterials.filter(item => {
-    return item.title.toLowerCase().includes(searchText) || item.folder.toLowerCase().includes(searchText);
-  });
-  renderMaterials(filtered);
-}
-
-document.getElementById("searchInput").addEventListener("input", filterData);
 </script>
-
 </body>
 </html>
