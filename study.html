@@ -108,19 +108,14 @@ function loadMaterials() {
   });
 }
 
-// ⚡ 100% WORKING BROWSER & DRIVE APP ACTION (No Error, No View.html Needed)
+// 🛠️ यहाँ से बदलाव किया है
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
-  
   let finalUrl = pdfUrl;
-  
-  // Agar Google Drive ka link hai toh use automatic cleanest standard preview me convert karega
   if(finalUrl.includes("drive.google.com")) {
       finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
   }
-  
-  // Seedha user ke device browser ya drive app me full layout me open karega
-  window.open(finalUrl, '_blank');
+  window.location.href = `view.html?url=${encodeURIComponent(finalUrl)}&title=${encodeURIComponent(title)}`;
 }
 
 function renderMaterials(dataList) {
