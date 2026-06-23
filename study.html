@@ -118,8 +118,12 @@ window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
   var finalUrl = pdfUrl;
   
+  // Clean string split solution that compiler will easily accept
   if (finalUrl.indexOf("drive.google.com") !== -1) {
-      finalUrl = finalUrl.replace("/view?usp=drivesdk", "/preview").replace("/view", "/preview").replace("/edit", "/preview");
+      var parts = finalUrl.split("/view");
+      if (parts.length > 0) {
+          finalUrl = parts[0] + "/preview";
+      }
   }
   
   window.open(finalUrl, "_blank");
