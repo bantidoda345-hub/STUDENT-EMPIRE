@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload PDF - Students Empire</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #0d47a1; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3>PDF Upload Karein</h3>
+        <input type="text" id="title" placeholder="PDF ka Naam (Title)">
+        <input type="text" id="folder" placeholder="Folder Name (Ex: RRB NTPC)">
+        <input type="file" id="fileInput" accept="application/pdf">
+        <button id="uploadBtn">Upload File</button>
+        <p id="msg" style="color: #0d47a1; font-weight: bold; margin-top: 10px;"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
+            authDomain: "student-empires.firebaseapp.com",
+            projectId: "student-empires",
+            storageBucket: "student-empires.firebasestorage.app",
+            messagingSenderId: "509106125707",
+            appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e",
+            measurementId: "G-ETHZNFTT7S"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+        const db = getFirestore(app);
+
+        document.getElementById('uploadBtn').onclick = async () => {
+            const file = document.getElementById('fileInput').files[0];
+            const title = document.getElementById('title').value;
+            const folder = document.getElementById('folder').value;
+            const msg = document.getElementById('msg');
+
+            if(!file || !title || !folder) return alert("Sabhi details bhare!");
+
+            msg.innerText = "Uploading... please wait...";
+            
+            try {
+                // 1. File Storage mein upload hogi
+                const storageRef = ref(storage, 'pdfs/' + Date.now() + "_" + file.name);
+                const snapshot = await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(snapshot.ref);
+
+                // 2. Database mein link save hoga
+                await addDoc(collection(db, "materials"), {
+                    title: title,
+                    folder: folder,
+                    url: url
+                });
+
+                msg.innerText = "Done! File upload ho gayi.";
+                alert("Upload Success!");
+            } catch (error) {
+                msg.innerText = "Error: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
