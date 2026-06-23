@@ -10,18 +10,19 @@
     *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
     body { background: var(--bg); padding-bottom: 80px; }
 
-    /* Banner Section */
-    .hero-banner { background: var(--primary); padding: 30px 20px; color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
-    .hero-banner h2 { font-size: 16px; font-weight: 400; opacity: 0.9; }
-    .hero-banner h1 { font-size: 22px; margin-bottom: 5px; }
-    .hero-banner p { font-size: 13px; opacity: 0.8; margin-top: 10px; }
+    /* Banner Section - Name Bigger */
+    .hero-banner { background: var(--primary); padding: 40px 20px; color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+    .hero-banner h2 { font-size: 22px; font-weight: 700; margin-bottom: 5px; }
+    .hero-banner h1 { font-size: 26px; margin-bottom: 5px; text-transform: uppercase; }
+    .hero-banner p { font-size: 14px; opacity: 0.9; }
 
-    /* Quick Access Grid */
-    .section-title { padding: 20px 20px 10px; font-size: 16px; font-weight: bold; color: #333; }
-    .quick-access { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 20px; }
-    .nav-btn { background: white; padding: 10px 5px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
-    .nav-btn i { font-size: 20px; color: var(--primary); margin-bottom: 8px; }
-    .nav-btn span { display: block; font-size: 10px; font-weight: 600; color: #555; }
+    /* Quick Access Grid - 3 Buttons Per Line */
+    .section-title { padding: 25px 20px 15px; font-size: 18px; font-weight: bold; color: #333; }
+    .quick-access { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 0 20px; }
+    .nav-btn { background: white; padding: 20px 10px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.06); cursor: pointer; transition: 0.2s; }
+    .nav-btn:active { transform: scale(0.95); }
+    .nav-btn i { font-size: 24px; color: var(--primary); margin-bottom: 10px; }
+    .nav-btn span { display: block; font-size: 11px; font-weight: 700; color: #444; }
 
     /* Updates */
     .updates-section { padding: 20px; }
@@ -37,21 +38,22 @@
 <body>
 
 <div class="hero-banner">
-    <h2 id="userNameDisplay">Loading...</h2>
+    <h2 id="userNameDisplay">Welcome!</h2>
     <h1>STUDENTS EMPIRE</h1>
-    <p>Your All-in-One Platform for Academic Success</p>
+    <p>Empowering Students, Building Futures</p>
 </div>
 
 <div class="section-title">Quick Access</div>
 <div class="quick-access">
     <div class="nav-btn" onclick="window.location.href='study.html'"><i class="fa-solid fa-book"></i><span>Study</span></div>
     <div class="nav-btn" onclick="window.location.href='notes.html'"><i class="fa-solid fa-note-sticky"></i><span>Notes</span></div>
-    <div class="nav-btn" onclick="window.location.href='pyq.html'"><i class="fa-solid fa-file-lines"></i><span>PYQ Papers</span></div>
-    <div class="nav-btn" onclick="alert('Coming Soon')"><i class="fa-solid fa-video"></i><span>Videos</span></div>
+    <div class="nav-btn" onclick="window.location.href='pyq.html'"><i class="fa-solid fa-file-lines"></i><span>PYQ</span></div>
+    <div class="nav-btn" onclick="window.location.href='rating.html'"><i class="fa-solid fa-star"></i><span>Rate Us</span></div>
     <div class="nav-btn" onclick="alert('Coming Soon')"><i class="fa-solid fa-book-open"></i><span>E-Books</span></div>
     <div class="nav-btn" onclick="alert('Coming Soon')"><i class="fa-solid fa-bell"></i><span>Updates</span></div>
     <div class="nav-btn" onclick="alert('Coming Soon')"><i class="fa-solid fa-download"></i><span>Downloads</span></div>
     <div class="nav-btn" onclick="window.location.href='community.html'"><i class="fa-solid fa-users"></i><span>Community</span></div>
+    <div class="nav-btn" onclick="alert('Coming Soon')"><i class="fa-solid fa-briefcase"></i><span>Jobs</span></div>
 </div>
 
 <div class="section-title">Recent Updates</div>
