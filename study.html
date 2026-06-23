@@ -36,7 +36,7 @@ body{ background:#f5f7fb; padding-bottom:80px; }
 
 <div class="header">
 <h2>Study Material</h2>
-<button class="back-btn" id="backBtn" onclick="window.resetFilter()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+<button class="back-btn" id="backBtn" onclick="resetFilter()"><i class="fa-solid fa-arrow-left"></i> Back</button>
 </div>
 
 <div class="search-box" id="searchBoxContainer">
@@ -116,8 +116,13 @@ function loadMaterials() {
 
 window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
-  // Bina kisi string replace ya edit ke seedha preview viewer URL binding
-  window.open(pdfUrl, "_blank");
+  var previewUrl = pdfUrl;
+  
+  if (previewUrl.indexOf("drive.google.com") !== -1) {
+      previewUrl = "https://docs.google.com/viewer?embedded=true&url=" + encodeURIComponent(previewUrl);
+  }
+  
+  window.open(previewUrl, "_blank");
 };
 
 function renderMaterials(dataList) {
@@ -138,12 +143,7 @@ function renderMaterials(dataList) {
     btn.className = "btn";
     btn.innerText = "Open";
     btn.onclick = function() {
-        // Direct link view fix jisse download na ho aur direct user ko content show ho jaye
-        var cleanLink = item.url;
-        if(cleanLink.indexOf("drive.google.com") !== -1) {
-            cleanLink = "https://docs.google.com/viewer?embedded=true&url=" + encodeURIComponent(cleanLink);
-        }
-        window.secureOpenPdf(cleanLink);
+        window.secureOpenPdf(item.url);
     };
     
     div.appendChild(infoDiv);
