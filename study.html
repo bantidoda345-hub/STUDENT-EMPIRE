@@ -108,13 +108,24 @@ function loadMaterials() {
   });
 }
 
+// ⚡ HIGHLY OPTIMIZED LINK CONVERTER
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
 
   let finalUrl = pdfUrl;
 
   if(finalUrl.includes("drive.google.com")) {
-      finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
+      // Yeh logic har tarah ke drive link format (?usp=drivesdk) ko automatic bilkul saaf /preview me badlega
+      let fileId = "";
+      if (finalUrl.includes("/d/")) {
+          fileId = finalUrl.split("/d/")[1].split("/")[0];
+      } else if (finalUrl.includes("id=")) {
+          fileId = finalUrl.split("id=")[1].split("&")[0];
+      }
+      
+      if(fileId) {
+          finalUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+      }
   }
 
   window.open(finalUrl, '_blank');
