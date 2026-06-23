@@ -116,13 +116,7 @@ function loadMaterials() {
 
 window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
-  var previewUrl = pdfUrl;
-  
-  if (previewUrl.indexOf("drive.google.com") !== -1) {
-      previewUrl = "https://docs.google.com/viewer?embedded=true&url=" + encodeURIComponent(previewUrl);
-  }
-  
-  window.open(previewUrl, "_blank");
+  window.open(pdfUrl, "_blank");
 };
 
 function renderMaterials(dataList) {
