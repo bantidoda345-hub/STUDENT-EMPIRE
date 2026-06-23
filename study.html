@@ -118,7 +118,6 @@ window.secureOpenPdf = function(pdfUrl) {
   if(!pdfUrl) return;
   var finalUrl = pdfUrl;
   
-  // GitHub compliance optimized clean URL generator
   if (finalUrl.indexOf("drive.google.com") !== -1) {
       finalUrl = finalUrl.replace("/view?usp=drivesdk", "/preview").replace("/view", "/preview").replace("/edit", "/preview");
   }
@@ -168,7 +167,7 @@ window.selectFolder = function(folderName) {
 window.resetFilter = function() {
   document.getElementById("backBtn").style.display = "none";
   document.getElementById("materialsContainer").style.display = "none";
-  document.getElementById("pdfTitle").style.none = "none";
+  document.getElementById("pdfTitle").style.display = "none";
   document.getElementById("foldersGrid").style.display = "grid";
   document.getElementById("folderTitle").style.display = "block";
   document.getElementById("searchBoxContainer").style.display = "block";
