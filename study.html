@@ -108,14 +108,16 @@ function loadMaterials() {
   });
 }
 
-// 🛠️ यहाँ से बदलाव किया है
+// ⚡ DIRECT GOOGLE DRIVE RENDERING (No view.html Dependency)
 window.secureOpenPdf = function(pdfUrl, title) {
   if(!pdfUrl) return;
   let finalUrl = pdfUrl;
-  if(finalUrl.includes("drive.google.com")) {
-      finalUrl = finalUrl.replace('/view?usp=drivesdk', '').replace('/view', '').replace('/edit', '').replace('/d/', '/file/d/') + '/preview';
-  }
-  window.location.href = `view.html?url=${encodeURIComponent(finalUrl)}&title=${encodeURIComponent(title)}`;
+  
+  // Agar Firebase Storage ka link hai ya normal link hai toh use seedha Drive Viewer string me merge karo
+  const driveViewerUrl = "https://drive.google.com/viewer?url=" + encodeURIComponent(finalUrl);
+  
+  // Yeh student ke browser/phone me bina 0/0 error ke direct full layout khol dega
+  window.open(driveViewerUrl, '_blank');
 }
 
 function renderMaterials(dataList) {
