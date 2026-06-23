@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Material</title>
     <style>
-        body { margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #f4f6f9; }
         iframe { flex-grow: 1; width: 100%; border: none; }
-        .header { background: #0d47a1; color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .header { background: #0d47a1; color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
     </style>
 </head>
 <body>
@@ -21,13 +21,13 @@
 
         if(pdfUrl) {
             document.getElementById('fileName').innerText = title || "Study Material";
+
+            // Method: Google Docs Viewer ka use karein jo Firebase secure tokens ko bhi aaram se load kar deta hai
+            const viewerUrl = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(pdfUrl);
             
-            // 403 Error से बचने के लिए Mozilla PDF.js का उपयोग करें
-            // यह तरीका Google Drive की फाइलों को सीधे रेंडर कर देता है
-            const viewerUrl = "https://mozilla.github.io/pdf.js/web/viewer.html?file=" + encodeURIComponent(pdfUrl);
             document.getElementById('pdfFrame').src = viewerUrl;
         } else {
-            document.body.innerHTML = "<h3 style='text-align:center; margin-top:20px;'>File not found!</h3>";
+            document.body.innerHTML = "<h3 style='text-align:center; margin-top:20px; color: red;'>File not found!</h3>";
         }
     </script>
 </body>
