@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Panel - Students Empire</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
     *{margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
     body{background:#f5f7fb; padding:15px; display: none;}
@@ -33,9 +34,9 @@
         <input type="text" id="notesFolderName" placeholder="New Folder Name">
         <button type="button" onclick="createFolder('notes')">Create Folder</button>
         <hr style="margin:10px 0;">
-        <input type="file" id="notesFilePicker" multiple>
+        <input type="file" id="notesFilePicker">
         <select id="notesFolderSelect"><option value="">Select Folder</option></select>
-        <button type="button" id="notesUploadBtn" onclick="uploadFiles('notes')">Upload Files</button>
+        <button type="button" id="notesUploadBtn" onclick="uploadFiles('notes')">Upload PDF</button>
     </div>
     <div id="notesFoldersList"></div>
     <div id="notesFilesList"></div>
@@ -47,9 +48,9 @@
         <input type="text" id="studyFolderName" placeholder="New Folder Name">
         <button type="button" onclick="createFolder('study')">Create Folder</button>
         <hr style="margin:10px 0;">
-        <input type="file" id="studyFilePicker" multiple>
+        <input type="file" id="studyFilePicker">
         <select id="studyFolderSelect"><option value="">Select Folder</option></select>
-        <button type="button" id="studyUploadBtn" onclick="uploadFiles('study')">Upload Files</button>
+        <button type="button" id="studyUploadBtn" onclick="uploadFiles('study')">Upload PDF</button>
     </div>
     <div id="studyFoldersList"></div>
     <div id="studyFilesList"></div>
@@ -65,18 +66,14 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 const app = initializeApp({ apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE", authDomain: "student-empires.firebaseapp.com", projectId: "student-empires", appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e" });
 const db = getFirestore(app); const auth = getAuth(app);
 
+// Supabase Init
+const supabase = supabase.createClient('https://ffnkqmqqspryqskattut.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbmtxbXFxc3ByeXFza2F0dHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDMwODEsImV4cCI6MjA5ODIxOTA4MX0.EXtgfJRX0EQM6YFdRp85hhf6QEnCnGClgSlb5INH1n4');
+
 window.switchPage = (p) => { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.getElementById(p).classList.add('active'); };
 
 onAuthStateChanged(auth, async (user) => {
     if (!user || user.email !== "bantidoda345@gmail.com") { window.location.href = "index.html"; } 
-    else {
-        const pinDoc = await getDocs(collection(db, "admin_config"));
-        let correctPin = "1234";
-        pinDoc.forEach(d => correctPin = d.data().pin);
-        const input = prompt("Enter Admin PIN:");
-        if (input == correctPin) { document.body.style.display = "block"; startSync(); } 
-        else { alert("Wrong PIN!"); signOut(auth); location.reload(); }
-    }
+    else { document.body.style.display = "block"; startSync(); }
 });
 
 window.createFolder = async (type) => {
@@ -84,50 +81,45 @@ window.createFolder = async (type) => {
     if(!name) return alert("Enter folder name");
     await addDoc(collection(db, "folders"), { name, type });
     alert("Folder Created!");
-    document.getElementById(type+'FolderName').value = "";
 };
 
-// Yaha naya Logic hai (Storage ki zaroorat nahi)
 window.uploadFiles = async (target) => {
     const btn = document.getElementById(target+'UploadBtn');
     const fileInput = document.getElementById(target+'FilePicker');
     const folder = document.getElementById(target+'FolderSelect').value;
 
-    if(!folder || fileInput.files.length === 0) return alert("Select Folder and Files first!");
-
-    btn.innerText = "Processing...";
+    if(!folder || fileInput.files.length === 0) return alert("Select Folder and File!");
+    
+    btn.innerText = "Uploading...";
     btn.disabled = true;
 
     try {
-        const filePromises = Array.from(fileInput.files).map((file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = async () => {
-                    await addDoc(collection(db, "materials"), { 
-                        title: file.name, 
-                        url: reader.result, 
-                        folder: folder, 
-                        target: target 
-                    });
-                    resolve();
-                };
-                reader.onerror = error => reject(error);
-            });
+        const file = fileInput.files[0];
+        const filePath = `${target}/${Date.now()}_${file.name}`;
+        
+        // 1. Supabase Storage
+        const { error: uploadError } = await supabase.storage.from('materials').upload(filePath, file);
+        if(uploadError) throw uploadError;
+
+        // 2. Get Public URL
+        const { data: urlData } = supabase.storage.from('materials').getPublicUrl(filePath);
+        
+        // 3. Save to Firebase
+        await addDoc(collection(db, "materials"), { 
+            title: file.name, url: urlData.publicUrl, folder: folder, target: target 
         });
 
-        await Promise.all(filePromises);
         alert("Upload Successful!");
-        fileInput.value = ""; 
+        fileInput.value = "";
     } catch(e) {
         alert("Error: " + e.message);
     } finally {
-        btn.innerText = "Upload Files";
+        btn.innerText = "Upload PDF";
         btn.disabled = false;
     }
 };
 
-window.deleteItem = async (col, id) => { if(confirm('Delete this?')) await deleteDoc(doc(db, col, id)); };
+window.deleteItem = async (col, id) => { if(confirm('Delete?')) await deleteDoc(doc(db, col, id)); };
 
 function startSync() {
     onSnapshot(collection(db, "folders"), (snap) => {
