@@ -34,9 +34,9 @@
         <input type="text" id="notesFolderName" placeholder="New Folder Name">
         <button type="button" onclick="createFolder('notes')">Create Folder</button>
         <hr style="margin:10px 0;">
-        <input type="file" id="notesFilePicker">
+        <input type="file" id="notesFilePicker" multiple>
         <select id="notesFolderSelect"><option value="">Select Folder</option></select>
-        <button type="button" id="notesUploadBtn" onclick="uploadFiles('notes')">Upload PDF</button>
+        <button type="button" id="notesUploadBtn" onclick="uploadFiles('notes')">Upload PDFs</button>
     </div>
     <div id="notesFoldersList"></div>
     <div id="notesFilesList"></div>
@@ -48,9 +48,9 @@
         <input type="text" id="studyFolderName" placeholder="New Folder Name">
         <button type="button" onclick="createFolder('study')">Create Folder</button>
         <hr style="margin:10px 0;">
-        <input type="file" id="studyFilePicker">
+        <input type="file" id="studyFilePicker" multiple>
         <select id="studyFolderSelect"><option value="">Select Folder</option></select>
-        <button type="button" id="studyUploadBtn" onclick="uploadFiles('study')">Upload PDF</button>
+        <button type="button" id="studyUploadBtn" onclick="uploadFiles('study')">Upload PDFs</button>
     </div>
     <div id="studyFoldersList"></div>
     <div id="studyFilesList"></div>
@@ -66,7 +66,6 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 const app = initializeApp({ apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE", authDomain: "student-empires.firebaseapp.com", projectId: "student-empires", appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e" });
 const db = getFirestore(app); const auth = getAuth(app);
 
-// Global Supabase variable initialization
 window.supabase = window.supabase.createClient('https://ffnkqmqqspryqskattut.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbmtxbXFxc3ByeXFza2F0dHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDMwODEsImV4cCI6MjA5ODIxOTA4MX0.EXtgfJRX0EQM6YFdRp85hhf6QEnCnGClgSlb5INH1n4');
 
 window.switchPage = (p) => { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.getElementById(p).classList.add('active'); };
@@ -95,32 +94,27 @@ window.uploadFiles = async (target) => {
     const fileInput = document.getElementById(target+'FilePicker');
     const folder = document.getElementById(target+'FolderSelect').value;
 
-    if(!folder || fileInput.files.length === 0) return alert("Select Folder and File!");
-    
+    if(!folder || fileInput.files.length === 0) return alert("Folder aur PDF files select karo!");
+
     btn.innerText = "Uploading...";
     btn.disabled = true;
 
-    try {
-        const file = fileInput.files[0];
-        const filePath = `${target}/${Date.now()}_${file.name}`;
-        
-        const { error: uploadError } = await window.supabase.storage.from('materials').upload(filePath, file);
-        if(uploadError) throw uploadError;
+    for (const file of fileInput.files) {
+        try {
+            const filePath = `${target}/${Date.now()}_${file.name}`;
+            const { error: uploadError } = await window.supabase.storage.from('materials').upload(filePath, file);
+            if(uploadError) throw uploadError;
 
-        const { data: urlData } = window.supabase.storage.from('materials').getPublicUrl(filePath);
-        
-        await addDoc(collection(db, "materials"), { 
-            title: file.name, url: urlData.publicUrl, folder: folder, target: target 
-        });
-
-        alert("Upload Successful!");
-        fileInput.value = "";
-    } catch(e) {
-        alert("Error: " + e.message);
-    } finally {
-        btn.innerText = "Upload PDF";
-        btn.disabled = false;
+            const { data: urlData } = window.supabase.storage.from('materials').getPublicUrl(filePath);
+            await addDoc(collection(db, "materials"), { 
+                title: file.name, url: urlData.publicUrl, folder: folder, target: target 
+            });
+        } catch(e) { console.error(e); }
     }
+    alert("Sabhi selected files upload ho gayi hain!");
+    btn.innerText = "Upload PDFs";
+    btn.disabled = false;
+    fileInput.value = "";
 };
 
 window.deleteItem = async (col, id) => { if(confirm('Delete?')) await deleteDoc(doc(db, col, id)); };
