@@ -66,14 +66,21 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 const app = initializeApp({ apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE", authDomain: "student-empires.firebaseapp.com", projectId: "student-empires", appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e" });
 const db = getFirestore(app); const auth = getAuth(app);
 
-// Supabase Init
-const supabase = supabase.createClient('https://ffnkqmqqspryqskattut.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbmtxbXFxc3ByeXFza2F0dHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDMwODEsImV4cCI6MjA5ODIxOTA4MX0.EXtgfJRX0EQM6YFdRp85hhf6QEnCnGClgSlb5INH1n4');
+// Global Supabase variable initialization
+window.supabase = window.supabase.createClient('https://ffnkqmqqspryqskattut.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbmtxbXFxc3ByeXFza2F0dHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDMwODEsImV4cCI6MjA5ODIxOTA4MX0.EXtgfJRX0EQM6YFdRp85hhf6QEnCnGClgSlb5INH1n4');
 
 window.switchPage = (p) => { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.getElementById(p).classList.add('active'); };
 
 onAuthStateChanged(auth, async (user) => {
     if (!user || user.email !== "bantidoda345@gmail.com") { window.location.href = "index.html"; } 
-    else { document.body.style.display = "block"; startSync(); }
+    else {
+        const pinDoc = await getDocs(collection(db, "admin_config"));
+        let correctPin = "1234";
+        pinDoc.forEach(d => correctPin = d.data().pin);
+        const input = prompt("Enter Admin PIN:");
+        if (input == correctPin) { document.body.style.display = "block"; startSync(); } 
+        else { alert("Wrong PIN!"); signOut(auth); location.reload(); }
+    }
 });
 
 window.createFolder = async (type) => {
@@ -97,14 +104,11 @@ window.uploadFiles = async (target) => {
         const file = fileInput.files[0];
         const filePath = `${target}/${Date.now()}_${file.name}`;
         
-        // 1. Supabase Storage
-        const { error: uploadError } = await supabase.storage.from('materials').upload(filePath, file);
+        const { error: uploadError } = await window.supabase.storage.from('materials').upload(filePath, file);
         if(uploadError) throw uploadError;
 
-        // 2. Get Public URL
-        const { data: urlData } = supabase.storage.from('materials').getPublicUrl(filePath);
+        const { data: urlData } = window.supabase.storage.from('materials').getPublicUrl(filePath);
         
-        // 3. Save to Firebase
         await addDoc(collection(db, "materials"), { 
             title: file.name, url: urlData.publicUrl, folder: folder, target: target 
         });
