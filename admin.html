@@ -330,21 +330,31 @@ display: block;
   </div>
 
   <!-- मटेरियल अपलोड -->
-  <div class="card">
-    <h3>Upload Notes PDF / Pic</h3>
-    <input type="text" id="notesMaterialTitle" placeholder="Material Title">
-    <input type="text" id="notesMaterialUrl" placeholder="Paste Drive Link or Image URL">
-
+  <!-- Yeh code 'Material Upload' section ke liye replace karein -->
+<div class="card">
+    <h3>Upload Multiple PDFs</h3>
+    <input type="text" id="targetTitle" placeholder="Batch Title (e.g. Physics Notes)">
     <div class="file-input-wrapper">
-      <p style="font-size: 11px; color: #555; margin-bottom: 5px;">Or generate link from local file:</p>
-      <input type="file" onchange="uploadToImgbb(this, 'notesMaterialUrl')" style="margin: 0; padding: 5px;">
+        <p style="font-size: 11px; color: #555;">Select Multiple PDFs:</p>
+        <input type="file" id="pdfInput" multiple accept="application/pdf">
     </div>
-
-    <select id="notesFolderSelect">
-      <option value="">Select Notes Folder</option>
+    <select id="folderSelect">
+        <option value="">Select Folder</option>
     </select>
-    <button onclick="uploadMaterial('notes')">Upload Material to Notes</button>
-  </div>
+    <button onclick="uploadMultiplePDFs('notes')" style="margin-bottom:10px;">Upload to Notes</button>
+    <button onclick="uploadMultiplePDFs('study')">Upload to Study</button>
+
+    <hr style="margin:15px 0;">
+
+    <h3>Add Link Only</h3>
+    <input type="text" id="linkTitle" placeholder="Title">
+    <input type="text" id="linkUrl" placeholder="Paste URL here">
+    <select id="linkFolderSelect">
+        <option value="">Select Folder</option>
+    </select>
+    <button onclick="addLinkOnly()" style="background:#28a745;">Save Link</button>
+</div>
+
 
   <!-- एक्सिस्टिंग डेटा कंट्रोल -->
   <div class="card">
@@ -428,9 +438,48 @@ display: block;
 <!-- FIREBASE & CORE APPLICATION LOGIC -->
 <!-- ========================================== -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+const storage = getStorage(app);
+
+// Multiple PDF Upload
+window.uploadMultiplePDFs = async function(target) {
+    const files = document.getElementById("pdfInput").files;
+    const folder = document.getElementById("folderSelect").value;
+    if(files.length === 0 || !folder) return alert("Files aur Folder dono select karein!");
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const storageRef = ref(storage, 'uploads/' + target + '/' + Date.now() + '_' + file.name);
+        
+        const snapshot = await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(snapshot.ref);
+
+        await addDoc(collection(db, "materials"), {
+            title: file.name,
+            url: url,
+            folder: folder,
+            target: target,
+            uploadedAt: new Date()
+        });
+    }
+    alert("Sabhi files upload ho gayi!");
+};
+
+// Direct Link Upload
+window.addLinkOnly = async function() {
+    const title = document.getElementById("linkTitle").value;
+    const url = document.getElementById("linkUrl").value;
+    const folder = document.getElementById("linkFolderSelect").value;
+    const target = "notes"; // Default
+    
+    if(!title || !url || !folder) return alert("Sabhi fields bharein!");
+    
+    await addDoc(collection(db, "materials"), {
+        title: title, url: url, folder: folder, target: target, uploadedAt: new Date()
+    });
+    alert("Link saved!");
+};
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
