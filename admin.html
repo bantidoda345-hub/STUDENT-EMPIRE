@@ -6,82 +6,82 @@
 <title>Admin Panel - Students Empire</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-/* CSS ko wahi rehne diya hai taaki aapka design na bigde */
-*{margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
-body{background:#f5f7fb; padding:15px; display: none;}
-.header{background:#0d47a1; color:white; padding:15px; border-radius:12px; margin-bottom:15px; position: relative;}
-.back-profile-btn {position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold;}
-.sub-header {display: flex; align-items: center; background: #0d47a1; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; gap: 15px;}
-.stats{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:15px;}
-.stat{background:white; padding:15px; border-radius:12px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.08);}
-.menu-card {background: white; padding: 25px 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer;}
-.card{background:white; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,.08);}
-input,select{width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;}
-button{width:100%; padding:12px; background:#0d47a1; color:white; border:none; border-radius:8px; font-weight: bold; cursor: pointer;}
-.list-item {background: #f8f9fa; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee;}
-.page {display: none;} .page.active {display: block;}
+    *{margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
+    body{background:#f5f7fb; padding:15px; display: none;}
+    .header{background:#0d47a1; color:white; padding:15px; border-radius:12px; margin-bottom:15px;}
+    .sub-header {display: flex; align-items: center; background: #0d47a1; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; gap: 15px;}
+    .card{background:white; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,.08);}
+    input,select{width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;}
+    button{width:100%; padding:12px; background:#0d47a1; color:white; border:none; border-radius:8px; font-weight: bold; cursor: pointer; margin-bottom:5px;}
+    .list-item {background: #f8f9fa; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee;}
+    .page {display: none;} .page.active {display: block;}
+    .delete-btn {color: #d32f2f; cursor: pointer; font-size: 18px;}
 </style>
 </head>
 <body>
 
-<!-- Dashboard -->
 <div id="mainDashboardPage" class="page active">
-    <div class="header"><h2>Admin Panel</h2><a href="profile.html" class="back-profile-btn">Profile</a></div>
-    <div class="stats"><div class="stat"><h2 id="totalUsersCount">0</h2><p>Users</p></div><div class="stat"><h2 id="totalMaterialsCount">0</h2><p>Materials</p></div></div>
-    <div class="menu-card" onclick="switchPage('notesPage')"><h4>College Notes</h4></div>
-    <div class="menu-card" onclick="switchPage('studyPage')"><h4>Competition Study</h4></div>
-    <button onclick="switchPage('complaintsPage')">View Complaints</button>
+    <div class="header"><h2>Admin Panel</h2></div>
+    <div onclick="switchPage('notesPage')" class="card"><h4>College Notes Manager</h4></div>
+    <div onclick="switchPage('studyPage')" class="card"><h4>Competition Study Manager</h4></div>
+    <button onclick="switchPage('complaintsPage')" style="background:#e65100;">View Complaints</button>
 </div>
 
-<!-- Notes Manager -->
 <div id="notesPage" class="page">
-    <div class="sub-header"><button onclick="switchPage('mainDashboardPage')">Back</button><h2>Notes Manager</h2></div>
+    <div class="sub-header"><button onclick="switchPage('mainDashboardPage')" style="width:auto;">Back</button><h2>Notes</h2></div>
     <div class="card">
-        <h3>Create Folder</h3>
-        <input type="text" id="notesFolderName" placeholder="Folder Name">
-        <button onclick="createFolder('notes')">Create</button>
-    </div>
-    <div class="card">
-        <h3>Upload Files</h3>
+        <input type="text" id="notesFolderName" placeholder="New Folder Name">
+        <button onclick="createFolder('notes')">Create Folder</button>
+        <hr style="margin:10px 0;">
         <input type="file" id="notesFilePicker" multiple>
-        <select id="notesFolderSelect"></select>
-        <button onclick="uploadFiles('notes')">Upload</button>
+        <select id="notesFolderSelect"><option value="">Select Folder</option></select>
+        <button onclick="uploadFiles('notes')">Upload Files</button>
     </div>
+    <div id="notesFoldersList"></div>
     <div id="notesFilesList"></div>
 </div>
 
-<!-- Study Manager (Similar structure) -->
 <div id="studyPage" class="page">
-    <div class="sub-header"><button onclick="switchPage('mainDashboardPage')">Back</button><h2>Study Manager</h2></div>
+    <div class="sub-header"><button onclick="switchPage('mainDashboardPage')" style="width:auto;">Back</button><h2>Study</h2></div>
     <div class="card">
-        <h3>Create Folder</h3>
-        <input type="text" id="studyFolderName" placeholder="Folder Name">
-        <button onclick="createFolder('study')">Create</button>
-    </div>
-    <div class="card">
-        <h3>Upload Files</h3>
+        <input type="text" id="studyFolderName" placeholder="New Folder Name">
+        <button onclick="createFolder('study')">Create Folder</button>
+        <hr style="margin:10px 0;">
         <input type="file" id="studyFilePicker" multiple>
-        <select id="studyFolderSelect"></select>
-        <button onclick="uploadFiles('study')">Upload</button>
+        <select id="studyFolderSelect"><option value="">Select Folder</option></select>
+        <button onclick="uploadFiles('study')">Upload Files</button>
     </div>
+    <div id="studyFoldersList"></div>
     <div id="studyFilesList"></div>
 </div>
 
-<div id="complaintsPage" class="page"><div class="sub-header"><button onclick="switchPage('mainDashboardPage')">Back</button><h2>Complaints</h2></div><div id="complaintsContainer"></div></div>
+<div id="complaintsPage" class="page"><div class="sub-header"><button onclick="switchPage('mainDashboardPage')" style="width:auto;">Back</button><h2>Complaints</h2></div><div id="complaintsContainer"></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const firebaseConfig = { apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE", authDomain: "student-empires.firebaseapp.com", projectId: "student-empires", storageBucket: "student-empires.firebasestorage.app", appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e" };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
-const auth = getAuth(app);
+const app = initializeApp({ apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE", authDomain: "student-empires.firebaseapp.com", projectId: "student-empires", storageBucket: "student-empires.firebasestorage.app", appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e" });
+const db = getFirestore(app); const storage = getStorage(app); const auth = getAuth(app);
 
 window.switchPage = (p) => { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.getElementById(p).classList.add('active'); };
+
+// PIN System
+onAuthStateChanged(auth, async (user) => {
+    if (!user || user.email !== "bantidoda345@gmail.com") window.location.href = "index.html";
+    else {
+        const pinDoc = await getDocs(collection(db, "admin_config"));
+        let correctPin = "";
+        pinDoc.forEach(d => correctPin = d.data().pin);
+        const input = prompt("Enter Admin PIN:");
+        if (input == correctPin) {
+            document.body.style.display = "block";
+            startSync();
+        } else { alert("Wrong PIN!"); signOut(auth); location.reload(); }
+    }
+});
 
 window.createFolder = async (type) => {
     const name = document.getElementById(type+'FolderName').value;
@@ -92,21 +92,47 @@ window.createFolder = async (type) => {
 window.uploadFiles = async (target) => {
     const files = document.getElementById(target+'FilePicker').files;
     const folder = document.getElementById(target+'FolderSelect').value;
+    if(!folder) return alert("Select Folder first!");
     for(let file of files) {
         const sRef = ref(storage, target+'/'+Date.now()+file.name);
-        await uploadBytes(sRef, file);
-        const url = await getDownloadURL(sRef);
+        const snapshot = await uploadBytes(sRef, file);
+        const url = await getDownloadURL(snapshot.ref);
         await addDoc(collection(db, "materials"), { title: file.name, url, folder, target });
     }
-    alert("Uploaded!");
+    alert("Upload Successful!");
 };
 
-window.deleteItem = async (col, id) => { await deleteDoc(doc(db, col, id)); };
+window.deleteItem = async (col, id) => { if(confirm('Delete this?')) await deleteDoc(doc(db, col, id)); };
 
-onAuthStateChanged(auth, (user) => {
-    if(user && user.email === "bantidoda345@gmail.com") document.body.style.display = "block";
-    else window.location.href = "index.html";
-});
+function startSync() {
+    // Folders Sync
+    onSnapshot(collection(db, "folders"), (snap) => {
+        ['notes','study'].forEach(t => {
+            const list = document.getElementById(t+'FoldersList');
+            const select = document.getElementById(t+'FolderSelect');
+            list.innerHTML = '<h4>Folders:</h4>'; select.innerHTML = '<option value="">Select Folder</option>';
+            snap.forEach(d => {
+                if(d.data().type === t) {
+                    list.innerHTML += `<div class="list-item">${d.data().name} <i class="fas fa-trash delete-btn" onclick="deleteItem('folders','${d.id}')"></i></div>`;
+                    select.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`;
+                }
+            });
+        });
+    });
+
+    // Files Sync
+    onSnapshot(collection(db, "materials"), (snap) => {
+        ['notes','study'].forEach(t => {
+            const list = document.getElementById(t+'FilesList');
+            list.innerHTML = '<h4>Files:</h4>';
+            snap.forEach(d => {
+                if(d.data().target === t) {
+                    list.innerHTML += `<div class="list-item">${d.data().title} <i class="fas fa-trash delete-btn" onclick="deleteItem('materials','${d.id}')"></i></div>`;
+                }
+            });
+        });
+    });
+}
 </script>
 </body>
 </html>
