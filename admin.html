@@ -4,102 +4,83 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel - Students Empire</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-    body { background: #f5f7fb; padding: 15px; }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
-    input, select, button { width: 100%; padding: 14px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+    body { font-family: sans-serif; background: #f5f7fb; margin: 0; padding: 0; }
+    /* Popup Overlay */
+    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .popup { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 350px; text-align: center; }
+    
+    /* Main Content */
+    #adminContent { padding: 20px; display: none; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+    input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
     button { background: #0d47a1; color: white; border: none; font-weight: bold; cursor: pointer; }
-    #adminContent, #pinScreen { display: none; }
-    .list-item { background: white; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; border: 1px solid #eee; }
 </style>
 </head>
 <body>
 
-<div id="pinScreen" class="card" style="display:block;">
-    <h3>Admin Login</h3>
-    <input type="password" id="adminPin" placeholder="Enter Security PIN">
-    <button onclick="checkPin()">Access Admin Panel</button>
+<div id="overlay">
+    <div class="popup">
+        <h3>Admin Access</h3>
+        <input type="password" id="adminPin" placeholder="Enter PIN">
+        <button onclick="checkPin()">Login</button>
+    </div>
 </div>
 
 <div id="adminContent">
     <div class="card">
-        <h3>Manage Study Materials</h3>
-        <input type="text" id="folderName" placeholder="New Folder Name">
-        <button onclick="createFolder()">Create Folder</button>
-        <hr style="margin:15px 0;">
+        <h3>Upload Study Material</h3>
         <input type="file" id="filePicker">
         <select id="folderSelect"><option>Select Folder</option></select>
         <button id="uploadBtn" onclick="uploadNow()">Upload PDF</button>
     </div>
-    <div id="filesList"></div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = initializeApp({ apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE", authDomain: "student-empires.firebaseapp.com", projectId: "student-empires", appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e" });
     const db = getFirestore(app);
     const supabase = window.supabase.createClient('https://ffnkqmqqspryqskattut.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbmtxbXFxc3ByeXFza2F0dHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDMwODEsImV4cCI6MjA5ODIxOTA4MX0.EXtgfJRX0EQM6YFdRp85hhf6QEnCnGClgSlb5INH1n4');
 
-    // PIN Check
     window.checkPin = async () => {
-        const pin = document.getElementById('adminPin').value;
+        const inputPin = document.getElementById('adminPin').value;
         const snap = await getDocs(collection(db, "admin_config"));
         let match = false;
-        snap.forEach(d => { if(d.data().pin == pin) match = true; });
+        snap.forEach(d => { if(d.data().pin == inputPin) match = true; });
+        
         if(match) {
-            document.getElementById('pinScreen').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
-            syncData();
-        } else alert("Invalid PIN");
+            loadData();
+        } else { alert("Invalid PIN!"); }
     };
 
-    // Folder Creation
-    window.createFolder = async () => {
-        const name = document.getElementById('folderName').value;
-        if(name) {
-            await addDoc(collection(db, "folders"), { name, type: "study" });
-            alert("Folder Created!");
-        }
-    };
-
-    // Upload System
-    window.uploadNow = async () => {
-        const file = document.getElementById('filePicker').files[0];
-        const folder = document.getElementById('folderSelect').value;
-        const btn = document.getElementById('uploadBtn');
-        if(!file || folder === "Select Folder") return alert("Select File & Folder!");
-        
-        btn.innerText = "Uploading..."; btn.disabled = true;
-        const path = `study/${Date.now()}_${file.name}`;
-        const { error } = await supabase.storage.from('materials').upload(path, file);
-        
-        if(!error) {
-            const { data } = supabase.storage.from('materials').getPublicUrl(path);
-            await addDoc(collection(db, "materials"), { title: file.name, url: data.publicUrl, folder, target: "study" });
-            alert("Uploaded!");
-        } else alert(error.message);
-        
-        btn.innerText = "Upload PDF"; btn.disabled = false;
-    };
-
-    // Data Sync
-    function syncData() {
+    function loadData() {
         onSnapshot(collection(db, "folders"), (snap) => {
             const sel = document.getElementById('folderSelect');
             sel.innerHTML = '<option>Select Folder</option>';
             snap.forEach(d => sel.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`);
         });
-        onSnapshot(collection(db, "materials"), (snap) => {
-            const list = document.getElementById('filesList');
-            list.innerHTML = '<h4>Uploaded Files:</h4>';
-            snap.forEach(d => list.innerHTML += `<div class="list-item">${d.data().title} <b>[${d.data().folder}]</b></div>`);
-        });
     }
+
+    window.uploadNow = async () => {
+        const file = document.getElementById('filePicker').files[0];
+        const folder = document.getElementById('folderSelect').value;
+        const btn = document.getElementById('uploadBtn');
+        if(!file || folder === "Select Folder") return alert("Please select file and folder!");
+        
+        btn.innerText = "Uploading..."; btn.disabled = true;
+        const { error } = await supabase.storage.from('materials').upload(`study/${Date.now()}_${file.name}`, file);
+        if(!error) {
+            const { data } = supabase.storage.from('materials').getPublicUrl(`study/${Date.now()}_${file.name}`);
+            await addDoc(collection(db, "materials"), { title: file.name, url: data.publicUrl, folder, target: "study" });
+            alert("File Uploaded!");
+        } else { alert("Error: " + error.message); }
+        btn.innerText = "Upload PDF"; btn.disabled = false;
+    };
 </script>
 </body>
 </html>
