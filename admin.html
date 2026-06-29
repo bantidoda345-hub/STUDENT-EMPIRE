@@ -289,12 +289,6 @@ display: block;
       <h4>Competition Study</h4>
       <p style="font-size:11px; color:#666; margin-top:4px;">Manage study.html</p>
     </div>
-<div class="menu-card" onclick="window.location.href='upload.html'">
-  <i class="fa-solid fa-cloud-arrow-up" style="color: #2e7d32;"></i>
-  <h4>Upload Manager</h4>
-  <p style="font-size:11px; color:#666; margin-top:4px;">Open upload.html</p>
-</div>
-
   </div>
 
   <button style="margin-bottom: 15px; background: #e65100;" onclick="switchPage('complaintsPage')">
@@ -404,7 +398,7 @@ display: block;
   </div>
 
   <div id="complaintsListContainer">
-    </div>
+  </div>
 </div>
 
 
@@ -676,7 +670,7 @@ window.uploadToImgbb = async function(inputElement, targetInputId) {
     }
   } catch (err) {
     document.getElementById(targetInputId).value = "";
-    alert("सर्वर एरर, लिंक जनरेशन फेल।");
+    alert("सर्वर एरर, लिंक जनरेशन FAIL।");
   }
 }
 </script>
