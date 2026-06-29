@@ -2,89 +2,84 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Panel - Students Empire</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
     *{margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
     body{background:#f5f7fb; padding:15px; display: none;}
-    .header{background:#0d47a1; color:white; padding:15px; border-radius:12px; margin-bottom:15px;}
-    .sub-header {display: flex; align-items: center; background: #0d47a1; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; gap: 15px;}
+    .stats-card{background: #0d47a1; color: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between;}
     .card{background:white; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,.08);}
     input,select{width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;}
-    button{width:100%; padding:12px; background:#0d47a1; color:white; border:none; border-radius:8px; font-weight: bold; cursor: pointer; margin-bottom:5px;}
-    .list-item {background: #f8f9fa; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee;}
+    button{width:100%; padding:12px; background:#0d47a1; color:white; border:none; border-radius:8px; font-weight: bold; cursor: pointer;}
+    .list-item {background: white; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee;}
     .page {display: none;} .page.active {display: block;}
-    .delete-btn {color: #d32f2f; cursor: pointer; font-size: 18px;}
+    .icon-group {display: flex; gap: 15px;}
+    .delete-btn {color: #d32f2f; cursor: pointer;}
+    .edit-btn {color: #1976d2; cursor: pointer;}
 </style>
 </head>
 <body>
 
 <div id="mainDashboardPage" class="page active">
-    <div class="header"><h2>Admin Panel</h2></div>
-    <div onclick="switchPage('notesPage')" class="card"><h4>College Notes Manager</h4></div>
-    <div onclick="switchPage('studyPage')" class="card"><h4>Competition Study Manager</h4></div>
-    <button type="button" onclick="switchPage('complaintsPage')" style="background:#e65100;">View Complaints</button>
+    <div class="stats-card">
+        <h3>Total Users: <span id="userCount">0</span></h3>
+        <h3 onclick="switchPage('complaintsPage')" style="cursor:pointer; text-decoration:underline;">View Complaints</h3>
+    </div>
+    <div onclick="switchPage('notesPage')" class="card"><h4>Manage College Notes</h4></div>
+    <div onclick="switchPage('studyPage')" class="card"><h4>Manage Study Materials</h4></div>
 </div>
 
 <div id="notesPage" class="page">
-    <div class="sub-header"><button type="button" onclick="switchPage('mainDashboardPage')" style="width:auto;">Back</button><h2>Notes</h2></div>
+    <div class="card"><button onclick="switchPage('mainDashboardPage')">Back</button></div>
     <div class="card">
-        <input type="text" id="notesFolderName" placeholder="New Folder Name">
-        <button type="button" onclick="createFolder('notes')">Create Folder</button>
+        <input type="text" id="notesFolderName" placeholder="Folder Name">
+        <button onclick="createFolder('notes')">Create Folder</button>
         <hr style="margin:10px 0;">
         <input type="file" id="notesFilePicker" multiple>
-        <select id="notesFolderSelect"><option value="">Select Folder</option></select>
-        <button type="button" id="notesUploadBtn" onclick="uploadFiles('notes')">Upload PDFs</button>
+        <select id="notesFolderSelect"></select>
+        <button id="notesUploadBtn" onclick="uploadFiles('notes')">Upload PDFs</button>
     </div>
-    <div id="notesFoldersList"></div>
     <div id="notesFilesList"></div>
 </div>
 
 <div id="studyPage" class="page">
-    <div class="sub-header"><button type="button" onclick="switchPage('mainDashboardPage')" style="width:auto;">Back</button><h2>Study</h2></div>
+    <div class="card"><button onclick="switchPage('mainDashboardPage')">Back</button></div>
     <div class="card">
-        <input type="text" id="studyFolderName" placeholder="New Folder Name">
-        <button type="button" onclick="createFolder('study')">Create Folder</button>
+        <input type="text" id="studyFolderName" placeholder="Folder Name">
+        <button onclick="createFolder('study')">Create Folder</button>
         <hr style="margin:10px 0;">
         <input type="file" id="studyFilePicker" multiple>
-        <select id="studyFolderSelect"><option value="">Select Folder</option></select>
-        <button type="button" id="studyUploadBtn" onclick="uploadFiles('study')">Upload PDFs</button>
+        <select id="studyFolderSelect"></select>
+        <button id="studyUploadBtn" onclick="uploadFiles('study')">Upload PDFs</button>
     </div>
-    <div id="studyFoldersList"></div>
     <div id="studyFilesList"></div>
 </div>
 
-<div id="complaintsPage" class="page"><div class="sub-header"><button type="button" onclick="switchPage('mainDashboardPage')" style="width:auto;">Back</button><h2>Complaints</h2></div><div id="complaintsContainer"></div></div>
+<div id="complaintsPage" class="page">
+    <div class="card"><button onclick="switchPage('mainDashboardPage')">Back</button></div>
+    <div id="complaintsContainer"></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const app = initializeApp({ apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE", authDomain: "student-empires.firebaseapp.com", projectId: "student-empires", appId: "1:509106125707:web:9b79f87b9a9f0fa71b8d8e" });
 const db = getFirestore(app); const auth = getAuth(app);
-
-window.supabase = window.supabase.createClient('https://ffnkqmqqspryqskattut.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbmtxbXFxc3ByeXFza2F0dHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDMwODEsImV4cCI6MjA5ODIxOTA4MX0.EXtgfJRX0EQM6YFdRp85hhf6QEnCnGClgSlb5INH1n4');
+const supabase = window.supabase.createClient('https://ffnkqmqqspryqskattut.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmbmtxbXFxc3ByeXFza2F0dHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDMwODEsImV4cCI6MjA5ODIxOTA4MX0.EXtgfJRX0EQM6YFdRp85hhf6QEnCnGClgSlb5INH1n4');
 
 window.switchPage = (p) => { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.getElementById(p).classList.add('active'); };
 
-onAuthStateChanged(auth, async (user) => {
-    if (!user || user.email !== "bantidoda345@gmail.com") { window.location.href = "index.html"; } 
-    else {
-        const pinDoc = await getDocs(collection(db, "admin_config"));
-        let correctPin = "1234";
-        pinDoc.forEach(d => correctPin = d.data().pin);
-        const input = prompt("Enter Admin PIN:");
-        if (input == correctPin) { document.body.style.display = "block"; startSync(); } 
-        else { alert("Wrong PIN!"); signOut(auth); location.reload(); }
-    }
+onAuthStateChanged(auth, (user) => {
+    if (!user || user.email !== "bantidoda345@gmail.com") window.location.href = "index.html";
+    else { document.body.style.display = "block"; startSync(); }
 });
 
 window.createFolder = async (type) => {
     const name = document.getElementById(type+'FolderName').value;
-    if(!name) return alert("Enter folder name");
+    if(!name) return;
     await addDoc(collection(db, "folders"), { name, type });
     alert("Folder Created!");
 };
@@ -93,44 +88,38 @@ window.uploadFiles = async (target) => {
     const btn = document.getElementById(target+'UploadBtn');
     const fileInput = document.getElementById(target+'FilePicker');
     const folder = document.getElementById(target+'FolderSelect').value;
-
-    if(!folder || fileInput.files.length === 0) return alert("Folder aur PDF files select karo!");
-
-    btn.innerText = "Uploading...";
-    btn.disabled = true;
-
+    if(!folder || fileInput.files.length === 0) return alert("Select Folder & Files!");
+    btn.innerText = "Uploading..."; btn.disabled = true;
     for (const file of fileInput.files) {
-        try {
-            const filePath = `${target}/${Date.now()}_${file.name}`;
-            const { error: uploadError } = await window.supabase.storage.from('materials').upload(filePath, file);
-            if(uploadError) throw uploadError;
-
-            const { data: urlData } = window.supabase.storage.from('materials').getPublicUrl(filePath);
-            await addDoc(collection(db, "materials"), { 
-                title: file.name, url: urlData.publicUrl, folder: folder, target: target 
-            });
-        } catch(e) { console.error(e); }
+        const { error } = await supabase.storage.from('materials').upload(`${target}/${Date.now()}_${file.name}`, file);
+        if(!error) {
+            const { data } = supabase.storage.from('materials').getPublicUrl(`${target}/${Date.now()}_${file.name}`);
+            await addDoc(collection(db, "materials"), { title: file.name, url: data.publicUrl, folder, target });
+        }
     }
-    alert("Sabhi selected files upload ho gayi hain!");
-    btn.innerText = "Upload PDFs";
-    btn.disabled = false;
-    fileInput.value = "";
+    btn.innerText = "Upload PDFs"; btn.disabled = false; fileInput.value = "";
+};
+
+window.renameFile = async (id, oldTitle) => {
+    const newName = prompt("Enter new name:", oldTitle);
+    if(newName) await updateDoc(doc(db, "materials", id), { title: newName });
 };
 
 window.deleteItem = async (col, id) => { if(confirm('Delete?')) await deleteDoc(doc(db, col, id)); };
 
 function startSync() {
+    onSnapshot(collection(db, "users"), (snap) => document.getElementById("userCount").innerText = snap.size);
+    
+    onSnapshot(collection(db, "complaints"), (snap) => {
+        const cont = document.getElementById("complaintsContainer"); cont.innerHTML = "";
+        snap.forEach(d => cont.innerHTML += `<div class="list-item">${d.data().text} <b>by ${d.data().userEmail}</b></div>`);
+    });
+
     onSnapshot(collection(db, "folders"), (snap) => {
         ['notes','study'].forEach(t => {
-            const list = document.getElementById(t+'FoldersList');
-            const select = document.getElementById(t+'FolderSelect');
-            list.innerHTML = '<h4>Folders:</h4>'; select.innerHTML = '<option value="">Select Folder</option>';
-            snap.forEach(d => {
-                if(d.data().type === t) {
-                    list.innerHTML += `<div class="list-item">${d.data().name} <i class="fas fa-trash delete-btn" onclick="deleteItem('folders','${d.id}')"></i></div>`;
-                    select.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`;
-                }
-            });
+            const sel = document.getElementById(t+'FolderSelect');
+            sel.innerHTML = '<option value="">Select Folder</option>';
+            snap.forEach(d => { if(d.data().type === t) sel.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`; });
         });
     });
 
@@ -139,9 +128,7 @@ function startSync() {
             const list = document.getElementById(t+'FilesList');
             list.innerHTML = '<h4>Files:</h4>';
             snap.forEach(d => {
-                if(d.data().target === t) {
-                    list.innerHTML += `<div class="list-item">${d.data().title} <i class="fas fa-trash delete-btn" onclick="deleteItem('materials','${d.id}')"></i></div>`;
-                }
+                if(d.data().target === t) list.innerHTML += `<div class="list-item">${d.data().title} <div class="icon-group"><i class="fas fa-edit edit-btn" onclick="renameFile('${d.id}', '${d.data().title}')"></i><i class="fas fa-trash delete-btn" onclick="deleteItem('materials','${d.id}')"></i></div></div>`;
             });
         });
     });
