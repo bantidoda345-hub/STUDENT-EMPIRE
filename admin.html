@@ -260,9 +260,6 @@ display: block;
 </head>
 <body>
 
-<!-- ========================================== -->
-<!-- 1. MAIN DASHBOARD PAGE -->
-<!-- ========================================== -->
 <div id="mainDashboardPage" class="page active">
   <div class="header">
     <h2>Admin Panel</h2>
@@ -281,7 +278,6 @@ display: block;
     </div>
   </div>
 
-  <!-- मुख्य दो सेक्शन्स के बड़े बटन -->
   <div class="main-menu-grid">
     <div class="menu-card" onclick="switchPage('notesPage')">
       <i class="fa-solid fa-book-open"></i>
@@ -301,12 +297,10 @@ display: block;
 
   </div>
 
-  <!-- शिकायतें देखने का बटन -->
   <button style="margin-bottom: 15px; background: #e65100;" onclick="switchPage('complaintsPage')">
     <i class="fa-solid fa-bell"></i> View Active Complaints (<span id="totalComplaintsCount">0</span>)
   </button>
 
-  <!-- नोटिफिकेशन सेंड बॉक्स -->
   <div class="card">
     <h3>Send Notification To All</h3>
     <input type="text" id="notifTitle" placeholder="Notification Title">
@@ -316,9 +310,6 @@ display: block;
 </div>
 
 
-<!-- ========================================== -->
-<!-- 2. COLLEGE NOTES MANAGEMENT PAGE -->
-<!-- ========================================== -->
 <div id="notesPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -328,14 +319,12 @@ display: block;
     </div>
   </div>
 
-  <!-- फोल्डर क्रिएशन -->
   <div class="card">
     <h3>Create Notes Folder</h3>
     <input type="text" id="notesFolderName" placeholder="Folder Name (e.g., BA 2nd Sem)">
     <button onclick="createNewFolder('notes')">Create Folder</button>
   </div>
 
-  <!-- मटेरियल अपलोड -->
   <div class="card">
     <h3>Upload Notes PDF / Pic</h3>
     <input type="text" id="notesMaterialTitle" placeholder="Material Title">
@@ -352,7 +341,6 @@ display: block;
     <button onclick="uploadMaterial('notes')">Upload Material to Notes</button>
   </div>
 
-  <!-- एक्सिस्टिंग डेटा कंट्रोल -->
   <div class="card">
     <h3>Notes Folders & PDFs (All Controlled)</h3>
     <h4 style="color:#555; margin:10px 0 5px 0; font-size:14px;">Folders:</h4>
@@ -364,9 +352,6 @@ display: block;
 </div>
 
 
-<!-- ========================================== -->
-<!-- 3. COMPETITION STUDY MANAGEMENT PAGE -->
-<!-- ========================================== -->
 <div id="studyPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -376,14 +361,12 @@ display: block;
     </div>
   </div>
 
-  <!-- फोल्डर क्रिएशन -->
   <div class="card">
     <h3>Create Study Folder</h3>
     <input type="text" id="studyFolderName" placeholder="Folder Name (e.g., Current Affairs 2026)">
     <button onclick="createNewFolder('study')">Create Folder</button>
   </div>
 
-  <!-- मटेरियल अपलोड -->
   <div class="card">
     <h3>Upload Study PDF / Pic</h3>
     <input type="text" id="studyMaterialTitle" placeholder="Material Title (e.g., Current Affairs Part 1)">
@@ -400,7 +383,6 @@ display: block;
     <button onclick="uploadMaterial('study')">Upload Material to Study</button>
   </div>
 
-  <!-- एक्सिस्टिंग डेटा कंट्रोल -->
   <div class="card">
     <h3>Study Folders & PDFs (All Controlled)</h3>
     <h4 style="color:#555; margin:10px 0 5px 0; font-size:14px;">Folders:</h4>
@@ -412,9 +394,6 @@ display: block;
 </div>
 
 
-<!-- ========================================== -->
-<!-- 4. COMPLAINTS VIEW PAGE -->
-<!-- ========================================== -->
 <div id="complaintsPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -425,18 +404,16 @@ display: block;
   </div>
 
   <div id="complaintsListContainer">
-    <!-- शिकायतें यहाँ लाइव लोड होंगी -->
-  </div>
+    </div>
 </div>
 
 
-<!-- ========================================== -->
-<!-- FIREBASE & CORE APPLICATION LOGIC -->
-<!-- ========================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBL9NlJqnueA_-5a78H9pwWpjMkWenq7YE",
@@ -450,6 +427,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// Supabase Init Client Configuration
+const supabaseUrl = "https://vjoxfbywzbygbyldwbhw.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqb3hmYnl3emJ5Z2J5bGR3Ymh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg3OTMwNzUsImV4cCI6MjAzNDM2OTA3NX0.4X8M_p_GBl-p_7l79kXb6f_N7G39mK7w7V5a72z8E7Y"; 
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
 
@@ -488,105 +470,122 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// लाइव डेटा सिंक और रेंडरिंग
-function startLiveSync() {
-  // 1. यूजर्स काउंट सिंक
-  onSnapshot(collection(db, "users"), (snap) => {
-    document.getElementById("totalUsersCount").innerText = snap.size;
-  });
-
-  // 2. शिकायतें लोड करना
-  onSnapshot(collection(db, "complaints"), (snap) => {
-    document.getElementById("totalComplaintsCount").innerText = snap.size;
-    const container = document.getElementById("complaintsListContainer");
-    container.innerHTML = "";
-
-    if(snap.empty) {
-      container.innerHTML = "<div class='card' style='text-align:center; color:#666;'>कोई शिकायत नहीं है! सब बढ़िया है।</div>";
-      return;
+// लाइव डेटा सिंक और रेंडरिंग (Supabase Implementation)
+async function startLiveSync() {
+  // 1. यूजर्स काउंट सिंक (Supabase 'users' table)
+  const syncUsers = async () => {
+    const { count, error } = await supabase.from('users').select('*', { count: 'exact', head: true });
+    if (!error && count !== null) {
+      document.getElementById("totalUsersCount").innerText = count;
     }
+  };
 
-    snap.forEach((cDoc) => {
-      const data = cDoc.data();
-      const id = cDoc.id;
-      const box = document.createElement("div");
-      box.className = "complaint-box";
-      box.innerHTML = `
-        <div class="complaint-header">
-          <span><i class="fa-solid fa-circle-user"></i> ${data.userEmail || "Anonymous"}</span>
-          <i class="fa-solid fa-circle-check" style="color:green; font-size:18px; cursor:pointer;" onclick="deleteItem('complaints', '${id}')" title="Resolve"></i>
-        </div>
-        <div class="complaint-text"><b>Complaint:</b> ${data.text || data.message || "No message content"}</div>
-      `;
-      container.appendChild(box);
-    });
-  });
+  // 2. शिकायतें लोड करना (Supabase 'complaints' table)
+  const syncComplaints = async () => {
+    const { data, error } = await supabase.from('complaints').select('*').order('created_at', { ascending: false });
+    if (!error && data) {
+      document.getElementById("totalComplaintsCount").innerText = data.length;
+      const container = document.getElementById("complaintsListContainer");
+      container.innerHTML = "";
 
-  // 3. फोल्डर्स लोड करना (दोनों सेक्शन्स के लिए अलग फ़िल्टरिंग)
-  onSnapshot(collection(db, "folders"), (snap) => {
-    const notesSelect = document.getElementById("notesFolderSelect");
-    const studySelect = document.getElementById("studyFolderSelect");
-    const notesFolderList = document.getElementById("notesFoldersList");
-    const studyFolderList = document.getElementById("studyFoldersList");
-
-    notesSelect.innerHTML = '<option value="">Select Notes Folder</option>';
-    studySelect.innerHTML = '<option value="">Select Study Folder</option>';
-    notesFolderList.innerHTML = '';
-    studyFolderList.innerHTML = '';
-
-    snap.forEach((fDoc) => {
-      const data = fDoc.data();
-      const id = fDoc.id;
-
-      // आइटम बनाने का लॉजिक
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `<span><i class="fa-solid fa-folder" style="color:#0d47a1;"></i> ${data.name}</span>
-                       <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('folders', '${id}')"></i>`;
-
-      if(data.type === "notes") {
-        notesSelect.innerHTML += `<option value="${data.name}">${data.name}</option>`;
-        notesFolderList.appendChild(div);
-      } else if(data.type === "study") {
-        studySelect.innerHTML += `<option value="${data.name}">${data.name}</option>`;
-        studyFolderList.appendChild(div);
+      if(data.length === 0) {
+        container.innerHTML = "<div class='card' style='text-align:center; color:#666;'>कोई शिकायत नहीं है! सब बढ़िया है।</div>";
+        return;
       }
-    });
-  });
 
-  // 4. मैटेरियल्स/पीडीएफ लोड करना (1-1 पीडीएफ कंट्रोल करने के लिए अलग फ़िल्टरिंग)
-  onSnapshot(collection(db, "materials"), (snap) => {
-    document.getElementById("totalNotesCount").innerText = snap.size;
-    const notesFilesList = document.getElementById("notesFilesList");
-    const studyFilesList = document.getElementById("studyFilesList");
+      data.forEach((item) => {
+        const box = document.createElement("div");
+        box.className = "complaint-box";
+        box.innerHTML = `
+          <div class="complaint-header">
+            <span><i class="fa-solid fa-circle-user"></i> ${item.userEmail || "Anonymous"}</span>
+            <i class="fa-solid fa-circle-check" style="color:green; font-size:18px; cursor:pointer;" onclick="deleteItem('complaints', '${item.id}')" title="Resolve"></i>
+          </div>
+          <div class="complaint-text"><b>Complaint:</b> ${item.text || item.message || "No message content"}</div>
+        `;
+        container.appendChild(box);
+      });
+    }
+  };
 
-    notesFilesList.innerHTML = '';
-    studyFilesList.innerHTML = '';
+  // 3. फोल्डर्स लोड करना (Supabase 'folders' table)
+  const syncFolders = async () => {
+    const { data, error } = await supabase.from('folders').select('*').order('name', { ascending: true });
+    if (!error && data) {
+      const notesSelect = document.getElementById("notesFolderSelect");
+      const studySelect = document.getElementById("studyFolderSelect");
+      const notesFolderList = document.getElementById("notesFoldersList");
+      const studyFolderList = document.getElementById("studyFoldersList");
 
-    snap.forEach((mDoc) => {
-      const data = mDoc.data();
-      const id = mDoc.id;
+      notesSelect.innerHTML = '<option value="">Select Notes Folder</option>';
+      studySelect.innerHTML = '<option value="">Select Study Folder</option>';
+      notesFolderList.innerHTML = '';
+      studyFolderList.innerHTML = '';
 
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
-        <div class="info-part">
-          <span class="title-text">${data.title}</span>
-          <span class="folder-tag"><i class="fa-solid fa-folder-open"></i> ${data.folder}</span>
-        </div>
-        <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('materials', '${id}')"></i>
-      `;
+      data.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        div.innerHTML = `<span><i class="fa-solid fa-folder" style="color:#0d47a1;"></i> ${item.name}</span>
+                         <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('folders', '${item.id}')"></i>`;
 
-      if(data.target === "notes") {
-        notesFilesList.appendChild(div);
-      } else if(data.target === "study") {
-        studyFilesList.appendChild(div);
-      }
-    });
-  });
+        if(item.type === "notes") {
+          notesSelect.innerHTML += `<option value="${item.name}">${item.name}</option>`;
+          notesFolderList.appendChild(div);
+        } else if(item.type === "study") {
+          studySelect.innerHTML += `<option value="${item.name}">${item.name}</option>`;
+          studyFolderList.appendChild(div);
+        }
+      });
+    }
+  };
+
+  // 4. मैटेरियल्स/पीडीएफ लोड करना (Supabase 'materials' table)
+  const syncMaterials = async () => {
+    const { data, error } = await supabase.from('materials').select('*');
+    if (!error && data) {
+      document.getElementById("totalNotesCount").innerText = data.length;
+      const notesFilesList = document.getElementById("notesFilesList");
+      const studyFilesList = document.getElementById("studyFilesList");
+
+      notesFilesList.innerHTML = '';
+      studyFilesList.innerHTML = '';
+
+      data.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        div.innerHTML = `
+          <div class="info-part">
+            <span class="title-text">${item.title}</span>
+            <span class="folder-tag"><i class="fa-solid fa-folder-open"></i> ${item.folder}</span>
+          </div>
+          <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('materials', '${item.id}')"></i>
+        `;
+
+        if(item.target === "notes") {
+          notesFilesList.appendChild(div);
+        } else if(item.target === "study") {
+          studyFilesList.appendChild(div);
+        }
+      });
+    }
+  };
+
+  // Initial Sync Invocation
+  syncUsers();
+  syncComplaints();
+  syncFolders();
+  syncMaterials();
+
+  // Realtime Subscriptions fallback listener loop interval
+  setInterval(() => {
+    syncUsers();
+    syncComplaints();
+    syncFolders();
+    syncMaterials();
+  }, 4000);
 }
 
-// नया फोल्डर बनाने का ग्लोबल फंक्शन
+// नया फोल्डर बनाने का ग्लोबल फंक्शन (Supabase Insert)
 window.createNewFolder = async function(type) {
   const inputId = type === 'notes' ? 'notesFolderName' : 'studyFolderName';
   const folderName = document.getElementById(inputId).value.trim();
@@ -594,11 +593,12 @@ window.createNewFolder = async function(type) {
   if(!folderName) return alert("फ़ोल्डर का नाम खाली नहीं छोड़ सकते!");
 
   try {
-    await addDoc(collection(db, "folders"), {
-      name: folderName,
-      type: type, // 'notes' या 'study' सेव होगा जिससे फिल्टर हो सके
-      createdAt: new Date()
-    });
+    const { error } = await supabase.from('folders').insert([
+      { name: folderName, type: type }
+    ]);
+    
+    if(error) throw error;
+    
     alert("नया फ़ोल्डर बन गया!");
     document.getElementById(inputId).value = "";
   } catch (err) {
@@ -606,7 +606,7 @@ window.createNewFolder = async function(type) {
   }
 }
 
-// मटेरियल/पीडीएफ अपलोड करने का ग्लोबल फंक्शन
+// मटेरियल/पीडीएफ अपलोड करने का ग्लोबल फंक्शन (Supabase Insert)
 window.uploadMaterial = async function(targetType) {
   const titleId = targetType === 'notes' ? 'notesMaterialTitle' : 'studyMaterialTitle';
   const urlId = targetType === 'notes' ? 'notesMaterialUrl' : 'studyMaterialUrl';
@@ -621,13 +621,12 @@ window.uploadMaterial = async function(targetType) {
   }
 
   try {
-    await addDoc(collection(db, "materials"), {
-      title: title,
-      url: url,
-      folder: selectedFolder,
-      target: targetType, // 'notes' या 'study' पेज की पहचान के लिए
-      uploadedAt: new Date()
-    });
+    const { error } = await supabase.from('materials').insert([
+      { title: title, url: url, folder: selectedFolder, target: targetType }
+    ]);
+
+    if(error) throw error;
+
     alert("मटेरियल सफलतापूर्वक लाइव कर दिया गया!");
 
     // फ़ील्ड्स को रीसेट करना
@@ -639,12 +638,13 @@ window.uploadMaterial = async function(targetType) {
   }
 }
 
-// 1-1 डिलीट करने का यूनिवर्सल फंक्शन (फोल्डर, पीडीएफ, शिकायत सब इसी से होगा)
-window.deleteItem = async function(collectionName, id) {
-  const msg = collectionName === 'complaints' ? 'क्या यह शिकायत हल हो चुकी है?' : 'क्या आप इसे हमेशा के लिए डिलीट करना चाहते हैं?';
+// 1-1 डिलीट करने का यूनिवर्सल फंक्शन (Supabase Delete)
+window.deleteItem = async function(tableName, id) {
+  const msg = tableName === 'complaints' ? 'क्या यह शिकायत हल हो चुकी है?' : 'क्या आप इसे हमेशा के लिए डिलीट करना चाहते हैं?';
   if(confirm(msg)) {
     try {
-      await deleteDoc(doc(db, collectionName, id));
+      const { error } = await supabase.from(tableName).delete().eq('id', id);
+      if(error) throw error;
       alert("सफलतापूर्वक हटा दिया गया!");
     } catch (err) {
       alert("हटाने में दिक्कत आई: " + err.message);
@@ -682,4 +682,3 @@ window.uploadToImgbb = async function(inputElement, targetInputId) {
 </script>
 </body>
 </html>
-
