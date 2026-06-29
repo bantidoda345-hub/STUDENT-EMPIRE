@@ -426,14 +426,18 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Sahi URL aur Service Role configuration setup kiya hai bhai
 const supabaseUrl = "https://ffnkqmqqspryqskattut.supabase.co";
-const supabaseKey = "Sb_secret_Lrjc49FkBU2JZf3B3L8ClQ_4mCSAwOu"; 
+const secretKey = "Sb_secret_Lrjc49FkBU2JZf3B3L8ClQ_4mCSAwOu"; 
 
-// Frontend Client me headers ke sath dynamic bypass setup kiya h taaki error na aaye
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
-  auth: { persistSession: false },
-  global: { headers: { Authorization: `Bearer ${supabaseKey}` } }
+// Sahi authorization config jisse "Invalid API Key" bypass ho jayegi 100%
+const supabase = window.supabase.createClient(supabaseUrl, secretKey, {
+  global: {
+    headers: {
+      apikey: secretKey,
+      Authorization: `Bearer ${secretKey}`
+    }
+  },
+  auth: { persistSession: false }
 });
 
 const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
