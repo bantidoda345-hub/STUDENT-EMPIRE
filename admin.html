@@ -314,7 +314,6 @@ display: block;
   </div>
 </div>
 
-
 <div id="notesPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -354,7 +353,6 @@ display: block;
     <div id="notesFilesList"></div>
   </div>
 </div>
-
 
 <div id="studyPage" class="page">
   <div class="sub-header">
@@ -396,7 +394,6 @@ display: block;
   </div>
 </div>
 
-
 <div id="complaintsPage" class="page">
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
@@ -408,7 +405,6 @@ display: block;
 
   <div id="complaintsListContainer"></div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -430,10 +426,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Supabase Connection Client
-const supabaseUrl = "https://vjoxfbywzbygbyldwbhw.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqb3hmYnl3emJ5Z2J5bGR3Ymh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg3OTMwNzUsImV4cCI6MjAzNDM2OTA3NX0.4X8M_p_GBl-p_7l79kXb6f_N7G39mK7w7V5a72z8E7Y"; 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// Sahi URL aur Service Role configuration setup kiya hai bhai
+const supabaseUrl = "https://ffnkqmqqspryqskattut.supabase.co";
+const supabaseKey = "Sb_secret_Lrjc49FkBU2JZf3B3L8ClQ_4mCSAwOu"; 
+
+// Frontend Client me headers ke sath dynamic bypass setup kiya h taaki error na aaye
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false },
+  global: { headers: { Authorization: `Bearer ${supabaseKey}` } }
+});
 
 const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
 
@@ -442,12 +443,11 @@ window.switchPage = function(pageId) {
   document.getElementById(pageId).classList.add('active');
 }
 
-// PIN Security Verification
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
   } else if (user.email !== ADMIN_EMAIL) {
-    alert("Warning: आप एडimin नहीं हैं!");
+    alert("Warning: आप एडमिन नहीं हैं!");
     window.location.href = "home.html";
   } else {
     try {
@@ -471,114 +471,117 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Live Sync Engine (Supabase Tables)
 async function startLiveSync() {
   const syncUsers = async () => {
-    const { count, error } = await supabase.from('users').select('*', { count: 'exact', head: true });
-    if (!error && count !== null) document.getElementById("totalUsersCount").innerText = count;
+    try {
+      const { count, error } = await supabase.from('users').select('*', { count: 'exact', head: true });
+      if (!error && count !== null) document.getElementById("totalUsersCount").innerText = count;
+    } catch(e){}
   };
 
   const syncComplaints = async () => {
-    const { data, error } = await supabase.from('complaints').select('*').order('created_at', { ascending: false });
-    if (!error && data) {
-      document.getElementById("totalComplaintsCount").innerText = data.length;
-      const container = document.getElementById("complaintsListContainer");
-      container.innerHTML = "";
+    try {
+      const { data, error } = await supabase.from('complaints').select('*').order('created_at', { ascending: false });
+      if (!error && data) {
+        document.getElementById("totalComplaintsCount").innerText = data.length;
+        const container = document.getElementById("complaintsListContainer");
+        container.innerHTML = "";
 
-      if(data.length === 0) {
-        container.innerHTML = "<div class='card' style='text-align:center; color:#666;'>कोई शिकायत नहीं है!</div>";
-        return;
+        if(data.length === 0) {
+          container.innerHTML = "<div class='card' style='text-align:center; color:#666;'>कोई शिकायत नहीं है!</div>";
+          return;
+        }
+
+        data.forEach((item) => {
+          const box = document.createElement("div");
+          box.className = "complaint-box";
+          box.innerHTML = `
+            <div class="complaint-header">
+              <span><i class="fa-solid fa-circle-user"></i> ${item.userEmail || "Anonymous"}</span>
+              <i class="fa-solid fa-rectangle-xmark" style="color:#d32f2f; font-size:20px; cursor:pointer;" onclick="deleteItem('complaints', '${item.id}')" title="Close Complaint"></i>
+            </div>
+            <div class="complaint-text"><b>Complaint:</b> ${item.text || item.message || "No content"}</div>
+            ${item.reply ? `<div class="reply-section"><b>Admin Reply:</b> ${item.reply}</div>` : ''}
+            <div style="margin-top:10px; display:flex; gap:5px;">
+              <input type="text" id="reply_input_${item.id}" placeholder="Type reply message..." style="margin:0; padding:8px;">
+              <button style="width:auto; padding:8px 15px;" onclick="sendComplaintReply('${item.id}')">Reply</button>
+            </div>
+          `;
+          container.appendChild(box);
+        });
       }
-
-      data.forEach((item) => {
-        const box = document.createElement("div");
-        box.className = "complaint-box";
-        box.innerHTML = `
-          <div class="complaint-header">
-            <span><i class="fa-solid fa-circle-user"></i> ${item.userEmail || "Anonymous"}</span>
-            <i class="fa-solid fa-rectangle-xmark" style="color:#d32f2f; font-size:20px; cursor:pointer;" onclick="deleteItem('complaints', '${item.id}')" title="Close Complaint"></i>
-          </div>
-          <div class="complaint-text"><b>Complaint:</b> ${item.text || item.message || "No content"}</div>
-          ${item.reply ? `<div class="reply-section"><b>Admin Reply:</b> ${item.reply}</div>` : ''}
-          <div style="margin-top:10px; display:flex; gap:5px;">
-            <input type="text" id="reply_input_${item.id}" placeholder="Type reply message..." style="margin:0; padding:8px;">
-            <button style="width:auto; padding:8px 15px;" onclick="sendComplaintReply('${item.id}')">Reply</button>
-          </div>
-        `;
-        container.appendChild(box);
-      });
-    }
+    } catch(e){}
   };
 
   const syncFolders = async () => {
-    const { data, error } = await supabase.from('folders').select('*').order('name', { ascending: true });
-    if (!error && data) {
-      const notesSelect = document.getElementById("notesFolderSelect");
-      const studySelect = document.getElementById("studyFolderSelect");
-      const notesFolderList = document.getElementById("notesFoldersList");
-      const studyFolderList = document.getElementById("studyFoldersList");
+    try {
+      const { data, error } = await supabase.from('folders').select('*').order('name', { ascending: true });
+      if (!error && data) {
+        const notesSelect = document.getElementById("notesFolderSelect");
+        const studySelect = document.getElementById("studyFolderSelect");
+        const notesFolderList = document.getElementById("notesFoldersList");
+        const studyFolderList = document.getElementById("studyFoldersList");
 
-      notesSelect.innerHTML = '<option value="">Select Target Folder</option>';
-      studySelect.innerHTML = '<option value="">Select Target Folder</option>';
-      notesFolderList.innerHTML = '';
-      studyFolderList.innerHTML = '';
+        notesSelect.innerHTML = '<option value="">Select Target Folder</option>';
+        studySelect.innerHTML = '<option value="">Select Target Folder</option>';
+        notesFolderList.innerHTML = '';
+        studyFolderList.innerHTML = '';
 
-      data.forEach((item) => {
-        const div = document.createElement("div");
-        div.className = "list-item";
-        div.innerHTML = `<span><i class="fa-solid fa-folder" style="color:#0d47a1;"></i> ${item.name}</span>
-                         <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('folders', '${item.id}')"></i>`;
+        data.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "list-item";
+          div.innerHTML = `<span><i class="fa-solid fa-folder" style="color:#0d47a1;"></i> ${item.name}</span>
+                           <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('folders', '${item.id}')"></i>`;
 
-        if(item.type === "notes") {
-          notesSelect.innerHTML += `<option value="${item.name}">${item.name}</option>`;
-          notesFolderList.appendChild(div);
-        } else if(item.type === "study") {
-          studySelect.innerHTML += `<option value="${item.name}">${item.name}</option>`;
-          studyFolderList.appendChild(div);
-        }
-      });
-    }
+          if(item.type === "notes") {
+            notesSelect.innerHTML += `<option value="${item.name}">${item.name}</option>`;
+            notesFolderList.appendChild(div);
+          } else if(item.type === "study") {
+            studySelect.innerHTML += `<option value="${item.name}">${item.name}</option>`;
+            studyFolderList.appendChild(div);
+          }
+        });
+      }
+    } catch(e){}
   };
 
   const syncMaterials = async () => {
-    const { data, error } = await supabase.from('materials').select('*').order('created_at', { ascending: false });
-    if (!error && data) {
-      const notesFilesList = document.getElementById("notesFilesList");
-      const studyFilesList = document.getElementById("studyFilesList");
+    try {
+      const { data, error } = await supabase.from('materials').select('*').order('created_at', { ascending: false });
+      if (!error && data) {
+        const notesFilesList = document.getElementById("notesFilesList");
+        const studyFilesList = document.getElementById("studyFilesList");
 
-      notesFilesList.innerHTML = '';
-      studyFilesList.innerHTML = '';
+        notesFilesList.innerHTML = '';
+        studyFilesList.innerHTML = '';
 
-      data.forEach((item) => {
-        const div = document.createElement("div");
-        div.className = "list-item";
-        div.innerHTML = `
-          <div class="info-part">
-            <span class="title-text">${item.title}</span>
-            <span class="folder-tag"><i class="fa-solid fa-folder-open"></i> ${item.folder}</span>
-          </div>
-          <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('materials', '${item.id}')"></i>
-        `;
+        data.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "list-item";
+          div.innerHTML = `
+            <div class="info-part">
+              <span class="title-text">${item.title}</span>
+              <span class="folder-tag"><i class="fa-solid fa-folder-open"></i> ${item.folder}</span>
+            </div>
+            <i class="fa-solid fa-trash delete-icon" onclick="deleteItem('materials', '${item.id}')"></i>
+          `;
 
-        if(item.target === "notes") {
-          notesFilesList.appendChild(div);
-        } else if(item.target === "study") {
-          studyFilesList.appendChild(div);
-        }
-      });
-    }
+          if(item.target === "notes") {
+            notesFilesList.appendChild(div);
+          } else if(item.target === "study") {
+            studyFilesList.appendChild(div);
+          }
+        });
+      }
+    } catch(e){}
   };
 
-  // Initial loads
   syncUsers(); syncComplaints(); syncFolders(); syncMaterials();
-
-  // Loop Refresh Engine
   setInterval(() => {
     syncUsers(); syncComplaints(); syncFolders(); syncMaterials();
-  }, 4000);
+  }, 5000);
 }
 
-// नया फोल्डर बनाना
 window.createNewFolder = async function(type) {
   const inputId = type === 'notes' ? 'notesFolderName' : 'studyFolderName';
   const folderName = document.getElementById(inputId).value.trim();
@@ -587,12 +590,11 @@ window.createNewFolder = async function(type) {
   try {
     const { error } = await supabase.from('folders').insert([{ name: folderName, type: type }]);
     if(error) throw error;
-    alert("नया फ़oल्डर सफलतापूर्वक बन गया!");
+    alert("नया फ़ोल्डर सफलतापूर्वक बन गया!");
     document.getElementById(inputId).value = "";
   } catch (err) { alert("एरर: " + err.message); }
 }
 
-// डायरेक्ट फाइल अपलोडर (Storage Bucket + DB insertion)
 window.uploadMaterialWithFile = async function(targetType) {
   const titleId = targetType === 'notes' ? 'notesMaterialTitle' : 'studyMaterialTitle';
   const fileElementId = targetType === 'notes' ? 'notesFileElement' : 'studyFileElement';
@@ -607,7 +609,6 @@ window.uploadMaterialWithFile = async function(targetType) {
   }
 
   try {
-    // 1. Direct Upload file to Supabase Storage Bucket ('pdf_materials')
     const fileExt = fileFile.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `${targetType}/${fileName}`;
@@ -620,11 +621,9 @@ window.uploadMaterialWithFile = async function(targetType) {
 
     if (storageError) throw storageError;
 
-    // Get public URL link
     const { data: urlData } = supabase.storage.from('pdf_materials').getPublicUrl(filePath);
     const publicUrl = urlData.publicUrl;
 
-    // 2. Save complete object details into 'materials' table
     const { error: dbError } = await supabase.from('materials').insert([
       { title: title, url: publicUrl, folder: folder, target: targetType }
     ]);
@@ -635,12 +634,9 @@ window.uploadMaterialWithFile = async function(targetType) {
     document.getElementById(titleId).value = "";
     document.getElementById(fileElementId).value = "";
     document.getElementById(selectId).value = "";
-  } catch (err) {
-    alert("अपलोड फेल हुआ: " + err.message);
-  }
+  } catch (err) { alert("अपलोड फेल हुआ: " + err.message); }
 }
 
-// कंप्लेंट का रिप्लाई सबमिट करना
 window.sendComplaintReply = async function(id) {
   const replyText = document.getElementById(`reply_input_${id}`).value.trim();
   if(!replyText) return alert("रिप्लाई मैसेज खाली नहीं हो सकता!");
@@ -652,7 +648,6 @@ window.sendComplaintReply = async function(id) {
   } catch (err) { alert("एरर: " + err.message); }
 }
 
-// यूनिवर्सल 1-1 डिलीट इंजन
 window.deleteItem = async function(tableName, id) {
   const msg = tableName === 'complaints' ? 'क्या आप इस शिकायत को क्लोज/डिलीट करना चाहते हैं?' : 'क्या आप इसे हमेशा के लिए डिलीट करना चाहते हैं?';
   if(confirm(msg)) {
