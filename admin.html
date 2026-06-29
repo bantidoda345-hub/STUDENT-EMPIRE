@@ -168,9 +168,10 @@ opacity: 0.9;
 
 .btn-danger {
 background: #d32f2f;
+margin-top: 5px;
 }
 
-/* लिस्टिंग आइटम्स (फाइल्स और फोल्डर्स) */
+/* लिस्टिंग आइटम्स */
 .list-item {
 background: #f8f9fa;
 padding: 12px;
@@ -211,7 +212,7 @@ padding: 8px;
 font-size: 16px;
 }
 
-/* शिकायत बॉक्स डिजाइन */
+/* शिकायत बॉक्स और रिप्लाई सिस्टम */
 .complaint-box {
 background: white;
 padding: 15px;
@@ -237,18 +238,28 @@ line-height: 1.4;
 background: #fff5f5;
 padding: 10px;
 border-radius: 6px;
+margin-bottom: 10px;
+}
+
+.reply-section {
+background: #f1f8e9;
+padding: 10px;
+border-radius: 6px;
+margin-top: 5px;
+font-size: 13px;
+border-left: 3px solid #7cb342;
 }
 
 .file-input-wrapper {
 background: #e3f2fd;
-padding: 10px;
+padding: 12px;
 border-radius: 8px;
 border: 1px dashed #0d47a1;
 margin-bottom: 10px;
 text-align: center;
+cursor: pointer;
 }
 
-/* पेजेस को छुपाने/दिखाने के लिए क्लासेस */
 .page {
 display: none;
 }
@@ -273,26 +284,26 @@ display: block;
       <p>Total Users</p>
     </div>
     <div class="stat">
-      <h2 id="totalNotesCount">0</h2>
-      <p>Total Materials</p>
+      <h2 id="totalComplaintsCount">0</h2>
+      <p>Active Complaints</p>
     </div>
   </div>
 
   <div class="main-menu-grid">
     <div class="menu-card" onclick="switchPage('notesPage')">
       <i class="fa-solid fa-book-open"></i>
-      <h4>College Notes</h4>
-      <p style="font-size:11px; color:#666; margin-top:4px;">Manage notes.html</p>
+      <h4>Notes HTML</h4>
+      <p style="font-size:11px; color:#666; margin-top:4px;">Manage College Notes</p>
     </div>
     <div class="menu-card" onclick="switchPage('studyPage')">
       <i class="fa-solid fa-graduation-cap"></i>
-      <h4>Competition Study</h4>
-      <p style="font-size:11px; color:#666; margin-top:4px;">Manage study.html</p>
+      <h4>Study HTML</h4>
+      <p style="font-size:11px; color:#666; margin-top:4px;">Manage Competitions</p>
     </div>
   </div>
 
   <button style="margin-bottom: 15px; background: #e65100;" onclick="switchPage('complaintsPage')">
-    <i class="fa-solid fa-bell"></i> View Active Complaints (<span id="totalComplaintsCount">0</span>)
+    <i class="fa-solid fa-bell"></i> View User Complaints & Reply
   </button>
 
   <div class="card">
@@ -308,8 +319,8 @@ display: block;
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
     <div>
-      <h2>College Notes Manager</h2>
-      <p>Target: notes.html</p>
+      <h2>Notes HTML Manager</h2>
+      <p>College Studies</p>
     </div>
   </div>
 
@@ -320,27 +331,26 @@ display: block;
   </div>
 
   <div class="card">
-    <h3>Upload Notes PDF / Pic</h3>
-    <input type="text" id="notesMaterialTitle" placeholder="Material Title">
-    <input type="text" id="notesMaterialUrl" placeholder="Paste Drive Link or Image URL">
-
+    <h3>Upload PDF File</h3>
+    <input type="text" id="notesMaterialTitle" placeholder="PDF File Name / Title">
+    
     <div class="file-input-wrapper">
-      <p style="font-size: 11px; color: #555; margin-bottom: 5px;">Or generate link from local file:</p>
-      <input type="file" onchange="uploadToImgbb(this, 'notesMaterialUrl')" style="margin: 0; padding: 5px;">
+      <p style="font-size: 13px; color: #0d47a1; font-weight: bold; margin-bottom: 5px;"><i class="fa-solid fa-file-pdf"></i> Select Local PDF File</p>
+      <input type="file" id="notesFileElement" accept="application/pdf" style="margin: 0; padding: 5px;">
     </div>
 
     <select id="notesFolderSelect">
-      <option value="">Select Notes Folder</option>
+      <option value="">Select Target Folder</option>
     </select>
-    <button onclick="uploadMaterial('notes')">Upload Material to Notes</button>
+    <button onclick="uploadMaterialWithFile('notes')">Upload & Save to Notes</button>
   </div>
 
   <div class="card">
-    <h3>Notes Folders & PDFs (All Controlled)</h3>
+    <h3>Notes Folders & PDF Files</h3>
     <h4 style="color:#555; margin:10px 0 5px 0; font-size:14px;">Folders:</h4>
     <div id="notesFoldersList"></div>
 
-    <h4 style="color:#555; margin:15px 0 5px 0; font-size:14px;">Uploaded PDFs:</h4>
+    <h4 style="color:#555; margin:15px 0 5px 0; font-size:14px;">Uploaded PDF Files:</h4>
     <div id="notesFilesList"></div>
   </div>
 </div>
@@ -350,39 +360,38 @@ display: block;
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
     <div>
-      <h2>Competition Exam Study Manager</h2>
-      <p>Target: study.html</p>
+      <h2>Study HTML Manager</h2>
+      <p>Competition Exams</p>
     </div>
   </div>
 
   <div class="card">
     <h3>Create Study Folder</h3>
-    <input type="text" id="studyFolderName" placeholder="Folder Name (e.g., Current Affairs 2026)">
+    <input type="text" id="studyFolderName" placeholder="Folder Name (e.g., RRB NTPC G.K)">
     <button onclick="createNewFolder('study')">Create Folder</button>
   </div>
 
   <div class="card">
-    <h3>Upload Study PDF / Pic</h3>
-    <input type="text" id="studyMaterialTitle" placeholder="Material Title (e.g., Current Affairs Part 1)">
-    <input type="text" id="studyMaterialUrl" placeholder="Paste Direct Download/Drive Link">
-
+    <h3>Upload PDF File</h3>
+    <input type="text" id="studyMaterialTitle" placeholder="PDF File Name / Title">
+    
     <div class="file-input-wrapper">
-      <p style="font-size: 11px; color: #555; margin-bottom: 5px;">Or generate link from local file:</p>
-      <input type="file" onchange="uploadToImgbb(this, 'studyMaterialUrl')" style="margin: 0; padding: 5px;">
+      <p style="font-size: 13px; color: #0d47a1; font-weight: bold; margin-bottom: 5px;"><i class="fa-solid fa-file-pdf"></i> Select Local PDF File</p>
+      <input type="file" id="studyFileElement" accept="application/pdf" style="margin: 0; padding: 5px;">
     </div>
 
     <select id="studyFolderSelect">
-      <option value="">Select Study Folder</option>
+      <option value="">Select Target Folder</option>
     </select>
-    <button onclick="uploadMaterial('study')">Upload Material to Study</button>
+    <button onclick="uploadMaterialWithFile('study')">Upload & Save to Study</button>
   </div>
 
   <div class="card">
-    <h3>Study Folders & PDFs (All Controlled)</h3>
+    <h3>Study Folders & PDF Files</h3>
     <h4 style="color:#555; margin:10px 0 5px 0; font-size:14px;">Folders:</h4>
     <div id="studyFoldersList"></div>
 
-    <h4 style="color:#555; margin:15px 0 5px 0; font-size:14px;">Uploaded PDFs:</h4>
+    <h4 style="color:#555; margin:15px 0 5px 0; font-size:14px;">Uploaded PDF Files:</h4>
     <div id="studyFilesList"></div>
   </div>
 </div>
@@ -392,13 +401,12 @@ display: block;
   <div class="sub-header">
     <button class="back-btn" onclick="switchPage('mainDashboardPage')"><i class="fa-solid fa-arrow-left"></i></button>
     <div>
-      <h2>User Complaints & Feedbacks</h2>
-      <p>Click Checkmark icon to Resolve</p>
+      <h2>User Complaints & Reply Box</h2>
+      <p>Manage Feedback & Reply to Users</p>
     </div>
   </div>
 
-  <div id="complaintsListContainer">
-  </div>
+  <div id="complaintsListContainer"></div>
 </div>
 
 
@@ -422,25 +430,24 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Supabase Init Client Configuration
+// Supabase Connection Client
 const supabaseUrl = "https://vjoxfbywzbygbyldwbhw.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqb3hmYnl3emJ5Z2J5bGR3Ymh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg3OTMwNzUsImV4cCI6MjAzNDM2OTA3NX0.4X8M_p_GBl-p_7l79kXb6f_N7G39mK7w7V5a72z8E7Y"; 
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 const ADMIN_EMAIL = "bantidoda345@gmail.com"; 
 
-// पेज स्विचिंग फंक्शन विंडो स्कोप में डालना
 window.switchPage = function(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(pageId).classList.add('active');
 }
 
-// सुरक्षा पिन सत्यापन जांच
+// PIN Security Verification
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
   } else if (user.email !== ADMIN_EMAIL) {
-    alert("Warning: आप एडमिन नहीं हैं!");
+    alert("Warning: आप एडimin नहीं हैं!");
     window.location.href = "home.html";
   } else {
     try {
@@ -464,17 +471,13 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// लाइव डेटा सिंक और रेंडरिंग (Supabase Implementation)
+// Live Sync Engine (Supabase Tables)
 async function startLiveSync() {
-  // 1. यूजर्स काउंट सिंक (Supabase 'users' table)
   const syncUsers = async () => {
     const { count, error } = await supabase.from('users').select('*', { count: 'exact', head: true });
-    if (!error && count !== null) {
-      document.getElementById("totalUsersCount").innerText = count;
-    }
+    if (!error && count !== null) document.getElementById("totalUsersCount").innerText = count;
   };
 
-  // 2. शिकायतें लोड करना (Supabase 'complaints' table)
   const syncComplaints = async () => {
     const { data, error } = await supabase.from('complaints').select('*').order('created_at', { ascending: false });
     if (!error && data) {
@@ -483,7 +486,7 @@ async function startLiveSync() {
       container.innerHTML = "";
 
       if(data.length === 0) {
-        container.innerHTML = "<div class='card' style='text-align:center; color:#666;'>कोई शिकायत नहीं है! सब बढ़िया है।</div>";
+        container.innerHTML = "<div class='card' style='text-align:center; color:#666;'>कोई शिकायत नहीं है!</div>";
         return;
       }
 
@@ -493,16 +496,20 @@ async function startLiveSync() {
         box.innerHTML = `
           <div class="complaint-header">
             <span><i class="fa-solid fa-circle-user"></i> ${item.userEmail || "Anonymous"}</span>
-            <i class="fa-solid fa-circle-check" style="color:green; font-size:18px; cursor:pointer;" onclick="deleteItem('complaints', '${item.id}')" title="Resolve"></i>
+            <i class="fa-solid fa-rectangle-xmark" style="color:#d32f2f; font-size:20px; cursor:pointer;" onclick="deleteItem('complaints', '${item.id}')" title="Close Complaint"></i>
           </div>
-          <div class="complaint-text"><b>Complaint:</b> ${item.text || item.message || "No message content"}</div>
+          <div class="complaint-text"><b>Complaint:</b> ${item.text || item.message || "No content"}</div>
+          ${item.reply ? `<div class="reply-section"><b>Admin Reply:</b> ${item.reply}</div>` : ''}
+          <div style="margin-top:10px; display:flex; gap:5px;">
+            <input type="text" id="reply_input_${item.id}" placeholder="Type reply message..." style="margin:0; padding:8px;">
+            <button style="width:auto; padding:8px 15px;" onclick="sendComplaintReply('${item.id}')">Reply</button>
+          </div>
         `;
         container.appendChild(box);
       });
     }
   };
 
-  // 3. फोल्डर्स लोड करना (Supabase 'folders' table)
   const syncFolders = async () => {
     const { data, error } = await supabase.from('folders').select('*').order('name', { ascending: true });
     if (!error && data) {
@@ -511,8 +518,8 @@ async function startLiveSync() {
       const notesFolderList = document.getElementById("notesFoldersList");
       const studyFolderList = document.getElementById("studyFoldersList");
 
-      notesSelect.innerHTML = '<option value="">Select Notes Folder</option>';
-      studySelect.innerHTML = '<option value="">Select Study Folder</option>';
+      notesSelect.innerHTML = '<option value="">Select Target Folder</option>';
+      studySelect.innerHTML = '<option value="">Select Target Folder</option>';
       notesFolderList.innerHTML = '';
       studyFolderList.innerHTML = '';
 
@@ -533,11 +540,9 @@ async function startLiveSync() {
     }
   };
 
-  // 4. मैटेरियल्स/पीडीएफ लोड करना (Supabase 'materials' table)
   const syncMaterials = async () => {
-    const { data, error } = await supabase.from('materials').select('*');
+    const { data, error } = await supabase.from('materials').select('*').order('created_at', { ascending: false });
     if (!error && data) {
-      document.getElementById("totalNotesCount").innerText = data.length;
       const notesFilesList = document.getElementById("notesFilesList");
       const studyFilesList = document.getElementById("studyFilesList");
 
@@ -564,113 +569,98 @@ async function startLiveSync() {
     }
   };
 
-  // Initial Sync Invocation
-  syncUsers();
-  syncComplaints();
-  syncFolders();
-  syncMaterials();
+  // Initial loads
+  syncUsers(); syncComplaints(); syncFolders(); syncMaterials();
 
-  // Realtime Subscriptions fallback listener loop interval
+  // Loop Refresh Engine
   setInterval(() => {
-    syncUsers();
-    syncComplaints();
-    syncFolders();
-    syncMaterials();
+    syncUsers(); syncComplaints(); syncFolders(); syncMaterials();
   }, 4000);
 }
 
-// नया फोल्डर बनाने का ग्लोबल फंक्शन (Supabase Insert)
+// नया फोल्डर बनाना
 window.createNewFolder = async function(type) {
   const inputId = type === 'notes' ? 'notesFolderName' : 'studyFolderName';
   const folderName = document.getElementById(inputId).value.trim();
-
   if(!folderName) return alert("फ़ोल्डर का नाम खाली नहीं छोड़ सकते!");
 
   try {
-    const { error } = await supabase.from('folders').insert([
-      { name: folderName, type: type }
-    ]);
-    
+    const { error } = await supabase.from('folders').insert([{ name: folderName, type: type }]);
     if(error) throw error;
-    
-    alert("नया फ़ोल्डर बन गया!");
+    alert("नया फ़oल्डर सफलतापूर्वक बन गया!");
     document.getElementById(inputId).value = "";
-  } catch (err) {
-    alert("एरर: " + err.message);
-  }
+  } catch (err) { alert("एरर: " + err.message); }
 }
 
-// मटेरियल/पीडीएफ अपलोड करने का ग्लोबल फंक्शन (Supabase Insert)
-window.uploadMaterial = async function(targetType) {
+// डायरेक्ट फाइल अपलोडर (Storage Bucket + DB insertion)
+window.uploadMaterialWithFile = async function(targetType) {
   const titleId = targetType === 'notes' ? 'notesMaterialTitle' : 'studyMaterialTitle';
-  const urlId = targetType === 'notes' ? 'notesMaterialUrl' : 'studyMaterialUrl';
+  const fileElementId = targetType === 'notes' ? 'notesFileElement' : 'studyFileElement';
   const selectId = targetType === 'notes' ? 'notesFolderSelect' : 'studyFolderSelect';
 
   const title = document.getElementById(titleId).value.trim();
-  const url = document.getElementById(urlId).value.trim();
-  const selectedFolder = document.getElementById(selectId).value;
+  const folder = document.getElementById(selectId).value;
+  const fileFile = document.getElementById(fileElementId).files[0];
 
-  if(!title || !url || !selectedFolder) {
-    return alert("कृपया टाइटल, यूआरएल और फ़ोल्डर तीनों भरें!");
+  if(!title || !folder || !fileFile) {
+    return alert("कृपया टाइटल सेट करें, फ़ाइल चुनें और फ़ोल्डर सिलेक्ट करें!");
   }
 
   try {
-    const { error } = await supabase.from('materials').insert([
-      { title: title, url: url, folder: selectedFolder, target: targetType }
+    // 1. Direct Upload file to Supabase Storage Bucket ('pdf_materials')
+    const fileExt = fileFile.name.split('.').pop();
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `${targetType}/${fileName}`;
+
+    alert("फ़ाइल डेटाबेस में अपलोड हो रही है, कृपया थोड़ा इंतजार करें...");
+
+    const { data: storageData, error: storageError } = await supabase.storage
+      .from('pdf_materials')
+      .upload(filePath, fileFile);
+
+    if (storageError) throw storageError;
+
+    // Get public URL link
+    const { data: urlData } = supabase.storage.from('pdf_materials').getPublicUrl(filePath);
+    const publicUrl = urlData.publicUrl;
+
+    // 2. Save complete object details into 'materials' table
+    const { error: dbError } = await supabase.from('materials').insert([
+      { title: title, url: publicUrl, folder: folder, target: targetType }
     ]);
 
-    if(error) throw error;
+    if(dbError) throw dbError;
 
-    alert("मटेरियल सफलतापूर्वक लाइव कर दिया गया!");
-
-    // फ़ील्ड्स को रीसेट करना
+    alert("मटेरियल PDF सफलतापूर्वक लाइव कर दी गई!");
     document.getElementById(titleId).value = "";
-    document.getElementById(urlId).value = "";
+    document.getElementById(fileElementId).value = "";
     document.getElementById(selectId).value = "";
   } catch (err) {
-    alert("अपलोड फेल: " + err.message);
+    alert("अपलोड फेल हुआ: " + err.message);
   }
 }
 
-// 1-1 डिलीट करने का यूनिवर्सल फंक्शन (Supabase Delete)
+// कंप्लेंट का रिप्लाई सबमिट करना
+window.sendComplaintReply = async function(id) {
+  const replyText = document.getElementById(`reply_input_${id}`).value.trim();
+  if(!replyText) return alert("रिप्लाई मैसेज खाली नहीं हो सकता!");
+
+  try {
+    const { error } = await supabase.from('complaints').update({ reply: replyText }).eq('id', id);
+    if(error) throw error;
+    alert("रिप्लाई सफलतापूर्वक भेज दिया गया!");
+  } catch (err) { alert("एरर: " + err.message); }
+}
+
+// यूनिवर्सल 1-1 डिलीट इंजन
 window.deleteItem = async function(tableName, id) {
-  const msg = tableName === 'complaints' ? 'क्या यह शिकायत हल हो चुकी है?' : 'क्या आप इसे हमेशा के लिए डिलीट करना चाहते हैं?';
+  const msg = tableName === 'complaints' ? 'क्या आप इस शिकायत को क्लोज/डिलीट करना चाहते हैं?' : 'क्या आप इसे हमेशा के लिए डिलीट करना चाहते हैं?';
   if(confirm(msg)) {
     try {
       const { error } = await supabase.from(tableName).delete().eq('id', id);
       if(error) throw error;
       alert("सफलतापूर्वक हटा दिया गया!");
-    } catch (err) {
-      alert("हटाने में दिक्कत आई: " + err.message);
-    }
-  }
-}
-
-// फ्री इमेजबॉक्स एपीआई लिंक जनरेटर लॉजिक
-window.uploadToImgbb = async function(inputElement, targetInputId) {
-  const file = inputElement.files[0];
-  if (!file) return;
-
-  document.getElementById(targetInputId).value = "Generating Link, please wait...";
-  const formData = new FormData();
-  formData.append("image", file);
-
-  try {
-    const res = await fetch("https://api.imgbb.com/1/upload?key=67f1b7bebf4fa2514e2c94314fc37775", {
-      method: "POST",
-      body: formData
-    });
-    const json = await res.json();
-    if(json.success) {
-      document.getElementById(targetInputId).value = json.data.url;
-      alert("लिंक तैयार है!");
-    } else {
-      alert("लिंक नहीं बन पाया, कृपया डायरेक्ट लिंक पेस्ट करें।");
-      document.getElementById(targetInputId).value = "";
-    }
-  } catch (err) {
-    document.getElementById(targetInputId).value = "";
-    alert("सर्वर एरर, लिंक जनरेशन FAIL।");
+    } catch (err) { alert("हटाने में दिक्कत आई: " + err.message); }
   }
 }
 </script>
